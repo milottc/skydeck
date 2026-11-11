@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon Flight 737 - Detailed Ad Banner</title>
+    <style>
+        body {
+            background-color: #02050a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Main Ad Banner Container */
+        .ad-banner {
+            width: 100%;
+            max-width: 1100px;
+            background: linear-gradient(135deg, #0a1225 0%, #0d1e3a 100%);
+            border: 1px solid #1b3a6b;
+            border-radius: 12px;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1), inset 0 0 20px rgba(0, 210, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Decorative background glow */
+        .ad-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Left Side: Copy & Features */
+        .ad-content {
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .ad-tag {
+            color: #00d2ff;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ad-tag::before {
+            content: '●';
+            color: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        .ad-headline {
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .ad-headline span {
+            color: #00d2ff;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+        }
+
+        .ad-subhead {
+            color: #8892b0;
+            font-size: 15px;
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+        }
+
+        /* Info Grid (The "More Info" part) */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-icon {
+            font-size: 16px;
+            background: rgba(0, 210, 255, 0.1);
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+        }
+
+        .info-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-title {
+            color: #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .info-desc {
+            color: #718096;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        /* Right Side: HUD / Flight Card */
+        .hud-card {
+            background: #060c17;
+            border: 1px solid #1b2a4a;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1;
+        }
+
+        .hud-header {
+            border-bottom: 1px solid #1b2a4a;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hud-title {
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .hud-status {
+            font-size: 10px;
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .hud-data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+        }
+
+        .hud-label {
+            color: #4a5568;
+        }
+
+        .hud-value {
+            color: #00d2ff;
+            font-weight: bold;
+        }
+
+        .hud-value.alert {
+            color: #ff4d4d;
+        }
+
+        .hud-value.green {
+            color: #00ff88;
+        }
+
+        /* CTA Section */
+        .cta-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-button {
+            width: 100%;
+            text-align: center;
+            background: linear-gradient(90deg, #00d2ff 0%, #0088ff 100%);
+            color: #02050a;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.6);
+            background: linear-gradient(90deg, #33e0ff 0%, #00a2ff 100%);
+        }
+
+        .cta-subtext {
+            color: #718096;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .ad-banner {
+                grid-template-columns: 1fr;
+                padding: 25px;
+            }
+            .hud-card {
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .ad-headline {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ad-banner">
+        <!-- Left Side: Details -->
+        <div class="ad-content">
+            <div class="ad-tag">Flight Deck · Game Mode</div>
+            <h1 class="ad-headline">BABYLON FLIGHT <span>737</span></h1>
+            <p class="ad-subhead">
+                Experience the most detailed browser-based flight simulator. Fully interactive cockpits, real-time weather, and system failures. From Cessna trainers to the supersonic Concorde.
+            </p>
+
+            <!-- Detailed Information Grid -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">✈️</div>
+                    <div class="info-text">
+                        <div class="info-title">55+ Aircraft Fleet</div>
+                        <div class="info-desc">Fly classic trijets, modern widebodies, and fighter jets.</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">⚠️</div>
+                    <div class="info-text">
+                        <div class="info-title">Fault Injection</div>
+                        <div class="info-desc">Trigger sensor failures, engine fires, and stall warnings.</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🌩️</div>
+                    <div class="info-text">
+                        <div class="info-title">Dynamic Weather</div>
+                        <div class="info-desc">Face 28-kt crosswinds, turbulence, and wind shear.</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">📋</div>
+                    <div class="info-text">
+                        <div class="info-title">Career & Missions</div>
+                        <div class="info-desc">Earn XP, carry passengers, and unlock the Hangar.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: HUD Simulation & CTA -->
+        <div class="hud-card">
+            <div>
+                <div class="hud-header">
+                    <span class="hud-title">FLIGHT SETUP</span>
+                    <span class="hud-status">READY</span>
+                </div>
+                
+                <!-- Mini HUD Data -->
+                <div class="hud-data-row">
+                    <span class="hud-label">AIRCRAFT</span>
+                    <span class="hud-value">BOEING 737-800</span>
+                </div>
+                <div class="hud-data-row">
+                    <span class="hud-label">DEPARTURE</span>
+                    <span class="hud-value">Zurich (LSZH)</span>
+                </div>
+                <div class="hud-data-row">
+                    <span class="hud-label">ALTITUDE</span>
+                    <span class="hud-value green">6,506 FT</span>
+                </div>
+                <div class="hud-data-row">
+                    <span class="hud-label">AIRSPEED</span>
+                    <span class="hud-value">236 KIAS</span>
+                </div>
+                <div class="hud-data-row">
+                    <span class="hud-label">VERT SPEED</span>
+                    <span class="hud-value alert">-900 FPM</span>
+                </div>
+                <div class="hud-data-row">
+                    <span class="hud-label">WIND</span>
+                    <span class="hud-value">5 kt</span>
+                </div>
+                <div class="hud-data-row">
+                    <span class="hud-label">FLIGHT STATE</span>
+                    <span class="hud-value">CRUISE</span>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-container">
+                <a href="#" class="cta-button">START FLIGHT</a>
+                <div class="cta-subtext">Free to Play · No Download</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
