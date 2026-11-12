@@ -155,7 +155,7 @@ body.cockpit #camBadge{opacity:0}
 
 body.cockpit #attitude,body.cockpit #compass,body.cockpit #configPanel,body.cockpit #stallWarn,body.cockpit #windWarn,body.cockpit #airspeed,body.cockpit #altitude,body.cockpit #vsi{opacity:0;transition:opacity .4s}
 body.cockpit #msgBox{top:auto;bottom:84px}
-body.cockpit #infoBox{opacity:.75}
+body.cockpit #flightSidebar{opacity:.82}
 
 /* ============ START OVERLAY ============ */
 #overlay{
@@ -533,18 +533,70 @@ body.mobile #atcBtn{top:auto;bottom:238px;left:135px}
 body.mobile #atc{top:8px;left:2vw}
 
 /* ============ CAREER / TYCOON LAYER ============ */
-#careerHud{
-  position:fixed;top:52px;left:50%;transform:translateX(-50%);
-  z-index:9998;display:flex;gap:6px;align-items:center;
-  padding:8px 10px;border-radius:12px;
-  background:#111a2e;
-  border:2px solid #263652;
-  box-shadow:0 3px 0 #000,0 10px 30px rgba(0,0,0,.5);
-  font-size:12px;font-weight:700;font-family:inherit;
-  color:#e6edf6;letter-spacing:.3px;
-  transition:opacity .3s;
+#flightSidebar{
+  position:fixed;top:12px;bottom:12px;left:12px;z-index:40;
+  width:48px;display:flex;flex-direction:column;align-items:stretch;gap:10px;
+  padding:8px;border:1px solid rgba(126,157,196,.24);border-radius:16px;
+  background:rgba(9,16,29,.76);backdrop-filter:blur(16px) saturate(1.25);
+  -webkit-backdrop-filter:blur(16px) saturate(1.25);
+  box-shadow:0 12px 36px rgba(0,0,0,.32);
+  transition:width .2s ease,padding .2s ease;
+  pointer-events:auto;overflow:hidden;
 }
-body.cockpit #careerHud{opacity:.8}
+body{--sidebar-width:260px}
+body.sidebar-open #flightSidebar{width:var(--sidebar-width);padding:10px}
+#sidebarToggle{
+  flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center;
+  border:1px solid rgba(100,130,170,.28);border-radius:10px;
+  background:rgba(20,31,50,.92);color:#c8d7e8;
+  font-family:inherit;font-size:16px;font-weight:700;line-height:1;cursor:pointer;
+  transition:background .15s,color .15s;
+}
+#sidebarToggle:hover,#sidebarToggle:focus-visible{background:#12304a;color:#67e8f9;outline:none}
+body.sidebar-open #sidebarToggle{width:100%;display:flex;justify-content:flex-start;gap:11px;padding:0 10px}
+#sidebarToggle .menuLabel{display:none;font-size:11px;letter-spacing:1.5px}
+body.sidebar-open #sidebarToggle .menuLabel{display:inline}
+#sidebarContent{display:none;min-width:0;flex:1;overflow:auto;scrollbar-width:thin}
+body.sidebar-open #sidebarContent{display:flex;flex-direction:column;gap:12px}
+.sidebarTitle{
+  padding:2px 3px 8px;border-bottom:1px solid rgba(126,157,196,.2);
+  color:#a5f3fc;font-size:10px;font-weight:800;letter-spacing:2px;
+}
+#flightSidebar #careerHud{
+  position:static;display:flex;flex-direction:column;align-items:stretch;gap:7px;
+  width:auto;padding:0;border:0;border-radius:0;background:none;box-shadow:none;
+  color:#e6edf6;font-size:12px;letter-spacing:.2px;
+}
+#flightSidebar .chStat{
+  min-height:40px;padding:8px 10px;border:1px solid rgba(100,130,170,.2);
+  border-radius:10px;background:rgba(18,29,47,.76);
+}
+#flightSidebar .chBtn{
+  width:100%;min-height:38px;padding:9px 10px;text-align:left;
+  border:1px solid rgba(34,211,238,.32);border-radius:10px;
+  background:rgba(14,116,144,.18);color:#b9f5fc;
+  box-shadow:none;font-size:11px;letter-spacing:.7px;
+}
+#flightSidebar .chBtn:hover{background:rgba(14,116,144,.36);box-shadow:none;transform:none}
+#flightSidebar #infoBox{
+  position:static;width:auto;padding:10px 11px;border-color:rgba(100,130,170,.2);
+  border-radius:11px;background:rgba(18,29,47,.64);box-shadow:none;
+  font-size:11px;line-height:1.6;
+}
+#flightSidebar #infoBox .lbl{font-size:10px;letter-spacing:1px}
+#flightSidebar #infoBox .sub{font-size:10px}
+#flightSidebar #infoBox #senTxt:empty{display:none}
+body.sidebar-open #objHud{left:calc(var(--sidebar-width) + 22px)}
+body.sidebar-open #fms{left:calc(var(--sidebar-width) + 22px)}
+body.sidebar-open #atc{left:calc(var(--sidebar-width) + 22px)}
+body.sidebar-open #fmsBtn{left:calc(var(--sidebar-width) + 22px)}
+body.sidebar-open #atcBtn{left:calc(var(--sidebar-width) + 163px)}
+#objHud{left:72px}
+#fmsBtn{left:72px}
+#atcBtn{left:213px}
+#cloudBtn{left:72px!important}
+body.sidebar-open #cloudBtn{left:calc(var(--sidebar-width) + 22px)!important}
+body.cockpit #flightSidebar{opacity:.86}
 .chStat{
   display:flex;gap:6px;align-items:center;
   padding:5px 12px;
@@ -897,12 +949,35 @@ body:not(.mobile) #homeStars{display:none!important}
   min-height: 0;
   overflow: auto;
   display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  grid-template-columns: 164px minmax(0,1.35fr) minmax(0,1fr);
   align-content: start;
 }
+#homeMenu{
+  position:sticky;top:0;grid-column:1;grid-row:1 / span 2;align-self:start;
+  display:flex;flex-direction:column;gap:6px;min-height:100%;
+  padding:16px 10px;background:#070d1a;border-right:1px solid #1a2540;
+}
+.homeMenuLabel{
+  margin:0 6px 6px;color:#526b86;font-size:8px;font-weight:800;
+  letter-spacing:2px;text-transform:uppercase;
+}
+.homeNavItem{
+  display:flex;align-items:center;gap:10px;width:100%;padding:10px 11px;
+  border:1px solid transparent;border-radius:7px;background:transparent;
+  color:#8297b0;font-family:inherit;font-size:10px;font-weight:700;line-height:1.2;
+  letter-spacing:.7px;text-align:left;
+  text-transform:uppercase;cursor:pointer;transition:background .15s,color .15s,border-color .15s;
+}
+.homeNavItem .navIcon{width:16px;color:#56718c;font-size:13px;text-align:center}
+.homeNavItem:hover{color:#dbeafe;background:#101b2d}
+.homeNavItem[aria-current="page"]{
+  color:#a5f3fc;background:rgba(8,145,178,.14);border-color:rgba(34,211,238,.2);
+}
+.homeNavItem[aria-current="page"] .navIcon{color:#22d3ee}
 .homeCol { padding: 14px 20px 16px; }
-.homeMain { border-right: 1px solid #1a2540; }
+.homeMain { grid-column:2; border-right: 1px solid #1a2540; }
 .homeSide { background: #070d1a; }
+.homeControlsFull{grid-column:2 / span 2}
 
 .homeColHead {
   font-size: 9px;
@@ -1015,7 +1090,7 @@ body:not(.mobile) #homeStars{display:none!important}
 
 /* ---------- CONTROLS (full-width collapsible) ---------- */
 .homeControlsFull {
-  grid-column: span 2;
+  grid-column: 2 / span 2;
   border-top: 1px solid #1a2540;
   padding: 0 20px;
 }
@@ -1121,13 +1196,22 @@ body:not(.mobile) #homeStars{display:none!important}
   cursor: wait;
 }
 
-/* ---------- CAREER HUD: reposition as account chip during home screen ---------- */
-#overlay:not(.hidden) ~ #careerHud {
-  z-index: 10000;
-  top: 10px;
-  left: 10px;
-  transform: none;
+/* Keep account progress visible over the home screen without showing flight controls. */
+body:has(#overlay:not(.hidden)) #flightSidebar{
+  top:10px;right:auto;bottom:auto;left:10px;z-index:10000;width:auto;height:auto;
+  padding:0;border:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:none;overflow:visible;pointer-events:none;
 }
+body:has(#overlay:not(.hidden)) #sidebarToggle,
+body:has(#overlay:not(.hidden)) .sidebarTitle,
+body:has(#overlay:not(.hidden)) #sidebarInfo{display:none}
+body:has(#overlay:not(.hidden)) #sidebarContent{display:flex;flex:none;overflow:visible}
+body:has(#overlay:not(.hidden)) #flightSidebar #careerHud{
+  flex-direction:row;align-items:center;gap:6px;padding:7px 9px;border:1px solid #263652;
+  border-radius:12px;background:#111a2e;box-shadow:0 3px 0 #000,0 10px 30px rgba(0,0,0,.5);
+}
+body:has(#overlay:not(.hidden)) #flightSidebar .chBtn{display:none}
+body:has(#overlay:not(.hidden)) #flightSidebar .chStat{min-height:0;padding:5px 9px}
 /* Push overlay content below the career HUD */
 #overlay {
   padding-top: 60px;
@@ -1150,8 +1234,11 @@ body:has(#overlay:not(.hidden)) #atcBtn {
   .homeHero h1 { font-size: 20px; letter-spacing: 4px; }
   .homeHero h2 { font-size: 9.5px; letter-spacing: 1.5px; }
   .homeEye { font-size: 9px; letter-spacing: 3px; }
-  .homeBody { grid-template-columns: 1fr; }
+  .homeBody { grid-template-columns: 118px minmax(0,1fr); }
+  #homeMenu{grid-column:1;grid-row:1 / span 3;padding:14px 7px}
+  .homeMain,.homeSide,.homeControlsFull{grid-column:2}
   .homeMain { border-right: none; border-bottom: 2px solid #263652; }
+  .homeControlsFull{grid-column:2}
   .homeCol { padding: 18px 18px 20px; }
   .homeControlsFull { padding: 0 18px; }
   .controlsDetails .keys { grid-template-columns: auto 1fr; }
@@ -1165,21 +1252,19 @@ body:has(#overlay:not(.hidden)) #atcBtn {
   }
   #startBtn { width: 100%; min-width: 0; }
   #loadStatus { text-align: center; }
-  #overlay:not(.hidden) ~ #careerHud {
-    top: auto;
-    bottom: 8px;
-    left: 8px;
-    transform: none;
-    font-size: 10px;
-  }
 }
 
-body.mobile #careerHud{top:auto;bottom:210px;left:8px;transform:none;flex-wrap:wrap;max-width:calc(100vw - 16px);font-size:11px;padding:5px 8px}
-body.mobile .chStat{padding:3px 8px}
-body.mobile .chBtn{padding:5px 9px;font-size:10px}
+@media (max-width: 700px){
+  #flightSidebar{top:calc(env(safe-area-inset-top,0px) + 8px);bottom:auto;left:8px}
+  body.sidebar-open #flightSidebar{width:min(260px,calc(100vw - 20px));max-height:calc(100dvh - 16px)}
+  body.sidebar-open #objHud{left:8px;top:auto;bottom:270px}
+  body.sidebar-open #fms,body.sidebar-open #atc{left:8px;top:52px}
+  body.sidebar-open #fmsBtn{left:8px}
+  body.sidebar-open #atcBtn{left:135px}
+}
   /* ============ MISSION OBJECTIVES HUD ============ */
 #objHud{
-  position:fixed;left:20px;top:250px;z-index:15;
+  position:fixed;left:72px;top:250px;z-index:15;
   width:250px;padding:10px 14px;
   background:#111a2e;
   border:2px solid #263652;
@@ -1342,6 +1427,11 @@ body.pfd-hidden #compass {
     .homeCard{width:100%;border-radius:10px}
     .homeHero{padding:16px 14px 12px}
     .homeHero h1{font-size:18px;letter-spacing:3px}
+    .homeBody{grid-template-columns:58px minmax(0,1fr)}
+    #homeMenu{padding:12px 4px;gap:5px}
+    .homeMenuLabel,#homeMenu .homeNavItem>span:not(.navIcon){display:none}
+    .homeNavItem{justify-content:center;padding:10px 4px}
+    .homeNavItem .navIcon{width:auto;font-size:15px}
     .homeCol{padding:14px 14px 16px}
     .homeControlsFull{padding:0 14px}
     .heroPills{gap:6px}
@@ -1355,6 +1445,7 @@ body.pfd-hidden #compass {
   }
 
   /* ===== SIMPLE MOBILE VIEW: only flight-critical instruments and controls in mobile mode ===== */
+  body.mobile #flightSidebar{display:none!important}
   body.mobile #careerHud,body.mobile #objHud,body.mobile #fmsBtn,body.mobile #atcBtn,body.mobile #fms,body.mobile #atc,
   body.mobile #cloudBtn,body.mobile #cloudPanel,body.mobile #offlineMapsBtn,body.mobile #keyHelpBtn,body.mobile #keyHelpPanel,
   body.mobile #faultTriggers,body.mobile #faultPanel,body.mobile #camBadge,body.mobile #infoBox,body.mobile #vsi,body.mobile #compass,
@@ -1370,20 +1461,18 @@ body.pfd-hidden #compass {
 <div id="camBadge">CAM · CHASE</div>
 <div id="wxFlash"></div><div id="smokeHaze"></div>
 
-<div id="hud">
-  <div class="panelBox" id="infoBox">
-    <div class="lbl">BOEING 737-800</div>
-    <div class="sub" id="hdgTxt">HDG 000°</div>
-    <div class="sub" id="posTxt">--</div>
-    <div class="sub" id="fpsTxt">-- FPS</div>
-    <div class="sub" id="srcTxt">ESRI</div>
-    <div class="sub" id="apTxt">AP OFF</div>
-    <div class="sub" id="engTxt">ENG OFF</div>
-    <div class="sub" id="aoaTxt">AOA 0.0°</div>
-    <div class="sub" id="wxTxt">WX CLEAR</div>
-    <div class="sub" id="senTxt" style="color:#ff8060"></div>
+<aside id="flightSidebar" aria-label="Flight sidebar">
+  <button id="sidebarToggle" type="button" aria-label="Open flight sidebar" aria-expanded="false" aria-controls="sidebarContent" title="Open flight sidebar">
+    <span aria-hidden="true">☰</span><span class="menuLabel">FLIGHT MENU</span>
+  </button>
+  <div id="sidebarContent">
+    <div class="sidebarTitle">FLIGHT DESK</div>
+    <div id="sidebarStats"></div>
+    <div id="sidebarInfo"></div>
   </div>
+</aside>
 
+<div id="hud">
   <div class="panelBox" id="airspeed">
     <div class="lbl">AIRSPEED · KIAS</div>
     <div class="val"><span id="spdVal">0</span></div>
@@ -1501,7 +1590,22 @@ body.pfd-hidden #compass {
     </div>
 
     <div class="homeBody">
-      <section class="homeCol homeMain">
+        <nav id="homeMenu" aria-label="Home menu">
+          <div class="homeMenuLabel">Navigation</div>
+          <button class="homeNavItem" type="button" data-home-jump="homeSetup" aria-current="page" aria-label="Flight setup">
+            <span class="navIcon" aria-hidden="true">✈</span><span>Flight setup</span>
+          </button>
+          <button class="homeNavItem" type="button" data-home-jump="homeGraphics" aria-label="Graphics and environment">
+            <span class="navIcon" aria-hidden="true">◈</span><span>Visuals</span>
+          </button>
+          <button class="homeNavItem" type="button" data-home-jump="homeOptions" aria-label="Options and challenges">
+            <span class="navIcon" aria-hidden="true">⚙</span><span>Options</span>
+          </button>
+          <button class="homeNavItem" type="button" data-home-jump="homeControls" aria-label="Controls and key bindings">
+            <span class="navIcon" aria-hidden="true">⌨</span><span>Controls</span>
+          </button>
+        </nav>
+        <section class="homeCol homeMain" id="homeSetup">
         <div class="homeColHead">Flight Setup</div>
 
         <div class="field">
@@ -1848,7 +1952,7 @@ body.pfd-hidden #compass {
         </div>
 
 
-                <div class="homeColHead">Graphics Quality</div>
+                <div class="homeColHead" id="homeGraphics">Graphics Quality</div>
         <div class="field" style="margin-bottom:20px;">
           <label>Imagery Resolution</label>
           <select id="resSelect">
@@ -1905,7 +2009,7 @@ body.pfd-hidden #compass {
         </div>
       </section>
 
-      <aside class="homeCol homeSide">
+      <aside class="homeCol homeSide" id="homeOptions">
         <div class="homeColHead">Options</div>
 
         <label class="checkRow">
@@ -1947,7 +2051,7 @@ body.pfd-hidden #compass {
         </div>
       </aside>
 
-      <div class="homeControlsFull">
+      <div class="homeControlsFull" id="homeControls">
         <details class="controlsDetails">
           <summary>Controls &amp; Key Bindings</summary>
           <div class="keys">
@@ -1974,6 +2078,19 @@ body.pfd-hidden #compass {
     </div>
   </div>
 </div>
+<script>
+  document.querySelectorAll('[data-home-jump]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      const scroller=document.querySelector('.homeBody');
+      const target=document.getElementById(button.dataset.homeJump);
+      if(!scroller||!target)return;
+      const top=target.getBoundingClientRect().top-scroller.getBoundingClientRect().top+scroller.scrollTop-10;
+      scroller.scrollTo({top,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      document.querySelectorAll('.homeNavItem').forEach(item=>item.removeAttribute('aria-current'));
+      button.setAttribute('aria-current','page');
+    });
+  });
+</script>
 
 <div id="crashOverlay">
   <div class="card" style="max-width:400px;text-align:center">
