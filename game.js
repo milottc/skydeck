@@ -1322,8 +1322,8 @@ glassPane('gl2',.54,.82,-.20,.56,15.70,-.15,0);
 glassPane('gl3',.54,.82,.20,.56,15.70,-.15,0);
 glassPane('gl4',.54,.82,.75,.56,15.70,-.15,0);
 /* Side quarter-windows */
-glassPane('gsl',.38,.58,-1.52,.52,15.18,-.10,-Math.PI/2.2,M.sideGlass);
-glassPane('gsr',.38,.58,1.52,.52,15.18,-.10,Math.PI/2.2,M.sideGlass);
+glassPane('gsl',.38,.46,-1.52,.58,15.18,-.10,-Math.PI/2.2,M.sideGlass);
+glassPane('gsr',.38,.46,1.52,.58,15.18,-.10,Math.PI/2.2,M.sideGlass);
 /* Window frame depth strips – give the windshield frames visible thickness */
 (function(){
   const fm=M.bezel;
@@ -1384,11 +1384,11 @@ panelMesh.material.metallic=.4;panelMesh.material.roughness=.55;panelMesh.isPick
 
 const displays={};
 function makeDisplayTex(name,w,h){return new BABYLON.DynamicTexture(name,{width:w,height:h},scene,true);}
-displays.pfdL=makeDisplayTex('pfdL',640,640);
-displays.ndL=makeDisplayTex('ndL',640,640);
-displays.eicas=makeDisplayTex('eicas',840,640);
-displays.ndR=makeDisplayTex('ndR',640,640);
-displays.pfdR=makeDisplayTex('pfdR',640,640);
+displays.pfdL=makeDisplayTex('pfdL',1024,1024);
+displays.ndL=makeDisplayTex('ndL',1024,1024);
+displays.eicas=makeDisplayTex('eicas',1344,1024);
+displays.ndR=makeDisplayTex('ndR',1024,1024);
+displays.pfdR=makeDisplayTex('pfdR',1024,1024);
 Object.values(displays).forEach(t=>{try{t.anisotropicFilteringLevel=16;t.updateSamplingMode(BABYLON.Texture.TRILINEAR_SAMPLINGMODE);}catch(e){}});
 function placeDisplay(name,tex,panelX,panelY,w,h){
   const localX=panelX*panelW,localY=panelY*panelH;
@@ -6907,11 +6907,11 @@ startBtn.addEventListener('click',async()=>{
 
   // --- RESOLUTION SETTINGS ---
   const RES_SETTINGS = {
-    low:   { tex: 1024, tiles: 48,  zoom: 16 },
-    med:   { tex: 2048, tiles: 96,  zoom: 17 },
-    high:  { tex: 4096, tiles: 144, zoom: 18 },
-    ultra: { tex: 4096, tiles: 288, zoom: 19 }
-  };
+    low:   { tex: 1024, tiles: 48,   zoom: 16 },
+    med:   { tex: 2048, tiles: 96,   zoom: 17 },
+    high:  { tex: 4096, tiles: 600,  zoom: 18 },  // was 144
+    ultra: { tex: 4096, tiles: 1000, zoom: 19 }   // was 288
+};
   const resSelect = document.getElementById('resSelect');
   const resVal = resSelect ? resSelect.value : 'med';
   const r = RES_SETTINGS[resVal] || RES_SETTINGS.med;
@@ -10799,5 +10799,123 @@ void main(){
     sync();apply();
     window.CloudControls={set:(o)=>{Object.assign(prefs,o);sync();apply();},get:()=>({...prefs})};
     console.log('[VISUAL PACK 3] cloud controls, clearer sky, glossier paint online');
+  }
+})();
+/* ===== HD PACK 1: sharp satellite ground near the aircraft ===== */
+(function hdGround(){
+  let tries=0;
+  const iv=setInterval(()=>{
+    const S=window.__sim;
+    if(S&&S.scene&&S.BABYLON&&window.sampleSurface&&window.CFG&&window.CFG.origin){clearInterval(iv);init(S);}
+    else if(++tries>300)clearInterval(iv);
+  },200);
+
+  function init(S){
+    const scene=S.scene,BABYLON=S.BABYLON,plane=S.plane,CFG=window.CFG;
+    const SIZE=2800,HALF=SIZE/2,RING=900,GRID=97,STEP=SIZE/(GRID-1),ZOOM=17;
+    const TEXN=navigator.maxTouchPoints>0?1024:2048;
+    const O=()=>CFG.origin;
+    const mPerLon=()=>111320*Math.cos(O().lat*Math.PI/180);
+    const w2ll=(x,z)=>({lat:O().lat-z/111132,lon:O().lon+x/mPerLon()});
+    const ll2w=(lat,lon)=>({x:(lon-O().lon)*mPerLon(),z:-(lat-O().lat)*111132});
+    const tX=(lon,z)=>(lon+180)/360*Math.pow(2,z);
+    const tY=(lat,z)=>{const r=lat*Math.PI/180;return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*Math.pow(2,z);};
+    const tLon=(x,z)=>x/Math.pow(2,z)*360-180;
+    const tLat=(y,z)=>{const n=Math.PI-2*Math.PI*y/Math.pow(2,z);return 180/Math.PI*Math.atan(.5*(Math.exp(n)-Math.exp(-n)));};
+
+    /* tile cache (ESRI satellite, same source the sim already uses) */
+    const cache=new Map();
+    function getTile(z,x,y){
+      const k=z+'/'+x+'/'+y;
+      if(cache.has(k))return cache.get(k);
+      const p=new Promise(res=>{
+        const img=new Image();img.crossOrigin='anonymous';
+        const t=setTimeout(()=>res(null),12000);
+        img.onload=()=>{clearTimeout(t);res(img);};
+        img.onerror=()=>{clearTimeout(t);res(null);};
+        img.src=`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+      });
+      cache.set(k,p);
+      if(cache.size>300)cache.delete(cache.keys().next().value);
+      return p;
+    }
+
+    /* grid mesh: same winding and UV layout as the main terrain */
+    const pos=new Float32Array(GRID*GRID*3),uvs=new Float32Array(GRID*GRID*2),idx=[];
+    for(let j=0;j<GRID;j++)for(let i=0;i<GRID;i++){const k=j*GRID+i;
+      pos[k*3]=-HALF+i*STEP;pos[k*3+2]=-HALF+j*STEP;
+      uvs[k*2]=i/(GRID-1);uvs[k*2+1]=j/(GRID-1);}
+    for(let j=0;j<GRID-1;j++)for(let i=0;i<GRID-1;i++){const a=j*GRID+i,c=a+GRID;idx.push(a,c,a+1,a+1,c,c+1);}
+    const nrm=new Array(pos.length).fill(0);
+    BABYLON.VertexData.ComputeNormals(pos,idx,nrm);
+    const vd=new BABYLON.VertexData();
+    vd.positions=pos;vd.uvs=uvs;vd.indices=idx;vd.normals=nrm;
+    const mesh=new BABYLON.Mesh('hdGround',scene);
+    vd.applyToMesh(mesh,true);
+
+    const mat=new BABYLON.PBRMaterial('hdGroundM',scene);
+    mat.metallic=0;mat.roughness=1;mat.specularIntensity=.06;mat.backFaceCulling=false;
+    mat.zOffset=-3;mat.zOffsetUnits=-3;
+    const tex=new BABYLON.DynamicTexture('hdGroundT',{width:TEXN,height:TEXN},scene,true);
+    tex.wrapU=tex.wrapV=BABYLON.Texture.CLAMP_ADDRESSMODE;
+    tex.anisotropicFilteringLevel=16;
+    mat.albedoTexture=tex;
+    mesh.material=mat;mesh.isPickable=false;mesh.alwaysSelectAsActiveMesh=true;mesh.setEnabled(false);
+
+    const off=document.createElement('canvas');off.width=off.height=TEXN;
+    const oc=off.getContext('2d');
+
+    let centre=null,building=false;
+    async function build(cx,cz){
+      building=true;
+      try{
+        const nw=w2ll(cx-HALF,cz-HALF),se=w2ll(cx+HALF,cz+HALF);
+        const x0=Math.floor(tX(nw.lon,ZOOM)),x1=Math.floor(tX(se.lon,ZOOM));
+        const y0=Math.floor(tY(nw.lat,ZOOM)),y1=Math.floor(tY(se.lat,ZOOM));
+        oc.filter='none';oc.fillStyle='#2c4a55';oc.fillRect(0,0,TEXN,TEXN);
+        oc.filter='saturate(1.22) contrast(1.07) brightness(1.03)';
+        const jobs=[];
+        for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)jobs.push(getTile(ZOOM,x,y).then(img=>{
+          if(!img)return;
+          const a=ll2w(tLat(y,ZOOM),tLon(x,ZOOM)),b=ll2w(tLat(y+1,ZOOM),tLon(x+1,ZOOM));
+          const px=(a.x-(cx-HALF))/SIZE*TEXN,py=(a.z-(cz-HALF))/SIZE*TEXN;
+          const pw=(b.x-a.x)/SIZE*TEXN,ph=(b.z-a.z)/SIZE*TEXN;
+          oc.drawImage(img,px,py,pw+.6,ph+.6);
+        }));
+        await Promise.all(jobs);
+        oc.filter='none';
+
+        /* heights follow the same ground the sim uses (airport plateaus included) */
+        for(let j=0;j<GRID;j++)for(let i=0;i<GRID;i++){
+          const k=j*GRID+i;
+          pos[k*3+1]=(window.sampleSurface(cx-HALF+i*STEP,cz-HALF+j*STEP)||0)+.3;
+        }
+        mesh.updateVerticesData(BABYLON.VertexBuffer.PositionKind,pos);
+        const n2=new Array(pos.length).fill(0);
+        BABYLON.VertexData.ComputeNormals(pos,idx,n2);
+        mesh.updateVerticesData(BABYLON.VertexBuffer.NormalKind,n2);
+        tex.getContext().drawImage(off,0,0);tex.update(false);
+        mesh.position.set(cx,0,cz);
+
+        /* hide the patch near airports so the sim's painted runways stay visible */
+        let airport=false;
+        for(let a=0;a<=8&&!airport;a++)for(let b=0;b<=8&&!airport;b++){
+          if(window.airportBlend&&window.airportBlend(cx-HALF+a*SIZE/8,cz-HALF+b*SIZE/8))airport=true;}
+        mesh.setEnabled(!airport);
+        centre={x:cx,z:cz,lat:O().lat,lon:O().lon};
+      }finally{building=false;}
+    }
+
+    scene.registerBeforeRender(()=>{
+      if(building||plane.hold||plane.crashed)return;
+      const c=centre;
+      if(c){
+        const same=c.lat===O().lat&&c.lon===O().lon;
+        if(!same)mesh.setEnabled(false);
+        if(same&&Math.hypot(plane.pos.x-c.x,plane.pos.z-c.z)<RING)return;
+      }
+      build(plane.pos.x,plane.pos.z).catch(e=>console.warn('[hdGround]',e));
+    });
+    console.log('[HD PACK 1] sharp near-field satellite ground online');
   }
 })();
