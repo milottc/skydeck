@@ -1384,33 +1384,12 @@ panelMesh.material.emissiveColor=new BABYLON.Color3(.75,.75,.8);
 panelMesh.material.metallic=.4;panelMesh.material.roughness=.55;panelMesh.isPickable=false;
 
 const displays={};
-function makeDisplayTex(name, w, h) {
-  const tex = new BABYLON.DynamicTexture(
-    name,
-    { width: w, height: h },
-    scene,
-    false,
-    BABYLON.Texture.BILINEAR_SAMPLINGMODE
-  );
-  const ctx = tex.getContext();
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  return tex;
-}
-
-const activeRes = (typeof RES_SETTINGS !== 'undefined' && typeof currentMode !== 'undefined' && RES_SETTINGS[currentMode])
-  ? RES_SETTINGS[currentMode]
-  : { dispScale: 1 };
-const scale = activeRes.dispScale || 1;
-const standardSize = 1024 * scale;
-const eicasWidth   = 1344 * scale;
-
-displays.pfdL  = makeDisplayTex('pfdL',  standardSize, standardSize);
-displays.ndL   = makeDisplayTex('ndL',   standardSize, standardSize);
-displays.eicas = makeDisplayTex('eicas', eicasWidth,   standardSize);
-displays.ndR   = makeDisplayTex('ndR',   standardSize, standardSize);
-displays.pfdR  = makeDisplayTex('pfdR',  standardSize, standardSize);
-
+function makeDisplayTex(name,w,h){return new BABYLON.DynamicTexture(name,{width:w,height:h},scene,true);}
+displays.pfdL=makeDisplayTex('pfdL',1024,1024);
+displays.ndL=makeDisplayTex('ndL',1024,1024);
+displays.eicas=makeDisplayTex('eicas',1344,1024);
+displays.ndR=makeDisplayTex('ndR',1024,1024);
+displays.pfdR=makeDisplayTex('pfdR',1024,1024);
 Object.values(displays).forEach(t=>{try{t.anisotropicFilteringLevel=16;t.updateSamplingMode(BABYLON.Texture.TRILINEAR_SAMPLINGMODE);}catch(e){}});
 function placeDisplay(name,tex,panelX,panelY,w,h){
   const localX=panelX*panelW,localY=panelY*panelH;
@@ -6927,17 +6906,13 @@ startBtn.addEventListener('click',async()=>{
   resetAircraft(currentLocation.lat,currentLocation.lon,currentLocation.elev);
   terrainCenter={x:0,z:0};plane.hold=true;
 
- // --- RESOLUTION SETTINGS ---
-const RES_SETTINGS = {
-  potato:    { tex: 512,  tiles: 16,   zoom: 14 }, // Instant load, minimal VRAM
-  very_low:  { tex: 512,  tiles: 24,   zoom: 15 }, // Great for mobile / weak GPUs
-  low:       { tex: 1024, tiles: 36,   zoom: 16 }, // Faster than original low
-  med:       { tex: 2048, tiles: 64,   zoom: 17 }, // Balanced speed and clarity
-  high:      { tex: 2048, tiles: 180,  zoom: 18 }, // Sharp zoom, way faster than 600 tiles
-  very_high: { tex: 4096, tiles: 450,  zoom: 18 }, // High-res textures, heavy tile load
-  ultra:     { tex: 4096, tiles: 1000, zoom: 19 }  // Maximum detail (original ultra)
+  // --- RESOLUTION SETTINGS ---
+  const RES_SETTINGS = {
+    low:   { tex: 1024, tiles: 48,   zoom: 16 },
+    med:   { tex: 2048, tiles: 96,   zoom: 17 },
+    high:  { tex: 4096, tiles: 600,  zoom: 18 },  // was 144
+    ultra: { tex: 4096, tiles: 1000, zoom: 19 }   // was 288
 };
-
   const resSelect = document.getElementById('resSelect');
   const resVal = resSelect ? resSelect.value : 'med';
   const r = RES_SETTINGS[resVal] || RES_SETTINGS.med;
