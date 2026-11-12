@@ -1322,8 +1322,8 @@ glassPane('gl2',.46,.62,-.20,.56,15.70,-.15,0);
 glassPane('gl3',.46,.62,.20,.56,15.70,-.15,0);
 glassPane('gl4',.46,.62,.75,.56,15.70,-.15,0);
 /* Side quarter-windows */
-glassPane('gsl',.38,.46,-1.52,.58,15.18,-.10,-Math.PI/2.2,M.sideGlass);
-glassPane('gsr',.38,.46,1.52,.58,15.18,-.10,Math.PI/2.2,M.sideGlass);
+glassPane('gsl',.26,.36,-1.52,.66,15.18,-.10,-Math.PI/2.2,M.sideGlass);
+glassPane('gsr',.26,.36,1.52,.66,15.18,-.10,Math.PI/2.2,M.sideGlass);
 /* Window frame depth strips – give the windshield frames visible thickness */
 (function(){
   const fm=M.bezel;
