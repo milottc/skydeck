@@ -1317,10 +1317,10 @@ function glassPane(name,w,h,x,y,z,rx,ry,mat){
   return p;
 }
 /* 4 main windshield panes */
-glassPane('gl1',.54,.82,-.75,.56,15.70,-.15,0);
-glassPane('gl2',.54,.82,-.20,.56,15.70,-.15,0);
-glassPane('gl3',.54,.82,.20,.56,15.70,-.15,0);
-glassPane('gl4',.54,.82,.75,.56,15.70,-.15,0);
+glassPane('gl1',.46,.62,-.75,.56,15.70,-.15,0);
+glassPane('gl2',.46,.62,-.20,.56,15.70,-.15,0);
+glassPane('gl3',.46,.62,.20,.56,15.70,-.15,0);
+glassPane('gl4',.46,.62,.75,.56,15.70,-.15,0);
 /* Side quarter-windows */
 glassPane('gsl',.38,.46,-1.52,.58,15.18,-.10,-Math.PI/2.2,M.sideGlass);
 glassPane('gsr',.38,.46,1.52,.58,15.18,-.10,Math.PI/2.2,M.sideGlass);
