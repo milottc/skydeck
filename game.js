@@ -1317,10 +1317,11 @@ function glassPane(name,w,h,x,y,z,rx,ry,mat){
   return p;
 }
 /* 4 main windshield panes */
-glassPane('gl1',.46,.62,-.75,.56,15.70,-.15,0);
+glassPane('gl1',.46,.46,-.75,.64,15.70,-.15,0);
 glassPane('gl2',.46,.62,-.20,.56,15.70,-.15,0);
 glassPane('gl3',.46,.62,.20,.56,15.70,-.15,0);
-glassPane('gl4',.46,.62,.75,.56,15.70,-.15,0);
+glassPane('gl4',.46,.46,.75,.64,15.70,-.15,0);
+
 /* Side quarter-windows */
 glassPane('gsl',.26,.36,-1.52,.66,15.18,-.10,-Math.PI/2.2,M.sideGlass);
 glassPane('gsr',.26,.36,1.52,.66,15.18,-.10,Math.PI/2.2,M.sideGlass);
@@ -10920,80 +10921,3 @@ void main(){
   }
 })();
 /* ===== COCKPIT WINDOWS v2: resized windshield, side windows and frame ===== */
-(function cockpitWindowsV2(){
-  let tries=0;
-  const iv=setInterval(()=>{
-    const S=window.__sim;
-    if(S&&S.scene&&S.scene.getTransformNodeByName&&S.scene.getTransformNodeByName('intRoot')){clearInterval(iv);build(S);}
-    else if(++tries>300)clearInterval(iv);
-  },200);
-
-  function build(S){
-    const scene=S.scene,BABYLON=S.BABYLON;
-    const intRoot=scene.getTransformNodeByName('intRoot');
-
-    /* 1. remove the old glass and frame meshes */
-    ['gl1','gl2','gl3','gl4','gsl','gsr',
-     'wsFrameTop','wsFrameBot','wsFrameMid','wsFrameL','wsFrameR',
-     'wsVisorL','wsVisorR','wsVisorC'].forEach(n=>{
-      const m=scene.getMeshByName(n); if(m) m.dispose();
-    });
-
-    /* 2. dimensions (metres, cockpit-local) */
-    const WS={
-      x:0, y:0.56, z:15.70, tilt:-0.15,   // windshield centre and backward tilt
-      paneW:0.62, paneH:0.62,             // each pane
-      postW:0.05,                         // mullion width
-      posts:[-0.67,0,0.67],               // mullion x positions
-      panes:[-1.005,-0.335,0.335,1.005],  // pane centre x positions
-      barH:0.05, barY:0.34                // top/bottom frame bars
-    };
-    const SIDE={x:1.56,y:0.62,z:15.00,w:0.90,h:0.42};   // side window (w = along fuselage)
-
-    /* 3. materials */
-    const glassM=new BABYLON.PBRMaterial('cw2Glass',scene);
-    glassM.albedoColor=new BABYLON.Color3(.04,.09,.11);
-    glassM.metallic=0; glassM.roughness=.03;
-    glassM.alpha=.10; glassM.transparencyMode=BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND;
-    glassM.backFaceCulling=false;
-    glassM.clearCoat.isEnabled=true; glassM.clearCoat.intensity=1; glassM.clearCoat.roughness=.02;
-    glassM.environmentIntensity=.4;
-
-    const sideGlassM=glassM.clone('cw2SideGlass');
-    sideGlassM.alpha=.13;
-
-    const frameM=new BABYLON.StandardMaterial('cw2Frame',scene);
-    frameM.diffuseColor=new BABYLON.Color3(.07,.075,.085);
-    frameM.specularColor=new BABYLON.Color3(.1,.1,.1);
-
-    /* 4. windshield group, tilted back like the real aircraft */
-    const wsGroup=new BABYLON.TransformNode('cw2WindshieldGrp',scene);
-    wsGroup.parent=intRoot;
-    wsGroup.position.set(WS.x,WS.y,WS.z);
-    wsGroup.rotation.x=WS.tilt;
-
-    const mk=(name,w,h,d,x,y,z,mat)=>{
-      const b=BABYLON.MeshBuilder.CreateBox(name,{width:w,height:h,depth:d},scene);
-      b.position.set(x,y,z); b.material=mat; b.parent=wsGroup;
-      b.isPickable=false; return b;
-    };
-
-    WS.panes.forEach((x,i)=>{
-      const p=BABYLON.MeshBuilder.CreatePlane('cw2Pane'+i,{width:WS.paneW,height:WS.paneH,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);
-      p.position.set(x,0,0); p.material=glassM; p.parent=wsGroup; p.isPickable=false;
-    });
-    WS.posts.forEach((x,i)=>mk('cw2Post'+i,WS.postW,WS.paneH+WS.barH*2,0.06,x,0,0,frameM));
-    mk('cw2BarTop',2*1.315,WS.barH,0.06,0,WS.barY,0,frameM);
-    mk('cw2BarBot',2*1.315,WS.barH,0.06,0,-WS.barY,0,frameM);
-
-    /* 5. side windows (planes face outward, so rotate about y) */
-    [-1,1].forEach(sd=>{
-      const sw=BABYLON.MeshBuilder.CreatePlane('cw2Side'+(sd<0?'L':'R'),{width:SIDE.w,height:SIDE.h,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);
-      sw.position.set(sd*SIDE.x,SIDE.y,SIDE.z);
-      sw.rotation.y=sd*Math.PI/2;
-      sw.material=sideGlassM; sw.parent=intRoot; sw.isPickable=false;
-    });
-
-    console.log('[COCKPIT WINDOWS v2] windshield 2.63 m wide, 4 panes, side windows resized');
-  }
-})();
