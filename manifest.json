@@ -1,0 +1,10 @@
+{
+  "name": "SkyDeck 737 · Pro",
+  "short_name": "SkyDeck 737",
+  "description": "A browser-based Boeing 737 flight simulator.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220"
+}
