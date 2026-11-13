@@ -6628,10 +6628,10 @@ const SFX_MAP=[
   [/engine 1 fire|engine one fire/,'1','fire'],
   [/engine 2 fire|engine two fire/,'2','fire'],
   [/glideslope/,'glideslope.mp3'],[/clear of conflict/,'clear-of-conflict','coc'],
-  [/traffic,? traffic/,'traffic-traffic-traffic.mp3'],
+  [/traffic,? traffic/,'https://milottc.github.io/Flight-sim/traffic-traffic-traffic.mp3'],
   [/descend,? descend now/,'descend-descend-now.mp3'],
   [/descend,? descend/,'descend-descend.mp3'],
-  [/increase climb/,'increase-climb.mp3'],
+  [/increase climb/,'https://milottc.github.io/Flight-sim/increase-climb.mp3'],
   [/increase descen/,'increase-descend.mp3'],
   [/adjust vertical speed|^adjust$/,'adjust.mp3'],[/startup/,'STRTUP.wav']
 ];
@@ -6646,7 +6646,7 @@ function stopAllCallouts(){
 }
 function playSfx(file,onFail){
   stopAllCallouts();const myId=_sfxSeq;
-  const combos=SFX_BASES.map(b=>b+file);
+  const combos=/^https?:\/\//.test(file)?[file]:SFX_BASES.map(b=>b+file);
   let i=0;
   const tryNext=()=>{
     if(myId!==_sfxSeq)return;
@@ -9538,10 +9538,11 @@ void main(){
   let _wCtx=null,_wSrc=null,_wGain=null,_wActive=false,_wTrem=null,_wVolTap=null;
   function _wonderPitchHz(){const vsFpm=plane.vel.y*196.85;return Math.max(80,Math.min(600,220+vsFpm*0.06));}
   function _wonderStart(){
-    if(_wActive)return;_wActive=true;
+    if(_wActive||!audioUnlocked)return;
+    _wActive=true;
     try{
       if(!_wCtx)_wCtx=new(window.AudioContext||window.webkitAudioContext)();
-      if(_wCtx.state==='suspended')_wCtx.resume();
+      if(_wCtx.state==='suspended')_wCtx.resume().catch(()=>{});
       _wGain=_wCtx.createGain();_wGain.gain.setValueAtTime(0,_wCtx.currentTime);_wGain.gain.linearRampToValueAtTime(0.3,_wCtx.currentTime+0.08);
       _wTrem=_wCtx.createGain();_wTrem.gain.value=1;
       _wVolTap=_wCtx.createGain();_wVolTap.gain.value=(typeof masterVol!=='undefined'?masterVol:1);
@@ -10186,7 +10187,7 @@ void main(){
         const rw=BABYLON.Vector3.TransformNormal(right,BABYLON.Matrix.RotationQuaternion(quat));
         const gp=pos.add(rw.scale(side*3.5));
         const ps=new BABYLON.ParticleSystem('tiresmoke'+Date.now()+side,80,scene);
-        ps.particleTexture=window._smokeTex||new BABYLON.Texture('data:image/png;base64,iVBORw0KGgo=',scene);
+        ps.particleTexture=window._smokeTex||null;
         ps.emitter=BABYLON.MeshBuilder.CreateSphere('tse',{diameter:.1},scene);
         ps.emitter.position.copyFrom(gp);
         ps.emitter.isVisible=false;
@@ -10222,7 +10223,7 @@ void main(){
     if(!scene||contrailL)return;
     function makeContrail(tag){
       const ps=new BABYLON.ParticleSystem('contrail_'+tag,300,scene);
-      ps.particleTexture=window._smokeTex||new BABYLON.Texture('data:image/png;base64,iVBORw0KGgo=',scene);
+      ps.particleTexture=window._smokeTex||null;
       const em=BABYLON.MeshBuilder.CreateSphere('cte_'+tag,{diameter:.1},scene);
       em.isVisible=false;
       ps.emitter=em;
