@@ -70,6 +70,9 @@ const OFF=(()=>{
 })();
 
 function main(){
+const DSP={page:'ENG',cancelled:[],warnAck:false,cautionAck:false};
+const ND={mode:'MAP',center:false,range:40,tfc:true,bearingL:'VOR',bearingR:'OFF',
+  overlays:{WXR:false,TERR:false,WPT:true,STA:false,ARPT:false,DATA:false,POS:false}};
 let _sfxCur=null;
 
 /* ===== SETTINGS (persisted in localStorage) ===== */
@@ -1894,9 +1897,6 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
 })();
 
 /* ===== INTERACTIVE COCKPIT (hover highlight + tooltip, click switches / buttons / levers, scroll knobs) ===== */
-const DSP={page:'ENG',cancelled:[],warnAck:false,cautionAck:false};
-const ND={mode:'MAP',center:false,range:40,tfc:true,bearingL:'VOR',bearingR:'OFF',
-  overlays:{WXR:false,TERR:false,WPT:true,STA:false,ARPT:false,DATA:false,POS:false}};
 (function(){
   const CKI=window.CKI={tex:{},meshSpecs:[],hover:null,drag:null,hinted:false};
   const $=id=>document.getElementById(id);
