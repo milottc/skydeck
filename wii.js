@@ -7,7 +7,8 @@
  *   A  -> G (gear)      B -> F (flaps)     1 -> L (landing lights)   2 -> P (autopilot)
  *   +  -> X (PFD)       -  -> C (camera)   Home -> Escape            */
 (function(){
-  const VENDOR=0x057e, PRODUCT=0x0306;               // Nintendo RVL-CNT-01
+  const VENDOR=0x057e, PRODUCTS=new Set([0x0306,0x0330]); // RVL-CNT-01 and RVL-CNT-01-TR
+  const FILTERS=[...PRODUCTS].map(productId=>({vendorId:VENDOR,productId}));
   // The two button bytes form a little-endian 16-bit mask in 0x30/0x31 reports.
   const KEY_BITS={
     0x0001:'KeyP',   // 2
@@ -56,9 +57,12 @@
     if(btn){btn.disabled=true;btn.textContent='Connecting…';}
     try{
       const permitted=await navigator.hid.getDevices();
-      const selected=permitted.find(d=>d.vendorId===VENDOR&&d.productId===PRODUCT)
-        ||(await navigator.hid.requestDevice({filters:[{vendorId:VENDOR,productId:PRODUCT}]}))[0];
-      if(!selected){say('No Wii Remote selected.');return;}
+      const selected=permitted.find(d=>d.vendorId===VENDOR&&PRODUCTS.has(d.productId))
+        ||(await navigator.hid.requestDevice({filters:FILTERS}))[0];
+      if(!selected){
+        say('No Wii Remote selected. Pair it in your computer Bluetooth settings, keep it in sync mode (press 1+2), then try again. If it still does not appear, this browser/OS may not expose Bluetooth HID devices through WebHID.');
+        return;
+      }
       if(device===selected&&selected.opened){say('Wii Remote already connected.');return;}
       releaseAll();
       device=selected;
@@ -66,12 +70,14 @@
       // Report 0x12: flags (0x00), reporting mode 0x30 = core buttons only
       await device.sendReport(0x12,new Uint8Array([0x00,0x30]));
       device.addEventListener('inputreport',onReport);
-      say('Wii Remote connected: '+(device.productName||'Nintendo RVL-CNT-01'));
+      say('Wii Remote connected: '+(device.productName||'Nintendo Wii Remote'));
     }catch(err){
       console.error('Wii connect failed:',err);
       if(device){device.removeEventListener('inputreport',onReport);device=null;}
       releaseAll();
-      say('Could not connect. Pair the Wii Remote in your OS Bluetooth settings (press 1+2), then try again. ('+(err.message||err)+')');
+      say(err.name==='NotFoundError'
+        ?'No compatible Wii Remote found. Pair it in your computer Bluetooth settings, press 1+2 to keep it in sync mode, and reopen the picker.'
+        :'Could not connect to Wii Remote. Check Bluetooth pairing and WebHID support, then try again. ('+(err.message||err)+')');
     }finally{
       connecting=false;
       if(btn){btn.disabled=false;btn.textContent='Sync Wii Remote';}

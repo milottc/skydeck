@@ -2505,6 +2505,10 @@ const plane={
   gearPos:1.0,gearTarget:1.0,flapVisual:0,spoilerVisual:0,
   bellyLanding:false,inWater:false
 };
+window.__gamepadThrottle=(rate,dt)=>{
+  if(ENG.L.state==='RUNNING'||ENG.R.state==='RUNNING')
+    plane.throttle=BABYLON.Scalar.Clamp(plane.throttle+rate*dt*.8,0,1);
+};
 
 const FLAPS=[
   {name:'0',cl:0,cd:0,stall:0,angle:0},
@@ -5415,6 +5419,7 @@ function buildCity(cx,cz){
 
 /* ===== MOBILE / TOUCH CONTROLS (self-contained: builds its own pad and styles, so it works with any page markup) ===== */
 let tPitch=0,tRoll=0;
+window.__gamepadSet=(pitch,roll)=>{tPitch=pitch;tRoll=roll;};
 (function mobileTouch(){
   const $=id=>document.getElementById(id);
   const hasTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
@@ -6671,6 +6676,7 @@ const speak=(t,rate)=>{const l=t.toLowerCase();for(const [re,f,kind] of SFX_MAP)
 function masterWarn(){if(atc.voice&&AIRBUS_SET.has(window._activeModelId))playSfx('airbus-master-warn.mp3');}
 
 let masterVol=.6,_prevVol=.6;
+let audioUnlocked=false;
 const AMB=(function(){
   let ctx=null,master=null,started=false,noiseBuf=null;
   const mkNoise=()=>{const sr=ctx.sampleRate,len=sr*2,b=ctx.createBuffer(1,len,sr),d=b.getChannelData(0);
@@ -6693,6 +6699,7 @@ const AMB=(function(){
   let engL=null,engR=null,windSrc=null,windF=null,windG=null,rumbleSrc=null,rumbleF=null,rumbleG=null;
   const ensure=()=>{
     if(started)return true;
+    if(!audioUnlocked)return false;
     try{
       ctx=new(window.AudioContext||window.webkitAudioContext)();
       master=ctx.createGain();master.gain.value=masterVol;master.connect(ctx.destination);
@@ -6760,6 +6767,14 @@ window.addEventListener('keydown',e=>{if(e.code==='KeyY'&&!/INPUT|SELECT|TEXTARE
   else{AMB.setVol(_prevVol||.6);showMsg('SOUND ON',1200);}
 }});
 scene.registerBeforeRender(()=>{try{AMB.update(Math.min(.05,engine.getDeltaTime()/1000));}catch(e){}});
+const unlockAudio=()=>{
+  audioUnlocked=true;
+  if(ENG.L.state!=='OFF'||ENG.R.state!=='OFF')AMB.ensure();
+  window.removeEventListener('pointerdown',unlockAudio);
+  window.removeEventListener('keydown',unlockAudio);
+};
+window.addEventListener('pointerdown',unlockAudio,{once:true});
+window.addEventListener('keydown',unlockAudio,{once:true});
 
 function xfUpdate(dt){
   if(plane.crashed)return;
