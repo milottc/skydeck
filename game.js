@@ -9113,6 +9113,17 @@ NJ.forEach(p=>{if(p.analog)ANALOG_SET.add(p.id);if(p.brand==='airbus')AIRBUS_SET
     C.upgrades.fleet=i;C.maxFleet=Math.max(C.maxFleet,i);save();setActiveAircraft(FLEET[i].model);
     try{contractList=genContractList();renderShop();renderHUD();renderContracts();}catch(e){console.warn(e);}
     return FLEET[i].name;};
+  const cheat=window.cheat={
+    money:(n=1e6)=>{C.money=n;save();renderHUD();renderShop();return '$'+n;},
+    list:()=>FLEET.map((f,i)=>i+': '+f.id+' · '+f.name),
+    fly:(x)=>{const r=window.__flyTo(x);try{if(camMode===1)setCamMode(1);showMsg('CHEAT · '+r,2500);}catch(e){}return r;},
+    next:()=>cheat.fly(Math.min(FLEET.length-1,C.upgrades.fleet+1)),
+    prev:()=>cheat.fly(Math.max(0,C.upgrades.fleet-1)),
+    xp:(n=1000)=>{try{addXP(n);}catch(e){return 'addXP failed';}return '+'+n+' XP';},
+    lessons:()=>{LESSONS.forEach(L=>C.lessonsCompleted[L.id]=true);save();renderContracts();return 'all lessons unlocked';},
+    all:()=>{cheat.money(1e7);cheat.lessons();return 'money + lessons unlocked. use cheat.fly("a350")';}
+  };
+  console.log('[CAREER v4] ready · cheats: cheat.list(), cheat.fly("a350"), cheat.next(), cheat.money()');
   renderHUD();
   renderContracts();
 })();
@@ -9575,19 +9586,6 @@ void main(){
         if(_wVolTap)_wVolTap.gain.setTargetAtTime(typeof masterVol!=='undefined'?masterVol:1,_wCtx.currentTime,0.1);}
     }else _wonderStop();
   },30);
-
-  window.cheat={
-    money:(n=1e6)=>{C.money=n;save();renderHUD();renderShop();return '$'+n;},
-    list:()=>FLEET.map((f,i)=>i+': '+f.id+' · '+f.name),
-    fly:(x)=>{const r=window.__flyTo(x);try{if(camMode===1)setCamMode(1);showMsg('CHEAT · '+r,2500);}catch(e){}return r;},
-    next:()=>cheat.fly(Math.min(FLEET.length-1,C.upgrades.fleet+1)),
-    prev:()=>cheat.fly(Math.max(0,C.upgrades.fleet-1)),
-    xp:(n=1000)=>{try{addXP(n);}catch(e){return 'addXP failed';}return '+'+n+' XP';},
-    lessons:()=>{LESSONS.forEach(L=>C.lessonsCompleted[L.id]=true);save();renderContracts();return 'all lessons unlocked';},
-    all:()=>{cheat.money(1e7);cheat.lessons();return 'money + lessons unlocked. use cheat.fly("a350")';}
-  };
-  console.log('[CAREER v4] ready · cheats: cheat.list(), cheat.fly("a350"), cheat.next(), cheat.money()');
-
 
 /* ===== SCOPE BRIDGE: feature blocks outside main() read these through window (they were silently disabled before:
    their typeof checks always saw undefined). Getters always return the live value. ===== */
