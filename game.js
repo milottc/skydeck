@@ -1901,7 +1901,6 @@ const gearS=BABYLON.MeshBuilder.CreateCylinder('gearS',{height:.12,diameter:.018
 gearS.rotation.x=Math.PI/2;gearS.position.z=-.06;gearS.material=M.metal;gearS.parent=gearLeverPivot;
 const gearK=BABYLON.MeshBuilder.CreateCylinder('gearK',{height:.025,diameter:.06,tessellation:16},scene);
 gearK.rotation.x=Math.PI/2;gearK.position.z=-.125;gearK.material=M.white;gearK.parent=gearLeverPivot;
-scene.registerBeforeRender(()=>{gearLeverPivot.rotation.x=plane.gearDown?-.28:.28;});
 
 const cb=cvs(1024,600,(c,W,H)=>{rect(c,0,0,W,H,'#1d2024');
  for(let r=0;r<12;r++){c.fillStyle='#9aa4ad';c.font='11px sans-serif';c.fillText('C'+(r+1),6,40+r*46);for(let i=0;i<40;i++)dot(c,50+i*23.5,34+r*46,7,(i*13+r*7)%11===0?'#c0392b':'#dfe3e6');}});
@@ -2038,6 +2037,8 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
   CKI.addMesh(['flK','flLv'],{label:'FLAP LEVER · click or scroll',state:()=>FLAPS[plane.flaps].name,act:()=>{snd('lever');dispatchKey('KeyF');},wheel:d=>{if(faults.has('FLAP_JAM')){say('FLAPS JAMMED');return;}const n=Math.max(0,Math.min(FLAPS.length-1,plane.flaps+d));if(n!==plane.flaps){plane.flaps=n;snd('lever');say('FLAPS '+FLAPS[n].name);try{updateChips();}catch(e){}}}});
   CKI.addMesh(['sbK','sbLv'],{label:'SPEEDBRAKE LEVER',state:()=>plane.spoilerDeploy>.5?'DEPLOYED':'RETRACTED',act:()=>{snd('lever');dispatchKey('KeyB');}});
   CKI.addMesh(['thrK0','thrLv0','thrK1','thrLv1'],{label:'THROTTLE · drag up / down',state:()=>Math.round(plane.throttle*100)+'%',drag:true,act:()=>{},wheel:d=>{plane.throttle=Math.max(0,Math.min(1,plane.throttle+d*.05));}});
+  scene.registerBeforeRender(()=>{if(gearLeverPivot)gearLeverPivot.rotation.x=plane.gearDown?-.28:.28;});
+
   /* ============ picking / hover / click engine ============ */
   let tip=null;
   const ensureTip=()=>{if(tip)return tip;tip=document.createElement('div');tip.id='ckTip';tip.style.cssText='position:fixed;z-index:60;pointer-events:none;display:none;padding:6px 10px;border-radius:8px;background:rgba(8,16,26,.92);border:1px solid #38d6ff;color:#dff6ff;font:600 12px/1.3 system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.5);white-space:nowrap';document.body.appendChild(tip);return tip;};
@@ -3634,14 +3635,14 @@ function updateHUD(){
   else if(vsRounded>0){el.vsState.textContent=absVs>1500?'CLIMB':'CLB';el.vs.style.color=absVs>1500?'#2dff7a':'#a0ffd0';}
   else {el.vsState.textContent=absVs>1500?'DESCENT':'DES';el.vs.style.color=absVs>1500?'#ff8080':'#ffd0a0';}
 
-  if(el.hdg)el.hdg.textContent='HDG '+String(Math.round(DV.hdg)).padStart(3,'0')+'°'+(DV.flags.hdg?' · COMPASS FAIL':'');
+  el.hdg.textContent='HDG '+String(Math.round(DV.hdg)).padStart(3,'0')+'°'+(DV.flags.hdg?' · COMPASS FAIL':'');
   const ll=worldToLL(plane.pos.x,plane.pos.z);
-  if(el.pos)el.pos.textContent=ll.lat.toFixed(4)+'°N '+ll.lon.toFixed(4)+'°E';
-  if(el.fps)el.fps.textContent=Math.round(engine.getFps())+' FPS';
-  if(el.src)el.src.textContent=useCanadaImagery?'ESRI + SGIC':'ESRI';
-  if(el.apTxt)el.apTxt.textContent='AP '+(AP.master?'ON':'OFF')+(AP.appr?' · APPR':(AP.lnav?' · LNAV':(AP.hdgMode?' · HDG':'')))+(AP.vsMode?' · VS':(AP.altMode?' · ALT':''))+(AP.athr?' · SPD':'');
+  el.pos.textContent=ll.lat.toFixed(4)+'°N '+ll.lon.toFixed(4)+'°E';
+  el.fps.textContent=Math.round(engine.getFps())+' FPS';
+  el.src.textContent=useCanadaImagery?'ESRI + SGIC':'ESRI';
+  el.apTxt.textContent='AP '+(AP.master?'ON':'OFF')+(AP.appr?' · APPR':(AP.lnav?' · LNAV':(AP.hdgMode?' · HDG':'')))+(AP.vsMode?' · VS':(AP.altMode?' · ALT':''))+(AP.athr?' · SPD':'');
   const N1avg=(ENG.L.n1+ENG.R.n1)/2;
-  if(el.engTxt)el.engTxt.textContent='ENG '+(ENG.L.state==='RUNNING'?'RUN':'OFF')+' N1 '+Math.round(N1avg)+'%';
+  el.engTxt.textContent='ENG '+(ENG.L.state==='RUNNING'?'RUN':'OFF')+' N1 '+Math.round(N1avg)+'%';
   if(el.aoaTxt){
     const aoaDeg=DV.aoa;
     el.aoaTxt.textContent='AOA '+aoaDeg.toFixed(1)+'°'+(DV.flags.aoa?' FAIL':(plane.stall?' STALL':''));
@@ -10403,22 +10404,6 @@ void main(){
   const reg=m=>{m.parent=xc;m.isPickable=false;return m;};
   const bx=(n,w,h,d,x,y,z,mat)=>{const b=BABYLON.MeshBuilder.CreateBox(n,{width:w,height:h,depth:d},scene);b.position.set(x,y,z);b.material=mat;return reg(b);};
   scene.registerBeforeRender(()=>{xc.setEnabled(isJet737());});
-
-  /* ---------- 1. GEAR LEVER (real handle, clickable, animates with gear) ---------- */
-  const chrome=mkStd('gl_chrome',.62,.64,.68,.9);
-  const blk=mkStd('gl_blk',.03,.03,.035,.1);
-  const orange=mkStd('gl_knobM',.85,.34,.08,.35);
-  const GX=-.42,GY=-.29,GZ=14.5;
-  bx('gl_plate',.16,.012,.22,GX,GY,GZ,chrome);
-  bx('gl_slot',.1,.004,.16,GX,GY+.008,GZ,blk);
-  const gPv=new BABYLON.TransformNode('gl_pv',scene);gPv.parent=xc;gPv.position.set(GX,GY+.01,GZ);
-  const gArm=BABYLON.MeshBuilder.CreateCylinder('gl_arm',{height:.2,diameter:.03,tessellation:10},scene);
-  gArm.position.y=.1;gArm.material=chrome;gArm.parent=gPv;gArm.isPickable=false;
-  const gKnob=BABYLON.MeshBuilder.CreateBox('gl_knob',{width:.07,height:.06,depth:.05},scene);
-  gKnob.position.y=.2;gKnob.material=orange;gKnob.parent=gPv;gKnob.isPickable=false;
-  CKI.addMesh(['gl_knob','gl_arm'],{label:'GEAR LEVER · click',
-    state:()=>plane.gearDown?'DOWN':'UP',
-    act:()=>{CKI.snd&&CKI.snd('lever');dispatchKey('KeyG');}});
 
   /* ---------- 2. PEDESTAL BUTTON BANK (8 lit pushbuttons) + AUTOBRAKE KNOB ---------- */
   const BTN=[['APU',[.95,.7,.15]],['ANTI-ICE',[.95,.7,.15]],['PACK L',[.1,.9,.3]],['PACK R',[.1,.9,.3]],
