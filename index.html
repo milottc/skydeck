@@ -627,7 +627,7 @@ body.cockpit #flightSidebar{opacity:.86}
 .chBtn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 0 #000}
 .chBtn:active{transform:translateY(1px);box-shadow:0 2px 0 #000}
 
-#contrPanel,#shopPanel{
+#contrPanel{
   position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
   z-index:99999;width:min(780px,94vw);max-height:88vh;overflow:auto;
   padding:22px 26px;border-radius:14px;
@@ -637,7 +637,43 @@ body.cockpit #flightSidebar{opacity:.86}
   font-family:inherit;color:#e6edf6;
   display:none;
 }
-#contrPanel.show,#shopPanel.show{display:block;animation:popIn .22s ease-out}
+#contrPanel.show{display:block;animation:popIn .22s ease-out}
+#shopPanel{
+  position:fixed;inset:0;z-index:99998;display:none;overflow:auto;
+  width:100%;max-height:100dvh;padding:clamp(18px,4vw,48px);
+  border:0;border-radius:0;background:#0b1220;color:#e6edf6;
+  font-family:inherit;box-shadow:none;
+}
+#shopPanel.show{display:block;animation:shopFade .18s ease-out}
+@keyframes shopFade{from{opacity:0}to{opacity:1}}
+.shopPageInner{width:min(980px,100%);margin:0 auto}
+.shopPageHead{align-items:center;margin-bottom:20px}
+.shopPageHead h1{font-size:clamp(22px,4vw,32px);letter-spacing:1px;color:#e6edf6}
+.shopPageHead .shopKicker{font-size:10px;letter-spacing:2px;color:#22d3ee;margin-bottom:5px}
+.shopPageHead button{width:auto;padding:0 12px}
+.redeemBox{
+  padding:16px;margin-bottom:20px;border:1px solid #263652;border-radius:12px;
+  background:#101b30;
+}
+.redeemTitle{font-size:13px;font-weight:800;letter-spacing:1px;color:#a5f3fc;margin-bottom:6px}
+.redeemHint{font-size:11px;color:#8ba3c0;line-height:1.6;margin-bottom:10px}
+.redeemControls{display:flex;gap:8px}
+.redeemControls input{
+  min-width:0;flex:1;padding:10px 12px;border:1px solid #3a4a68;border-radius:8px;
+  background:#070e1b;color:#e6edf6;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:1px;
+}
+.redeemControls input:focus{outline:2px solid #22d3ee;outline-offset:1px}
+#redeemMessage{min-height:18px;margin-top:8px;font-size:12px;color:#8ba3c0}
+#redeemMessage.success{color:#4ade80}
+#redeemMessage.error{color:#fca5a5}
+@media(max-width:600px){
+  #shopPanel{padding:16px}
+  .redeemControls{flex-wrap:wrap}
+  .redeemControls input{flex-basis:100%}
+  .redeemControls button{width:100%}
+  .spItem{grid-template-columns:1fr}
+  .spBuy{justify-self:start}
+}
 @keyframes popIn{from{transform:translate(-50%,-48%) scale(.96);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .cpHead{
   display:flex;justify-content:space-between;align-items:center;
@@ -1471,6 +1507,33 @@ body.pfd-hidden #compass {
     <div id="sidebarInfo"></div>
   </div>
 </aside>
+
+<main id="shopPanel" aria-label="Aircraft store" aria-hidden="true">
+  <div class="shopPageInner">
+    <header class="cpHead shopPageHead">
+      <div>
+        <div class="shopKicker">CAREER · HANGAR</div>
+        <h1>Aircraft Store</h1>
+      </div>
+      <button id="spX" type="button" aria-label="Return to flight">Back to flight</button>
+    </header>
+    <section class="redeemBox" aria-labelledby="redeemTitle">
+      <div class="redeemTitle" id="redeemTitle">REDEEM A CODE</div>
+      <div class="redeemHint">Enter a code for bonus cash. Try <b>SKYDECK5000</b>, <b>FLYHIGH</b>, or <b>FIRSTFLIGHT</b>. Each code can be used once.</div>
+      <div class="redeemControls">
+        <input id="redeemCode" type="text" maxlength="32" placeholder="Enter code" autocomplete="off" aria-label="Redemption code">
+        <button id="redeemBtn" class="spBuy" type="button">Redeem</button>
+      </div>
+      <div id="redeemMessage" role="status" aria-live="polite"></div>
+    </section>
+    <nav id="spTabs" aria-label="Store categories">
+      <button class="spTab on" type="button" data-tab="fleet">Fleet</button>
+      <button class="spTab" type="button" data-tab="upg">Upgrades</button>
+      <button class="spTab" type="button" data-tab="stat">Stats</button>
+    </nav>
+    <section id="spBody" aria-live="polite"></section>
+  </div>
+</main>
 
 <div id="hud">
   <div class="panelBox" id="infoBox">

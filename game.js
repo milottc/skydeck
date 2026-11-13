@@ -1354,10 +1354,10 @@ function glassPane(name,w,h,x,y,z,rx,ry,mat){
   return p;
 }
 /* 4 main windshield panes */
-glassPane('gl1',.46,.46,-.75,.64,15.70,-.15,0);
+glassPane('gl1',.46,.62,-.75,.56,15.70,-.15,0);
 glassPane('gl2',.46,.62,-.20,.56,15.70,-.15,0);
 glassPane('gl3',.46,.62,.20,.56,15.70,-.15,0);
-glassPane('gl4',.46,.46,.75,.64,15.70,-.15,0);
+glassPane('gl4',.46,.62,.75,.56,15.70,-.15,0);
 
 /* Side quarter-windows */
 glassPane('gsl',.26,.36,-1.52,.66,15.18,-.10,-Math.PI/2.2,M.sideGlass);
@@ -7013,13 +7013,15 @@ function respawn(){
     money:8000, xp:0, level:1,
     upgrades:{fleet:0, engines:0, comfort:0, safety:0},
     lessonsCompleted:{},
+    redeemedCodes:{},
     stats:{flights:0,crashes:0,bestLandingFpm:9999,totalEarned:0,perfectLandings:0,faultsHandled:0,lessonsDone:0}
   };
   let C=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE)||'null');
     if(s&&typeof s==='object') return Object.assign({},DEF,s,{
       stats:Object.assign({},DEF.stats,s.stats||{}),
       upgrades:Object.assign({},DEF.upgrades,s.upgrades||{}),
-      lessonsCompleted:Object.assign({},s.lessonsCompleted||{})});
+      lessonsCompleted:Object.assign({},s.lessonsCompleted||{}),
+      redeemedCodes:Object.assign({},s.redeemedCodes||{})});
   }catch(e){} return JSON.parse(JSON.stringify(DEF));})();
   const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify(C));}catch(e){}};
   if(!C.fleetV){const old=['cessna','atr','e190','b737','b787'];const nw=['cessna','atr','e190','dc9','b737','dc10','b787','a350'];
@@ -8148,12 +8150,31 @@ NJ.forEach(p=>{if(p.analog)ANALOG_SET.add(p.id);if(p.brand==='airbus')AIRBUS_SET
     });
   }
 
-  const shopEl=document.createElement('div');shopEl.id='shopPanel';
-  shopEl.innerHTML=`<div class="cpHead"><span>🛒 HANGAR</span><button id="spX">✕</button></div>
-    <div id="spTabs"><button class="spTab on" data-tab="fleet">FLEET</button><button class="spTab" data-tab="upg">UPGRADES</button><button class="spTab" data-tab="stat">STATS</button></div>
-    <div id="spBody"></div>`;
-  document.body.appendChild(shopEl);
+  const shopEl=document.getElementById('shopPanel');
+  if(!shopEl)throw new Error('Aircraft store markup is missing');
   let shopTab='fleet';
+  const REDEEM_CODES={SKYDECK5000:5000,FLYHIGH:2500,FIRSTFLIGHT:1000};
+  function redeemCode(){
+    const input=document.getElementById('redeemCode');
+    const message=document.getElementById('redeemMessage');
+    const code=input.value.trim().toUpperCase();
+    message.className='';
+    if(!code){message.textContent='Enter a code first.';message.classList.add('error');return;}
+    if(!Object.prototype.hasOwnProperty.call(REDEEM_CODES,code)){
+      message.textContent='That code is not valid.';message.classList.add('error');return;
+    }
+    if(C.redeemedCodes[code]){
+      message.textContent='You have already redeemed that code.';message.classList.add('error');return;
+    }
+    const reward=REDEEM_CODES[code];
+    C.redeemedCodes[code]=true;
+    C.money+=reward;
+    C.stats.totalEarned+=reward;
+    save();renderShop();renderHUD();pulse('chMoney');
+    input.value='';
+    message.textContent='Code accepted — $'+reward.toLocaleString()+' added to your balance.';
+    message.classList.add('success');
+  }
   function renderShop(){
     const body=document.getElementById('spBody');
     document.querySelectorAll('.spTab').forEach(t=>t.classList.toggle('on',t.dataset.tab===shopTab));
@@ -8330,12 +8351,17 @@ NJ.forEach(p=>{if(p.analog)ANALOG_SET.add(p.id);if(p.brand==='airbus')AIRBUS_SET
     contractList=genContractList();
   }
 
-  document.getElementById('chContr').addEventListener('click',()=>{if(contrEl.classList.contains('show')){contrEl.classList.remove('show');return;}renderContracts();contrEl.classList.add('show');shopEl.classList.remove('show');});
-  document.getElementById('chShop').addEventListener('click',()=>{if(shopEl.classList.contains('show')){shopEl.classList.remove('show');return;}renderShop();shopEl.classList.add('show');contrEl.classList.remove('show');});
+  document.getElementById('chContr').addEventListener('click',()=>{if(contrEl.classList.contains('show')){contrEl.classList.remove('show');return;}renderContracts();contrEl.classList.add('show');shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');});
+  document.getElementById('chShop').addEventListener('click',()=>{
+    if(shopEl.classList.contains('show')){shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');return;}
+    renderShop();shopEl.classList.add('show');shopEl.setAttribute('aria-hidden','false');contrEl.classList.remove('show');
+  });
   document.getElementById('cpX').addEventListener('click',()=>contrEl.classList.remove('show'));
-  document.getElementById('spX').addEventListener('click',()=>shopEl.classList.remove('show'));
+  document.getElementById('spX').addEventListener('click',()=>{shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');});
   document.getElementById('cpRefresh').addEventListener('click',()=>{contractList=genContractList();renderContracts();showMsg('↻ CONTRACTS REFRESHED',1800);});
   document.querySelectorAll('.spTab').forEach(t=>t.addEventListener('click',()=>{shopTab=t.dataset.tab;renderShop();}));
+  document.getElementById('redeemBtn').addEventListener('click',redeemCode);
+  document.getElementById('redeemCode').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();redeemCode();}});
   const startBtnEl=document.getElementById('startBtn');if(startBtnEl)startBtnEl.addEventListener('click',()=>{careerBlockAutoStart=false;});
   const respawnBtnEl=document.getElementById('respawnBtn');if(respawnBtnEl)respawnBtnEl.addEventListener('click',()=>{currentFlight=null;careerBlockAutoStart=true;renderObjHud();});
 
@@ -10799,5 +10825,73 @@ void main(){
       build(plane.pos.x,plane.pos.z).catch(e=>console.warn('[hdGround]',e));
     });
     console.log('[HD PACK 1] sharp near-field satellite ground online');
+  }
+})();
+/* ===== RESTORE PREVIOUS COCKPIT WINDOW GEOMETRY ===== */
+(function cockpitWindowsV2(){
+  let tries=0;
+  const iv=setInterval(()=>{
+    const S=window.__sim;
+    if(S&&S.scene&&S.scene.getTransformNodeByName&&S.scene.getTransformNodeByName('intRoot')){clearInterval(iv);build(S);}
+    else if(++tries>300)clearInterval(iv);
+  },200);
+
+  function build(S){
+    const scene=S.scene,BABYLON=S.BABYLON;
+    const intRoot=scene.getTransformNodeByName('intRoot');
+
+    ['gl1','gl2','gl3','gl4','gsl','gsr',
+     'wsFrameTop','wsFrameBot','wsFrameMid','wsFrameL','wsFrameR',
+     'wsVisorL','wsVisorR','wsVisorC'].forEach(n=>{
+      const m=scene.getMeshByName(n);if(m)m.dispose();
+    });
+
+    const WS={
+      x:0,y:0.56,z:15.70,tilt:-0.15,
+      paneW:0.62,paneH:0.62,
+      postW:0.05,
+      posts:[-0.67,0,0.67],
+      panes:[-1.005,-0.335,0.335,1.005],
+      barH:0.05,barY:0.34
+    };
+    const SIDE={x:1.56,y:0.62,z:15.00,w:0.90,h:0.42};
+
+    const glassM=new BABYLON.PBRMaterial('cw2Glass',scene);
+    glassM.albedoColor=new BABYLON.Color3(.04,.09,.11);
+    glassM.metallic=0;glassM.roughness=.03;
+    glassM.alpha=.10;glassM.transparencyMode=BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND;
+    glassM.backFaceCulling=false;
+    glassM.clearCoat.isEnabled=true;glassM.clearCoat.intensity=1;glassM.clearCoat.roughness=.02;
+    glassM.environmentIntensity=.4;
+    const sideGlassM=glassM.clone('cw2SideGlass');
+    sideGlassM.alpha=.13;
+
+    const frameM=new BABYLON.StandardMaterial('cw2Frame',scene);
+    frameM.diffuseColor=new BABYLON.Color3(.07,.075,.085);
+    frameM.specularColor=new BABYLON.Color3(.1,.1,.1);
+
+    const wsGroup=new BABYLON.TransformNode('cw2WindshieldGrp',scene);
+    wsGroup.parent=intRoot;
+    wsGroup.position.set(WS.x,WS.y,WS.z);
+    wsGroup.rotation.x=WS.tilt;
+    const mk=(name,w,h,d,x,y,z,mat)=>{
+      const b=BABYLON.MeshBuilder.CreateBox(name,{width:w,height:h,depth:d},scene);
+      b.position.set(x,y,z);b.material=mat;b.parent=wsGroup;
+      b.isPickable=false;return b;
+    };
+    WS.panes.forEach((x,i)=>{
+      const p=BABYLON.MeshBuilder.CreatePlane('cw2Pane'+i,{width:WS.paneW,height:WS.paneH,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);
+      p.position.set(x,0,0);p.material=glassM;p.parent=wsGroup;p.isPickable=false;
+    });
+    WS.posts.forEach((x,i)=>mk('cw2Post'+i,WS.postW,WS.paneH+WS.barH*2,.06,x,0,0,frameM));
+    mk('cw2BarTop',2*1.315,WS.barH,.06,0,WS.barY,0,frameM);
+    mk('cw2BarBot',2*1.315,WS.barH,.06,0,-WS.barY,0,frameM);
+    [-1,1].forEach(sd=>{
+      const sw=BABYLON.MeshBuilder.CreatePlane('cw2Side'+(sd<0?'L':'R'),{width:SIDE.w,height:SIDE.h,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);
+      sw.position.set(sd*SIDE.x,SIDE.y,SIDE.z);
+      sw.rotation.y=sd*Math.PI/2;
+      sw.material=sideGlassM;sw.parent=intRoot;sw.isPickable=false;
+    });
+    console.log('[COCKPIT WINDOWS v2] windshield 2.63 m wide, 4 panes, side windows resized');
   }
 })();
