@@ -22,6 +22,8 @@
 * **Throttle & Engines:** `Shift`/`Ctrl`, `T` (Autothrottle), `I` (Start Engines), `N` (Thrust Reversers)
 * **Aircraft Systems:** `F` (Flaps), `G` (Landing Gear), `B` (Spoilers), `Space` (Brakes), `P` (Autopilot)
 * **Camera & Replay:** `C`/`V` (Camera), `R` (Respawn), `F9` (60s Instant Replay)
+* **Cockpit Controls:** In cockpit view, hover and click the MCP, EFIS, display-select, and overhead controls. Use the wheel or click either side of MCP value windows to adjust targets. Arm the autothrottle before engaging speed/N1 modes; lowering the disengage bar inhibits autopilot re-engagement until raised.
+* **Flight Displays:** PFD controls set minimums, baro, FPV, and meters; ND controls set mode, range, traffic, bearing pointers, and overlays. DSP buttons switch EICAS pages, while master-alert and CANC/RCL controls acknowledge, cancel, and recall messages.
 
 ---
 
