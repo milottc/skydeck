@@ -1901,6 +1901,7 @@ const gearS=BABYLON.MeshBuilder.CreateCylinder('gearS',{height:.12,diameter:.018
 gearS.rotation.x=Math.PI/2;gearS.position.z=-.06;gearS.material=M.metal;gearS.parent=gearLeverPivot;
 const gearK=BABYLON.MeshBuilder.CreateCylinder('gearK',{height:.025,diameter:.06,tessellation:16},scene);
 gearK.rotation.x=Math.PI/2;gearK.position.z=-.125;gearK.material=M.white;gearK.parent=gearLeverPivot;
+scene.registerBeforeRender(()=>{gearLeverPivot.rotation.x=plane.gearDown?-.28:.28;});
 
 const cb=cvs(1024,600,(c,W,H)=>{rect(c,0,0,W,H,'#1d2024');
  for(let r=0;r<12;r++){c.fillStyle='#9aa4ad';c.font='11px sans-serif';c.fillText('C'+(r+1),6,40+r*46);for(let i=0;i<40;i++)dot(c,50+i*23.5,34+r*46,7,(i*13+r*7)%11===0?'#c0392b':'#dfe3e6');}});
@@ -2037,7 +2038,6 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
   CKI.addMesh(['flK','flLv'],{label:'FLAP LEVER · click or scroll',state:()=>FLAPS[plane.flaps].name,act:()=>{snd('lever');dispatchKey('KeyF');},wheel:d=>{if(faults.has('FLAP_JAM')){say('FLAPS JAMMED');return;}const n=Math.max(0,Math.min(FLAPS.length-1,plane.flaps+d));if(n!==plane.flaps){plane.flaps=n;snd('lever');say('FLAPS '+FLAPS[n].name);try{updateChips();}catch(e){}}}});
   CKI.addMesh(['sbK','sbLv'],{label:'SPEEDBRAKE LEVER',state:()=>plane.spoilerDeploy>.5?'DEPLOYED':'RETRACTED',act:()=>{snd('lever');dispatchKey('KeyB');}});
   CKI.addMesh(['thrK0','thrLv0','thrK1','thrLv1'],{label:'THROTTLE · drag up / down',state:()=>Math.round(plane.throttle*100)+'%',drag:true,act:()=>{},wheel:d=>{plane.throttle=Math.max(0,Math.min(1,plane.throttle+d*.05));}});
-  scene.registerBeforeRender(()=>{if(gearLeverPivot)gearLeverPivot.rotation.x=plane.gearDown?-.28:.28;});
 
   /* ============ picking / hover / click engine ============ */
   let tip=null;
