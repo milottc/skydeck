@@ -1895,6 +1895,8 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
 
 /* ===== INTERACTIVE COCKPIT (hover highlight + tooltip, click switches / buttons / levers, scroll knobs) ===== */
 const DSP={page:'ENG',cancelled:[],warnAck:false,cautionAck:false};
+const ND={mode:'MAP',center:false,range:40,tfc:true,bearingL:'VOR',bearingR:'OFF',
+  overlays:{WXR:false,TERR:false,WPT:true,STA:false,ARPT:false,DATA:false,POS:false}};
 (function(){
   const CKI=window.CKI={tex:{},meshSpecs:[],hover:null,drag:null,hinted:false};
   const $=id=>document.getElementById(id);
@@ -2576,8 +2578,6 @@ scene.registerBeforeRender(()=>{
   window._noSmoke=AIRSYS.cabin.noSmoke;
 });
 const EFIS={fpv:false,meters:false,baroHpa:1013.25,baroUnit:'HPA',minsSource:'RADIO',fdL:true,fdR:true};
-const ND={mode:'MAP',center:false,range:40,tfc:true,bearingL:'VOR',bearingR:'OFF',
-  overlays:{WXR:false,TERR:false,WPT:true,STA:false,ARPT:false,DATA:false,POS:false}};
 
 const windVec=new BABYLON.Vector3(0,0,0);
 
