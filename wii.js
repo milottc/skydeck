@@ -43,12 +43,19 @@
     try{
       // Start the chooser during the click gesture; loading the CDN module can take longer.
       const chooser=navigator.hid.requestDevice({
-        filters:[...PRODUCTS].map(productId=>({vendorId:VENDOR,productId}))
+        filters:[{vendorId:VENDOR}]
       });
       const [WiiRemote,devices]=await Promise.all([libraryPromise,chooser]);
       if(!WiiRemote)throw new Error('Could not load the Wii Remote support module from jsDelivr.');
-      selected=devices[0];
-      if(!selected){say('No Wii Remote selected.');return;}
+      selected=devices.find(candidate=>
+        PRODUCTS.has(candidate.productId)||/wii.?remote|wiimote|rvl-cnt/i.test(candidate.productName||'')
+      );
+      if(!selected){
+        say(devices.length
+          ?'That Nintendo HID device is not a recognized Wii Remote.'
+          :'The chooser found no Nintendo HID device. Pair the remote in your computer Bluetooth settings and press 1+2. On Windows, the default Bluetooth driver may not expose it to WebHID; a compatible Wii Remote HID driver may be required.');
+        return;
+      }
 
       await selected.open();
       device=selected;
