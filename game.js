@@ -1867,7 +1867,14 @@ const rad=cvs(400,640,(c,W,H)=>{
 });
 tpl('radP',.5,.8,0,-.287,13.8,Math.PI/2,0,tmat(rad,.7));
 [-1,1].forEach(s=>{cyl('trimW'+s,.26,.04,s*.3,-.42,14.0,0,Math.PI/2,M.dark);cyl('trimS'+s,.03,.042,s*.3,-.42,14.0,0,Math.PI/2,M.white);cyl('trimH'+s,.03,.05,s*.31,-.42,14.0,0,Math.PI/2,M.metal);});
-cyl('gearS',.02,.14,.22,-.34,14.99,Math.PI/2,0,M.metal);cyl('gearK',.07,.02,.22,-.34,14.9,Math.PI/2,0,M.white);
+intBox('gearPlate',.19,.25,.035,.22,-.34,14.99,0,M.bezel);
+intBox('gearSlot',.045,.17,.012,.22,-.34,14.966,0,M.dark);
+const gearLeverPivot=new BABYLON.TransformNode('gearLeverPivot',scene);
+gearLeverPivot.parent=interiorRoot;gearLeverPivot.position.set(.22,-.34,14.95);
+const gearS=BABYLON.MeshBuilder.CreateCylinder('gearS',{height:.15,diameter:.022,tessellation:12},scene);
+gearS.position.set(0,.075,0);gearS.material=M.metal;gearS.parent=gearLeverPivot;
+const gearK=BABYLON.MeshBuilder.CreateBox('gearK',{width:.085,height:.065,depth:.06},scene);
+gearK.position.set(0,.15,0);gearK.material=M.white;gearK.parent=gearLeverPivot;
 
 const cb=cvs(1024,600,(c,W,H)=>{rect(c,0,0,W,H,'#1d2024');
  for(let r=0;r<12;r++){c.fillStyle='#9aa4ad';c.font='11px sans-serif';c.fillText('C'+(r+1),6,40+r*46);for(let i=0;i<40;i++)dot(c,50+i*23.5,34+r*46,7,(i*13+r*7)%11===0?'#c0392b':'#dfe3e6');}});
@@ -2000,11 +2007,16 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
   }
 
   /* ============ 3D LEVERS (gear / flaps / speedbrake / throttles) ============ */
-  CKI.addMesh(['gearK','gearS'],{label:'LANDING GEAR LEVER',state:()=>plane.gearDown?'DOWN':'UP',act:()=>{snd('lever');dispatchKey('KeyG');}});
+  CKI.addMesh(['gearK','gearS','gearPlate'],{label:'LANDING GEAR LEVER · click',state:()=>plane.gearDown?'DOWN':'UP',act:()=>{snd('lever');dispatchKey('KeyG');}});
   CKI.addMesh(['flK','flLv'],{label:'FLAP LEVER · click or scroll',state:()=>FLAPS[plane.flaps].name,act:()=>{snd('lever');dispatchKey('KeyF');},wheel:d=>{if(faults.has('FLAP_JAM')){say('FLAPS JAMMED');return;}const n=Math.max(0,Math.min(FLAPS.length-1,plane.flaps+d));if(n!==plane.flaps){plane.flaps=n;snd('lever');say('FLAPS '+FLAPS[n].name);try{updateChips();}catch(e){}}}});
   CKI.addMesh(['sbK','sbLv'],{label:'SPEEDBRAKE LEVER',state:()=>plane.spoilerDeploy>.5?'DEPLOYED':'RETRACTED',act:()=>{snd('lever');dispatchKey('KeyB');}});
   CKI.addMesh(['thrK0','thrLv0','thrK1','thrLv1'],{label:'THROTTLE · drag up / down',state:()=>Math.round(plane.throttle*100)+'%',drag:true,act:()=>{},wheel:d=>{plane.throttle=Math.max(0,Math.min(1,plane.throttle+d*.05));}});
-  scene.registerBeforeRender(()=>{const gk=scene.getMeshByName('gearK'),gs=scene.getMeshByName('gearS');if(gk&&gs){const y=-.34+(plane.gearDown?0:.05);gk.position.y=y;gs.position.y=y;}});
+  scene.registerBeforeRender(()=>{
+    if(!gearLeverPivot)return;
+    const dt=Math.min(.1,scene.getEngine().getDeltaTime()/1000);
+    const target=plane.gearDown ? .18 : -.18;
+    gearLeverPivot.rotation.z+=(target-gearLeverPivot.rotation.z)*Math.min(1,dt*12);
+  });
 
   /* ============ picking / hover / click engine ============ */
   let tip=null;
@@ -5002,55 +5014,6 @@ function ilsCalc(){
 /* Purple checkpoints: single source of truth is SET.purple (default off). Any toggle path (\ key, cockpit button, settings) saves it. */
 const ILSP={get on(){return !!SET.purple;},set on(v){SET.purple=!!v;saveSet();}};
 
-/* ===== FLIGHT DECK PANEL: on-screen gear lever + quick-access switches ===== */
-(function flightDeck(){
-  const css='#fdBtn{position:fixed;left:150px;bottom:14px;z-index:70;font:600 12px system-ui,sans-serif;letter-spacing:.06em;padding:7px 11px;border-radius:9px;border:1px solid rgba(120,220,255,.45);background:rgba(10,20,34,.8);color:#bfefff;cursor:pointer}'+
-  '#fdPanel{position:fixed;left:150px;bottom:56px;z-index:71;width:300px;display:none;padding:12px;border-radius:12px;background:rgba(8,14,24,.97);border:1px solid rgba(120,220,255,.35);color:#dff6ff;font:600 11px system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.6)}'+
-  '#fdPanel.show{display:block}#fdPanel .g{display:grid;grid-template-columns:1fr 1fr;gap:6px}'+
-  '#fdPanel button.sw{font:700 11px system-ui,sans-serif;padding:8px 6px;border-radius:8px;border:1px solid #2a4a66;background:#10203a;color:#bfefff;cursor:pointer;letter-spacing:.04em}'+
-  '#fdPanel button.sw.on{background:#1c5a7a;border-color:#38d6ff;color:#fff}'+
-  '#fdPanel .gear{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:8px;border-radius:10px;background:#0a1220;border:1px solid #1d3550}'+
-  '#fdPanel .lev{width:46px;height:110px;border-radius:8px;background:#1b2330;border:1px solid #3a4c63;position:relative;cursor:pointer;flex:0 0 auto}'+
-  '#fdPanel .knob{position:absolute;left:8px;right:8px;height:34px;border-radius:6px;background:linear-gradient(#e8edf4,#8d9bb0);transition:top .35s ease;box-shadow:0 2px 6px rgba(0,0,0,.5)}'+
-  '#fdPanel .lbl{font-size:10px;color:#8aa4bb;letter-spacing:.08em}'+
-  '#fdPanel .sd{font-size:10px;color:#8aa4bb;margin-top:8px}';
-  const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
-  const btn=document.createElement('button');btn.id='fdBtn';btn.textContent='✈ FLIGHT DECK';
-  const pnl=document.createElement('div');pnl.id='fdPanel';
-  pnl.innerHTML='<div class="gear"><div class="lev" id="fdLev"><div class="knob" id="fdKnob"></div></div>'+
-    '<div><div class="lbl">LANDING GEAR</div><div id="fdGear" style="font-size:18px;font-weight:800;margin-top:4px">DN</div><div class="sd" style="margin-top:4px">Click lever or press G</div></div></div>'+
-    '<div class="g" id="fdGrid"></div><div class="sd">Quick switches. Same actions as the keyboard shortcuts.</div>';
-  document.body.appendChild(btn);document.body.appendChild(pnl);
-  const fire=code=>{window.dispatchEvent(new KeyboardEvent('keydown',{code}));window.dispatchEvent(new KeyboardEvent('keyup',{code}));};
-  const SW=[
-    {l:'FLAPS',on:()=>plane.flaps>0,t:()=>'FLAPS '+FLAPS[plane.flaps].name,act:()=>fire('KeyF')},
-    {l:'SPOILERS',on:()=>plane.spoilerDeploy>.5,act:()=>fire('KeyB')},
-    {l:'REVERSER',on:()=>!!plane.reverserOn,act:()=>fire('KeyN')},
-    {l:'A/P',on:()=>!!AP.master,act:()=>fire('KeyP')},
-    {l:'A/THR',on:()=>!!AP.athr,act:()=>fire('KeyT')},
-    {l:'YAW DAMP',on:()=>AP.yd!==false,act:()=>{AP.yd=!(AP.yd!==false);}},
-    {l:'F/D',on:()=>AP.fd!==false,act:()=>{AP.fd=!(AP.fd!==false);}},
-    {l:'ENG START',on:()=>false,act:()=>fire('KeyI')},
-    {l:'PFD',on:()=>!document.body.classList.contains('pfd-hidden'),act:()=>fire('KeyX')},
-    {l:'MAP',on:()=>{const f=document.getElementById('fms');return !!f&&f.classList.contains('show');},act:()=>fire('KeyJ')},
-    {l:'ATC',on:()=>{const f=document.getElementById('atc');return !!f&&!f.classList.contains('hidden');},act:()=>fire('KeyK')},
-    {l:'ILS PATH',on:()=>ILSP.on,act:()=>{ILSP.on=!ILSP.on;}}
-  ];
-  const grid=pnl.querySelector('#fdGrid');
-  SW.forEach((s,i)=>{const b=document.createElement('button');b.className='sw';b.dataset.i=i;grid.appendChild(b);});
-  grid.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;try{SW[+b.dataset.i].act();}catch(err){}refresh();});
-  const gearAct=()=>{fire('KeyG');refresh();};
-  pnl.querySelector('#fdLev').addEventListener('click',gearAct);
-  function refresh(){
-    if(!pnl.classList.contains('show'))return;
-    const gp=plane.gearPos,txt=gp>.9?'DN':(gp<.1?'UP':'TRANSIT');
-    const g=pnl.querySelector('#fdGear');g.textContent=txt;g.style.color=txt==='DN'?'#2fe070':(txt==='UP'?'#9fb5c9':'#ffb000');
-    pnl.querySelector('#fdKnob').style.top=plane.gearDown?'68px':'6px';
-    grid.querySelectorAll('button').forEach(b=>{const s=SW[+b.dataset.i];let on=false,t=s.l;try{on=!!s.on();if(s.t)t=s.t();}catch(e){}b.textContent=t;b.className='sw'+(on?' on':'');});
-  }
-  btn.addEventListener('click',()=>{pnl.classList.toggle('show');refresh();});
-  setInterval(refresh,200);
-})();
 /* ===== SETTINGS PANEL (gear button bottom-left) ===== */
 (function settingsPanel(){
   const css='#setBtn{position:fixed;left:14px;bottom:14px;z-index:70;font:600 12px system-ui,sans-serif;letter-spacing:.06em;padding:7px 11px;border-radius:9px;border:1px solid rgba(120,220,255,.45);background:rgba(10,20,34,.8);color:#bfefff;cursor:pointer}'+
