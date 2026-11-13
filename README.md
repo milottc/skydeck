@@ -24,6 +24,7 @@
 * **Camera & Replay:** `C`/`V` (Camera), `R` (Respawn), `F9` (60s Instant Replay)
 * **Cockpit Controls:** In cockpit view, hover and click the MCP, EFIS, display-select, and overhead controls. Use the wheel or click either side of MCP value windows to adjust targets. Arm the autothrottle before engaging speed/N1 modes; lowering the disengage bar inhibits autopilot re-engagement until raised.
 * **Flight Displays:** PFD controls set minimums, baro, FPV, and meters; ND controls set mode, range, traffic, bearing pointers, and overlays. DSP buttons switch EICAS pages, while master-alert and CANC/RCL controls acknowledge, cancel, and recall messages.
+* **Aircraft Systems:** A **SYSTEMS** panel is available in every cockpit view, with the same fuel/hydraulic, electrical, anti-ice, air/pressurization, cabin, GPWS, lighting, and engine controls across the fleet. On the 737/787, these controls are also available on the 3D overhead/pedestal. GPWS mode is selected with the flight-control overhead rotary and toggled with its adjacent GPWS switch. Selected effects are simulated; other controls provide state/indications rather than aircraft-specific system dynamics.
 
 ---
 

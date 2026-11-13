@@ -1998,12 +1998,19 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
     const BG='#2d3238',litC=['#5a3d10','#103a5a','#14502a','#5a1414'],onC=['#ffb020','#2aa0ff','#2fe070','#ff3030'];
     const pad=(n,l)=>String(Math.round(n)).padStart(l,'0');
     const D={}; // key g_r_i -> {label,get,act,cos}
-    const def=(g,r,i,label,get,act,tip)=>{D[g+'_'+r+'_'+i]={label,get,act,tip,cos:!get,on:true};};
+    const def=(g,r,i,label,get,act,tip,display)=>{D[g+'_'+r+'_'+i]={label,get,act,tip,display,cos:!get,on:true};};
     // FLT CONTROL
     def(0,0,0,'A/P',()=>!!AP.master,()=>dispatchKey('KeyP'),'AUTOPILOT');def(0,0,1,'A/THR',()=>!!AP.athr,()=>dispatchKey('KeyT'),'AUTOTHROTTLE');
     def(0,0,2,'F/D',()=>AP.fd!==false,()=>{AP.fd=!(AP.fd!==false);EFIS.fdL=AP.fd;EFIS.fdR=AP.fd;},'FLIGHT DIRECTOR');def(0,0,3,'YAW D',()=>AP.yd!==false,()=>{AP.yd=!(AP.yd!==false);},'YAW DAMPER');
     def(0,1,0,'FLAP',()=>plane.flaps>0,()=>dispatchKey('KeyF'),'FLAPS (cycle)');def(0,1,1,'SPLR',()=>plane.spoilerDeploy>.5,()=>dispatchKey('KeyB'),'SPOILERS');
     def(0,1,2,'GEAR',()=>!!plane.gearDown,()=>dispatchKey('KeyG'),'LANDING GEAR');
+    const gpwsModes=[['TERR','terrainOverride'],['GEAR','gearOverride'],['FLAP','flapOverride'],['G/S','glideslopeInhibit']];
+    let gpwsSelected=0;
+    def(0,1,3,'GPWS',()=>!!AIRSYS.gpws[gpwsModes[gpwsSelected][1]],()=>{
+      const key=gpwsModes[gpwsSelected][1];AIRSYS.gpws[key]=!AIRSYS.gpws[key];
+      say(gpwsModes[gpwsSelected][0]+' '+(AIRSYS.gpws[key]?'OVERRIDE':'NORMAL'));
+    },'GPWS OVERRIDE · rotate FLT CONTROL selector to choose TERR / GEAR / FLAP / G/S',
+      ()=>gpwsModes[gpwsSelected][0]+' '+(AIRSYS.gpws[gpwsModes[gpwsSelected][1]]?'OVRD':'NORM'));
     // NAV / DISPLAYS
     def(1,0,0,'PFD',()=>!document.body.classList.contains('pfd-hidden'),()=>dispatchKey('KeyX'),'HUD PFD overlay');
     def(1,0,1,'MAP',()=>{const f=$('fms');return !!f&&f.classList.contains('show');},()=>dispatchKey('KeyJ'),'FMS / MAP (J)');
@@ -2018,23 +2025,55 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
     def(2,0,1,'GEN L',()=>window._genL!==false,()=>{window._genL=!(window._genL!==false);say('LEFT GENERATOR '+(window._genL?'ON':'OFF'));},'LEFT ENGINE GENERATOR');
     def(2,0,2,'GEN R',()=>window._genR!==false,()=>{window._genR=!(window._genR!==false);say('RIGHT GENERATOR '+(window._genR?'ON':'OFF'));},'RIGHT ENGINE GENERATOR');
     def(2,0,3,'APU GEN',()=>window._apuGen!==false,()=>{window._apuGen=!(window._apuGen!==false);say('APU GENERATOR '+(window._apuGen?'ON':'OFF'));},'APU GENERATOR');
+    def(2,1,0,'EXT PWR',()=>AIRSYS.electrical.extPower,()=>{AIRSYS.electrical.extPower=!AIRSYS.electrical.extPower;say('EXTERNAL POWER '+(AIRSYS.electrical.extPower?'CONNECTED':'DISCONNECTED'));},'EXTERNAL POWER');
+    def(2,1,1,'BUS TIE',()=>AIRSYS.electrical.busTie,()=>{AIRSYS.electrical.busTie=!AIRSYS.electrical.busTie;say('BUS TIE '+(AIRSYS.electrical.busTie?'AUTO':'ISOLATED'));},'BUS TIE');
+    def(2,1,2,'TOW PWR',()=>AIRSYS.electrical.towingPower,()=>{AIRSYS.electrical.towingPower=!AIRSYS.electrical.towingPower;say('TOWING POWER '+(AIRSYS.electrical.towingPower?'ON':'OFF'));},'GROUND TOWING POWER');
+    def(2,1,3,'UTIL',()=>AIRSYS.electrical.utility,()=>{AIRSYS.electrical.utility=!AIRSYS.electrical.utility;say('UTILITY BUS '+(AIRSYS.electrical.utility?'ON':'OFF'));},'UTILITY BUS');
     // FUEL / HYDRAULICS
-    def(3,0,0,'FUEL',()=>ENG.fuelPumps,()=>{ENG.fuelPumps=!ENG.fuelPumps;say('FUEL PUMPS '+(ENG.fuelPumps?'ON':'OFF'));},'ENGINE FUEL PUMPS');
+    def(3,0,0,'L PUMP',()=>AIRSYS.fuel.leftPump,()=>{AIRSYS.fuel.leftPump=!AIRSYS.fuel.leftPump;syncFuelPumps();say('LEFT MAIN FUEL PUMP '+(AIRSYS.fuel.leftPump?'ON':'OFF'));},'LEFT MAIN FUEL PUMP');
+    def(3,0,1,'R PUMP',()=>AIRSYS.fuel.rightPump,()=>{AIRSYS.fuel.rightPump=!AIRSYS.fuel.rightPump;syncFuelPumps();say('RIGHT MAIN FUEL PUMP '+(AIRSYS.fuel.rightPump?'ON':'OFF'));},'RIGHT MAIN FUEL PUMP');
+    def(3,0,2,'CTR L',()=>AIRSYS.fuel.centerLeft,()=>{AIRSYS.fuel.centerLeft=!AIRSYS.fuel.centerLeft;syncFuelPumps();say('LEFT CENTER FUEL PUMP '+(AIRSYS.fuel.centerLeft?'ON':'OFF'));},'LEFT CENTER TANK FUEL PUMP');
+    def(3,0,3,'CTR R',()=>AIRSYS.fuel.centerRight,()=>{AIRSYS.fuel.centerRight=!AIRSYS.fuel.centerRight;syncFuelPumps();say('RIGHT CENTER FUEL PUMP '+(AIRSYS.fuel.centerRight?'ON':'OFF'));},'RIGHT CENTER TANK FUEL PUMP');
+    def(3,1,0,'L ENG HYD',()=>AIRSYS.hydraulic.leftEngine,()=>{AIRSYS.hydraulic.leftEngine=!AIRSYS.hydraulic.leftEngine;say('LEFT ENGINE HYD PUMP '+(AIRSYS.hydraulic.leftEngine?'ON':'OFF'));},'LEFT ENGINE HYDRAULIC PUMP');
+    def(3,1,1,'ELEC A',()=>AIRSYS.hydraulic.systemAElectric,()=>{AIRSYS.hydraulic.systemAElectric=!AIRSYS.hydraulic.systemAElectric;say('HYDRAULIC SYSTEM A ELECTRIC PUMP '+(AIRSYS.hydraulic.systemAElectric?'ON':'OFF'));},'HYDRAULIC SYSTEM A ELECTRIC PUMP');
+    def(3,1,2,'ELEC B',()=>AIRSYS.hydraulic.systemBElectric,()=>{AIRSYS.hydraulic.systemBElectric=!AIRSYS.hydraulic.systemBElectric;say('HYDRAULIC SYSTEM B ELECTRIC PUMP '+(AIRSYS.hydraulic.systemBElectric?'ON':'OFF'));},'HYDRAULIC SYSTEM B ELECTRIC PUMP');
+    def(3,1,3,'R ENG HYD',()=>AIRSYS.hydraulic.rightEngine,()=>{AIRSYS.hydraulic.rightEngine=!AIRSYS.hydraulic.rightEngine;say('RIGHT ENGINE HYD PUMP '+(AIRSYS.hydraulic.rightEngine?'ON':'OFF'));},'RIGHT ENGINE HYDRAULIC PUMP');
+    // ANTI-ICE
+    def(4,0,0,'WING',()=>!!window._antiIceOn,()=>{if(window._toggleAntiIce)window._toggleAntiIce();else say('ANTI-ICE NOT READY');AIRSYS.antiIce.wing=!!window._antiIceOn;},'WING ANTI-ICE');
+    def(4,0,1,'ENG L',()=>AIRSYS.antiIce.engineLeft,()=>{AIRSYS.antiIce.engineLeft=!AIRSYS.antiIce.engineLeft;say('LEFT ENGINE ANTI-ICE '+(AIRSYS.antiIce.engineLeft?'ON':'OFF'));},'LEFT ENGINE ANTI-ICE');
+    def(4,0,2,'ENG R',()=>AIRSYS.antiIce.engineRight,()=>{AIRSYS.antiIce.engineRight=!AIRSYS.antiIce.engineRight;say('RIGHT ENGINE ANTI-ICE '+(AIRSYS.antiIce.engineRight?'ON':'OFF'));},'RIGHT ENGINE ANTI-ICE');
+    def(4,0,3,'WIN L',()=>AIRSYS.antiIce.windowLeft,()=>{AIRSYS.antiIce.windowLeft=!AIRSYS.antiIce.windowLeft;say('LEFT WINDOW HEAT '+(AIRSYS.antiIce.windowLeft?'ON':'OFF'));},'LEFT WINDOW HEAT');
+    def(4,1,0,'WIN R',()=>AIRSYS.antiIce.windowRight,()=>{AIRSYS.antiIce.windowRight=!AIRSYS.antiIce.windowRight;say('RIGHT WINDOW HEAT '+(AIRSYS.antiIce.windowRight?'ON':'OFF'));},'RIGHT WINDOW HEAT');
+    def(4,1,1,'WIP L',()=>AIRSYS.antiIce.wiperLeft!=='OFF',()=>{AIRSYS.antiIce.wiperLeft=AIRSYS.antiIce.wiperLeft==='OFF'?'INT':'OFF';say('LEFT WIPER '+AIRSYS.antiIce.wiperLeft);},'LEFT WINDSHIELD WIPER');
+    def(4,1,2,'WIP R',()=>AIRSYS.antiIce.wiperRight!=='OFF',()=>{AIRSYS.antiIce.wiperRight=AIRSYS.antiIce.wiperRight==='OFF'?'INT':'OFF';say('RIGHT WIPER '+AIRSYS.antiIce.wiperRight);},'RIGHT WINDSHIELD WIPER');
+    def(4,1,3,'RAIN',()=>AIRSYS.antiIce.rainRepellent,()=>{AIRSYS.antiIce.rainRepellent=!AIRSYS.antiIce.rainRepellent;say('RAIN REPELLENT '+(AIRSYS.antiIce.rainRepellent?'ON':'OFF'));},'WINDSHIELD RAIN REPELLENT');
+    // AIR CONDITIONING / PRESSURIZATION
+    def(5,0,0,'PACK L',()=>AIRSYS.air.packLeft,()=>{AIRSYS.air.packLeft=!AIRSYS.air.packLeft;say('LEFT PACK '+(AIRSYS.air.packLeft?'ON':'OFF'));},'LEFT AIR CONDITIONING PACK');
+    def(5,0,1,'PACK R',()=>AIRSYS.air.packRight,()=>{AIRSYS.air.packRight=!AIRSYS.air.packRight;say('RIGHT PACK '+(AIRSYS.air.packRight?'ON':'OFF'));},'RIGHT AIR CONDITIONING PACK');
+    def(5,0,2,'TRIM L',()=>AIRSYS.air.trimLeft,()=>{AIRSYS.air.trimLeft=!AIRSYS.air.trimLeft;say('LEFT TRIM AIR '+(AIRSYS.air.trimLeft?'ON':'OFF'));},'LEFT TRIM AIR');
+    def(5,0,3,'TRIM R',()=>AIRSYS.air.trimRight,()=>{AIRSYS.air.trimRight=!AIRSYS.air.trimRight;say('RIGHT TRIM AIR '+(AIRSYS.air.trimRight?'ON':'OFF'));},'RIGHT TRIM AIR');
+    def(5,1,0,'RECIRC U',()=>AIRSYS.air.recircUpper,()=>{AIRSYS.air.recircUpper=!AIRSYS.air.recircUpper;say('UPPER RECIRC FAN '+(AIRSYS.air.recircUpper?'ON':'OFF'));},'UPPER RECIRCULATION FAN');
+    def(5,1,1,'RECIRC L',()=>AIRSYS.air.recircLower,()=>{AIRSYS.air.recircLower=!AIRSYS.air.recircLower;say('LOWER RECIRC FAN '+(AIRSYS.air.recircLower?'ON':'OFF'));},'LOWER RECIRCULATION FAN');
+    def(5,1,2,'EQ COOL',()=>AIRSYS.air.equipCooling!=='OFF',()=>{AIRSYS.air.equipCooling=AIRSYS.air.equipCooling==='OFF'?'AUTO':'OFF';say('EQUIPMENT COOLING '+AIRSYS.air.equipCooling);},'EQUIPMENT COOLING');
+    def(5,1,3,'OUTFLOW',()=>AIRSYS.air.outflow==='AUTO',()=>{AIRSYS.air.outflow=AIRSYS.air.outflow==='AUTO'?'MAN':'AUTO';say('OUTFLOW VALVE '+AIRSYS.air.outflow);},'CABIN PRESSURIZATION OUTFLOW VALVE');
     // LIGHTS
     def(6,0,0,'LAND',()=>landingOn,()=>dispatchKey('KeyL'),'LANDING LIGHTS');
     def(6,0,1,'NOSE',()=>window._taxiOn!==false,()=>{window._taxiOn=!(window._taxiOn!==false);say('TAXI LIGHT '+(window._taxiOn?'ON':'OFF'));},'TAXI / NOSE LIGHT');
     def(6,0,2,'STRBE',()=>window._strobeOn!==false,()=>{window._strobeOn=!(window._strobeOn!==false);say('STROBES '+(window._strobeOn?'ON':'OFF'));},'STROBE LIGHTS');
     def(6,0,3,'NAV',()=>window._navOn!==false,()=>{window._navOn=!(window._navOn!==false);say('NAV LIGHTS '+(window._navOn?'ON':'OFF'));},'NAV LIGHTS');
-    def(6,1,0,'BELTS',()=>!!window._belts,()=>{window._belts=!window._belts;snd('chime');say('SEAT BELT SIGN '+(window._belts?'ON':'OFF'));},'SEAT BELT SIGN');
-    def(6,1,1,'NOSMK',()=>window._noSmoke!==false,()=>{window._noSmoke=!(window._noSmoke!==false);say('NO SMOKING SIGN '+(window._noSmoke?'ON':'OFF'));},'NO SMOKING SIGN');
+    def(6,1,0,'BELTS',()=>!!window._belts,()=>{const modes=['AUTO','ON','OFF'];AIRSYS.cabin.beltMode=modes[(modes.indexOf(AIRSYS.cabin.beltMode)+1)%modes.length];snd('chime');say('SEAT BELT SIGN '+AIRSYS.cabin.beltMode);},'SEAT BELT SIGN · AUTO / ON / OFF',()=>AIRSYS.cabin.beltMode);
+    def(6,1,1,'NOSMK',()=>AIRSYS.cabin.noSmoke,()=>{AIRSYS.cabin.noSmoke=!AIRSYS.cabin.noSmoke;window._noSmoke=AIRSYS.cabin.noSmoke;say('NO SMOKING SIGN '+(AIRSYS.cabin.noSmoke?'ON':'OFF'));},'NO SMOKING SIGN');
     def(6,1,2,'DOME',()=>!!window._dome,()=>{window._dome=!window._dome;try{scene.getLightByName('cpL').setEnabled(window._dome);scene.getLightByName('cpL2').setEnabled(window._dome);}catch(e){}},'COCKPIT DOME LIGHT');
+    def(6,1,3,'BEACON',()=>AIRSYS.lights.beacon,()=>{AIRSYS.lights.beacon=!AIRSYS.lights.beacon;say('BEACON LIGHT '+(AIRSYS.lights.beacon?'ON':'OFF'));},'BEACON LIGHT');
     // ENG / APU
     def(7,0,0,'START',()=>ENG.starting||ENG.L.state==='RUNNING'||ENG.R.state==='RUNNING',()=>dispatchKey('KeyI'),'ENGINE START');
     def(7,0,1,'REV',()=>!!plane.reverserOn,()=>dispatchKey('KeyN'),'THRUST REVERSERS');
     def(7,0,2,'ABRK',()=>!!plane._ab,()=>{plane._ab=!plane._ab;say('AUTOBRAKE '+(plane._ab?'ARMED':'OFF'));},'AUTOBRAKE');
-    def(7,1,0,'CALL',()=>false,()=>{snd('chime');say('CABIN CALL · CHIME');},'CABIN CALL');
-    def(7,1,1,'APU',()=>ENG.apu.running,()=>{ENG.apu.running=!ENG.apu.running;ENG.apu.n2=ENG.apu.running?100:0;ENG.apu.egt=ENG.apu.running?380:15;say('APU '+(ENG.apu.running?'RUNNING':'OFF'));},'APU START / STOP');
-    def(4,0,0,'ANTI-ICE',()=>!!window._antiIceOn,()=>{if(window._toggleAntiIce)window._toggleAntiIce();else say('ANTI-ICE NOT READY');},'WING ANTI-ICE');
+    def(7,0,3,'FIRE TEST',()=>false,()=>{showMsg('FIRE TEST · AUDIO CHECK',1800);speak('fire warning',1);},'FIRE / OVERHEAT AUDIO TEST');
+    def(7,1,0,'OXY',()=>AIRSYS.cabin.oxygen,()=>{AIRSYS.cabin.oxygen=!AIRSYS.cabin.oxygen;say('PASSENGER OXYGEN '+(AIRSYS.cabin.oxygen?'DEPLOYED':'NORMAL'));},'PASSENGER OXYGEN');
+    def(7,1,1,'APU',()=>ENG.apu.running||ENG.apu.spooling,()=>{toggleAPU();say('APU '+(ENG.apu.spooling?'STARTING':ENG.apu.running?'RUNNING':'OFF'));},'APU START / STOP');
+    def(7,1,2,'FUEL L',()=>AIRSYS.engine.fuelCutoffLeft,()=>setFuelCutoff('L'),'LEFT ENGINE FUEL CUTOFF');
+    def(7,1,3,'FUEL R',()=>AIRSYS.engine.fuelCutoffRight,()=>setFuelCutoff('R'),'RIGHT ENGINE FUEL CUTOFF');
     const KN={};const knobState=k=>KN[k]||(KN[k]=3);
     const tgX=(g,i)=>g*256+10+34+i*56,tgY=r=>r?230:160;
     const tog=(x,y,up)=>{c.fillStyle='#0a0a0a';c.beginPath();c.arc(x,y,11,0,6.2832);c.fill();c.strokeStyle='#c8ccd0';c.lineWidth=6;c.lineCap='round';c.beginPath();c.moveTo(x,y);c.lineTo(x,y+(up?-17:17));c.stroke();c.lineCap='butt';c.fillStyle=up?'#e8ecef':'#9aa0a6';c.beginPath();c.arc(x,y+(up?-18:18),5,0,6.2832);c.fill();};
@@ -2052,7 +2091,7 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
         // bottom indicator lamps follow the toggles above them
         for(let i=0;i<4;i++){const lx=g*256+10+10+i*57,k=(i+g)%4,on=stateOf(g+'_0_'+i)||stateOf(g+'_1_'+i);
           c.fillStyle='#050505';c.fillRect(lx,400,52,34);c.fillStyle=on?onC[k]:litC[k];c.fillRect(lx+2,402,48,30);}
-        knobDraw(g*256+10+60,330,knobState(g+'_0'));knobDraw(g*256+10+176,330,knobState(g+'_1'));
+        knobDraw(g*256+10+60,330,g===0?gpwsSelected:knobState(g+'_0'));knobDraw(g*256+10+176,330,knobState(g+'_1'));
       }
       if(hoverRect){c.strokeStyle='#5fe3ff';c.lineWidth=4;c.strokeRect(hoverRect[0],hoverRect[1],hoverRect[2],hoverRect[3]);}
       T.update(true);
@@ -2060,26 +2099,122 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
     const spec=CKI.addTex('ohp',W,H,paint);CKI.tex.ohp.setHover=r=>{hoverRect=r;paint();};
     for(let g=0;g<8;g++){
       for(let r=0;r<2;r++)for(let i=0;i<4;i++){const key=g+'_'+r+'_'+i,d=D[key]||{label:'SW'+(i+1+r*4),cos:true,on:true,tip:'SWITCH'};D[key]=d;
-        CKI.rect('ohp',[tgX(g,i)-22,tgY(r)-34,44,70],{label:d.tip||d.label,state:()=>d.get?(d.get()?'ON':'OFF'):(d.on?'ON':'OFF'),act:()=>{snd('sw');if(d.act)d.act();else d.on=!d.on;paint();}});}
+        CKI.rect('ohp',[tgX(g,i)-22,tgY(r)-34,44,70],{label:d.tip||d.label,state:()=>d.display?d.display():(d.get?(d.get()?'ON':'OFF'):(d.on?'ON':'OFF')),act:()=>{snd('sw');if(d.act)d.act();else d.on=!d.on;paint();}});}
       for(const ki of [0,1]){const key=g+'_'+ki,kx=g*256+10+(ki?176:60);
-        CKI.rect('ohp',[kx-30,330-30,60,60],{label:g===1?(ki===0?'ND MODE SELECTOR':'ND RANGE SELECTOR'):['FLT CONTROL','NAV / DISPLAYS','ELECTRICAL','FUEL / HYD','ANTI-ICE','AIR COND','LIGHTS','ENG / APU'][g]+' selector',
-          state:()=>g===1?(ki===0?ND.mode:ND.range+' NM'):'pos '+(knobState(key)+1),
+        CKI.rect('ohp',[kx-30,330-30,60,60],{label:g===1?(ki===0?'ND MODE SELECTOR':'ND RANGE SELECTOR'):
+          g===0&&ki===0?'GPWS OVERRIDE SELECTOR':
+          g===3&&ki===0?'FUEL CROSSFEED VALVE':
+          g===4?(ki===0?'LEFT WIPER SPEED':'RIGHT WIPER SPEED'):
+          g===5?(ki===0?'LANDING ALTITUDE':'CABIN ZONE TEMPERATURE'):
+          g===6?(ki===0?'MASTER LIGHT BRIGHTNESS':'EMERGENCY LIGHTS'):
+          g===7?(ki===0?'LEFT EEC MODE':'RIGHT EEC MODE'):['FLT CONTROL','NAV / DISPLAYS','ELECTRICAL','FUEL / HYD','ANTI-ICE','AIR COND','LIGHTS','ENG / APU'][g]+' selector',
+          state:()=>g===1?(ki===0?ND.mode:ND.range+' NM'):
+            g===0&&ki===0?gpwsModes[gpwsSelected][0]:
+            g===3&&ki===0?'CROSSFEED '+(AIRSYS.fuel.crossfeed?'OPEN':'CLOSED'):
+            g===4?(ki===0?AIRSYS.antiIce.wiperLeft:AIRSYS.antiIce.wiperRight):
+            g===5?(ki===0?AIRSYS.air.landingAltitude+' FT':AIRSYS.air.zoneTemp+' C'):
+            g===6?(ki===0?Math.round(AIRSYS.lights.masterBrightness*100)+'%':AIRSYS.cabin.emergencyLights):
+            g===7?(ki===0?AIRSYS.engine.eecLeft:AIRSYS.engine.eecRight):'pos '+(knobState(key)+1),
           act:(e,dir)=>{
             snd('knob');const d2=dir||((e&&e.local&&e.local[0]<kx)?-1:1);
             if(g===1&&ki===0){const modes=['APP','VOR','MAP','PLN'];ND.mode=modes[(modes.indexOf(ND.mode)+d2+modes.length)%modes.length];}
             else if(g===1&&ki===1){const ranges=[5,10,20,40,80,160,320,640],i=ranges.indexOf(ND.range);ND.range=ranges[Math.max(0,Math.min(ranges.length-1,i+d2))];}
+            else if(g===0&&ki===0)gpwsSelected=(gpwsSelected+d2+gpwsModes.length)%gpwsModes.length;
+            else if(g===3&&ki===0){AIRSYS.fuel.crossfeed=!AIRSYS.fuel.crossfeed;}
+            else if(g===4){const wiper=ki===0?'wiperLeft':'wiperRight',speeds=['OFF','INT','LOW','HIGH'],i=speeds.indexOf(AIRSYS.antiIce[wiper]);AIRSYS.antiIce[wiper]=speeds[(Math.max(0,i)+d2+speeds.length)%speeds.length];}
+            else if(g===5&&ki===0)AIRSYS.air.landingAltitude=Math.max(-1000,Math.min(14000,AIRSYS.air.landingAltitude+d2*500));
+            else if(g===5&&ki===1)AIRSYS.air.zoneTemp=Math.max(18,Math.min(30,AIRSYS.air.zoneTemp+d2));
+            else if(g===6&&ki===0){AIRSYS.lights.masterBrightness=Math.max(0,Math.min(1,AIRSYS.lights.masterBrightness+d2*.1));setCockpitBrightness();}
+            else if(g===6&&ki===1){const modes=['OFF','ARMED','ON'],i=modes.indexOf(AIRSYS.cabin.emergencyLights);AIRSYS.cabin.emergencyLights=modes[(Math.max(0,i)+d2+modes.length)%modes.length];}
+            else if(g===7){const side=ki===0?'eecLeft':'eecRight';AIRSYS.engine[side]=AIRSYS.engine[side]==='NORM'?'ALTN':'NORM';}
             else KN[key]=Math.max(0,Math.min(7,knobState(key)+d2));
             paint();
           },wheel:d2=>{
             snd('knob');
             if(g===1&&ki===0){const modes=['APP','VOR','MAP','PLN'];ND.mode=modes[(modes.indexOf(ND.mode)+d2+modes.length)%modes.length];}
             else if(g===1&&ki===1){const ranges=[5,10,20,40,80,160,320,640],i=ranges.indexOf(ND.range);ND.range=ranges[Math.max(0,Math.min(ranges.length-1,i+d2))];}
+            else if(g===0&&ki===0)gpwsSelected=(gpwsSelected+d2+gpwsModes.length)%gpwsModes.length;
+            else if(g===3&&ki===0){AIRSYS.fuel.crossfeed=!AIRSYS.fuel.crossfeed;}
+            else if(g===4){const wiper=ki===0?'wiperLeft':'wiperRight',speeds=['OFF','INT','LOW','HIGH'],i=speeds.indexOf(AIRSYS.antiIce[wiper]);AIRSYS.antiIce[wiper]=speeds[(Math.max(0,i)+d2+speeds.length)%speeds.length];}
+            else if(g===5&&ki===0)AIRSYS.air.landingAltitude=Math.max(-1000,Math.min(14000,AIRSYS.air.landingAltitude+d2*500));
+            else if(g===5&&ki===1)AIRSYS.air.zoneTemp=Math.max(18,Math.min(30,AIRSYS.air.zoneTemp+d2));
+            else if(g===6&&ki===0){AIRSYS.lights.masterBrightness=Math.max(0,Math.min(1,AIRSYS.lights.masterBrightness+d2*.1));setCockpitBrightness();}
+            else if(g===6&&ki===1){const modes=['OFF','ARMED','ON'],i=modes.indexOf(AIRSYS.cabin.emergencyLights);AIRSYS.cabin.emergencyLights=modes[(Math.max(0,i)+d2+modes.length)%modes.length];}
+            else if(g===7){const side=ki===0?'eecLeft':'eecRight';AIRSYS.engine[side]=AIRSYS.engine[side]==='NORM'?'ALTN':'NORM';}
             else KN[key]=Math.max(0,Math.min(7,knobState(key)+d2));
             paint();
           }});
       }
     }
-    setInterval(()=>{let h='';try{for(const k in D)h+=stateOf(k)?1:0;}catch(e){return;}if(h!==lastHash){lastHash=h;try{paint();}catch(e){}}},250);
+    const systemSections=['FLT CONTROL','NAV / DISPLAYS','ELECTRICAL','FUEL / HYD','ANTI-ICE','AIR COND','LIGHTS','ENG / APU'];
+    const systemToggle=document.createElement('button');
+    systemToggle.type='button';systemToggle.textContent='SYSTEMS';
+    systemToggle.setAttribute('aria-label','Open aircraft systems controls');
+    systemToggle.style.cssText='display:none;position:fixed;right:14px;bottom:14px;z-index:610;padding:8px 12px;border:1px solid #56b8dd;border-radius:8px;background:#102234;color:#d9f5ff;font:700 12px system-ui;cursor:pointer;';
+    const systemPanel=document.createElement('div');
+    systemPanel.style.cssText='display:none;position:fixed;right:14px;bottom:58px;z-index:611;width:min(620px,calc(100vw - 28px));max-height:72vh;overflow:auto;padding:12px;border:1px solid #39718b;border-radius:10px;background:rgba(7,15,24,.97);color:#e4f5ff;font:12px system-ui;box-shadow:0 10px 32px #000b;';
+    const systemHeader=document.createElement('div');
+    systemHeader.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:800;letter-spacing:.08em;';
+    const systemTitle=document.createElement('span');systemTitle.textContent='AIRCRAFT SYSTEMS';
+    const systemClose=document.createElement('button');systemClose.type='button';systemClose.textContent='CLOSE';
+    systemClose.style.cssText='padding:5px 8px;border:1px solid #426176;border-radius:6px;background:#152838;color:#d9f5ff;cursor:pointer;';
+    systemHeader.append(systemTitle,systemClose);
+    const systemGrid=document.createElement('div');
+    systemGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:8px;';
+    systemPanel.append(systemHeader,systemGrid);
+    document.body.append(systemToggle,systemPanel);
+    const systemButtons=[],systemKnobs=[];
+    systemSections.forEach((name,g)=>{
+      const section=document.createElement('section');
+      section.style.cssText='padding:8px;border:1px solid #273c4d;border-radius:7px;background:#0d1924;';
+      const heading=document.createElement('div');heading.textContent=name;
+      heading.style.cssText='margin-bottom:6px;color:#7fc8e7;font-weight:800;font-size:10px;letter-spacing:.1em;';
+      const grid=document.createElement('div');
+      grid.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;';
+      for(let r=0;r<2;r++)for(let i=0;i<4;i++){
+        const key=g+'_'+r+'_'+i,d=D[key];
+        if(!d)continue;
+        const button=document.createElement('button');button.type='button';button.title=d.tip||d.label;
+        button.style.cssText='display:flex;justify-content:space-between;gap:6px;padding:6px;border:1px solid #31495b;border-radius:5px;background:#142330;color:#dbeaf2;text-align:left;cursor:pointer;';
+        const label=document.createElement('span');label.textContent=d.label;
+        const value=document.createElement('small');value.style.cssText='color:#91d9f5;text-align:right;';
+        button.append(label,value);
+        button.addEventListener('click',()=>{
+          snd('sw');if(d.act)d.act();else d.on=!d.on;
+          paint();refreshSystemControls();
+        });
+        systemButtons.push({button,value,d,key});grid.appendChild(button);
+      }
+      const knobSpecs=CKI.tex.ohp.specs.filter(s=>s.rect&&s.rect[1]===300&&Math.floor(s.rect[0]/256)===g);
+      knobSpecs.forEach(spec=>{
+        const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:5px;margin-top:5px;padding-top:5px;border-top:1px solid #263a49;';
+        const label=document.createElement('span');label.textContent=spec.label;
+        const value=document.createElement('small');value.style.cssText='color:#91d9f5;';
+        const minus=document.createElement('button'),plus=document.createElement('button');
+        minus.type=plus.type='button';minus.textContent='−';plus.textContent='+';
+        [minus,plus].forEach(b=>b.style.cssText='width:26px;height:24px;border:1px solid #426176;border-radius:4px;background:#152838;color:#d9f5ff;cursor:pointer;');
+        minus.addEventListener('click',()=>{spec.act(null,-1);paint();refreshSystemControls();});
+        plus.addEventListener('click',()=>{spec.act(null,1);paint();refreshSystemControls();});
+        row.append(label,value,minus,plus);grid.appendChild(row);systemKnobs.push({spec,value});
+      });
+      section.append(heading,grid);systemGrid.appendChild(section);
+    });
+    function refreshSystemControls(){
+      systemButtons.forEach(({button,value,d,key})=>{
+        button.classList.toggle('on',stateOf(key));
+        button.style.background=stateOf(key)?'#1b3c4d':'#142330';
+        value.textContent=d.display?d.display():(d.get?(d.get()?'ON':'OFF'):(d.on?'ON':'OFF'));
+      });
+      systemKnobs.forEach(({spec,value})=>{value.textContent=spec.state?spec.state():'';});
+    }
+    systemToggle.addEventListener('click',()=>{
+      const open=systemPanel.style.display!=='block';
+      systemPanel.style.display=open?'block':'none';systemToggle.setAttribute('aria-expanded',String(open));
+      if(open)refreshSystemControls();
+    });
+    systemClose.addEventListener('click',()=>{systemPanel.style.display='none';systemToggle.setAttribute('aria-expanded','false');});
+    scene.registerBeforeRender(()=>{systemToggle.style.display=camMode===1?'block':'none';if(camMode!==1)systemPanel.style.display='none';});
+    setInterval(()=>{let h='';try{for(const k in D)h+=stateOf(k)?1:0;}catch(e){return;}if(h!==lastHash){lastHash=h;try{paint();}catch(e){}}if(systemPanel.style.display==='block')refreshSystemControls();},250);
   }
 
   /* ============ MCP (autopilot panel) – live values + clickable ============ */
@@ -2360,7 +2495,7 @@ const plane={
   throttle:.65,reverserOn:false,flaps:0,gearDown:true,spoilerDeploy:0,
   elevator:0,aileron:0,rudder:0,elevTrim:0,ailTrim:0,rudTrim:0,
   assist:true,alpha:0,gForce:1,speed:135,
-  fuel:18000,crashed:false,brakeHold:false,stall:false,onGround:false,
+  fuel:18000,crashed:false,brakeHold:false,parkingBrake:false,stall:false,onGround:false,
   gearCompress:0,gearSpringVel:0,justTouched:false,
   turbTimer:0,turbPhase:0,hold:false,
   gearPos:1.0,gearTarget:1.0,flapVisual:0,spoilerVisual:0,
@@ -2384,13 +2519,61 @@ const ENG={
   fireWarning:{L:false,R:false},
   fireHandlesPulled:{L:false,R:false}
 };
-const electricalPower=()=>ENG.battery||(ENG.apu.running&&window._apuGen!==false)||
+const electricalPower=()=>ENG.battery||AIRSYS.electrical.extPower||(ENG.apu.running&&window._apuGen!==false)||
   (ENG.L.state==='RUNNING'&&window._genL!==false)||(ENG.R.state==='RUNNING'&&window._genR!==false);
+function syncFuelPumps(){
+  ENG.fuelPumps=AIRSYS.fuel.leftPump||AIRSYS.fuel.rightPump||AIRSYS.fuel.centerLeft||AIRSYS.fuel.centerRight;
+}
+function toggleAPU(){
+  if(ENG.apu.running||ENG.apu.spooling){
+    ENG.apu.running=false;ENG.apu.spooling=false;ENG.apu.n2=0;ENG.apu.egt=15;
+  }else{
+    ENG.apu.n2=0;ENG.apu.egt=15;ENG.apu.spooling=true;
+  }
+}
+function setCockpitBrightness(){
+  for(const name of ['cpL','cpL2']){
+    const light=scene.getLightByName(name);
+    if(light)light.intensity=AIRSYS.lights.masterBrightness;
+  }
+}
+function setFuelCutoff(side){
+  const key=side==='L'?'fuelCutoffLeft':'fuelCutoffRight';
+  AIRSYS.engine[key]=!AIRSYS.engine[key];
+  if(AIRSYS.engine[key]){
+    if(ENG.starting){
+      ENG.starting=false;ENG.startTimer=0;
+      for(const name of ['L','R']){
+        if(ENG[name].state==='PENDING')ENG[name].state='OFF';
+        else if(ENG[name].state==='STARTING')ENG[name].state='SHUTDOWN';
+      }
+    }
+    if(ENG[side].state!=='OFF')ENG[side].state='SHUTDOWN';
+  }
+  showMsg((side==='L'?'LEFT':'RIGHT')+' ENGINE FUEL '+(AIRSYS.engine[key]?'CUTOFF':'ON · STARTER REQUIRED'));
+}
 
 const AP={master:false,fd:true,athr:false,athrArmed:false,yd:true,n1Mode:false,lvlChg:false,cmdChannel:'A',locMode:false,apInhibit:false,
   hdgMode:false,hdgTarget:0,courseTarget:260,altMode:false,altTarget:10000,altIncrement:'AUTO',
   vsMode:false,vsTarget:0,vsModeType:'VS',fpaTarget:0,spdMode:false,spdTarget:250,
   speedUnit:'IAS',machTarget:.78,bankLimit:25,bankMode:'AUTO',thrustMode:'CLB',trackMode:false};
+const AIRSYS={
+  electrical:{extPower:false,busTie:true,towingPower:false,utility:true},
+  hydraulic:{leftEngine:true,rightEngine:true,systemAElectric:false,systemBElectric:false},
+  fuel:{crossfeed:false,leftPump:false,rightPump:false,centerLeft:false,centerRight:false},
+  antiIce:{wing:false,engineLeft:false,engineRight:false,windowLeft:true,windowRight:true,wiperLeft:'OFF',wiperRight:'OFF',rainRepellent:false},
+  air:{packLeft:true,packRight:true,trimLeft:true,trimRight:true,recircUpper:true,recircLower:true,
+    equipCooling:'AUTO',outflow:'AUTO',landingAltitude:0,zoneTemp:22},
+  cabin:{beltMode:'AUTO',oxygen:false,noSmoke:true,emergencyLights:'ARMED'},
+  gpws:{terrainOverride:false,gearOverride:false,flapOverride:false,glideslopeInhibit:false},
+  lights:{beacon:true,masterBrightness:1},
+  engine:{eecLeft:'NORM',eecRight:'NORM',fuelCutoffLeft:false,fuelCutoffRight:false}
+};
+scene.registerBeforeRender(()=>{
+  const altFt=plane.pos.y*3.28084;
+  window._belts=AIRSYS.cabin.beltMode==='ON'||(AIRSYS.cabin.beltMode==='AUTO'&&(altFt<10000||plane.flaps>0||plane.gearDown));
+  window._noSmoke=AIRSYS.cabin.noSmoke;
+});
 const DSP={page:'ENG',cancelled:[],warnAck:false,cautionAck:false};
 const EFIS={fpv:false,meters:false,baroHpa:1013.25,baroUnit:'HPA',minsSource:'RADIO',fdL:true,fdR:true};
 const ND={mode:'MAP',center:false,range:40,tfc:true,bearingL:'VOR',bearingR:'OFF',
@@ -2595,7 +2778,7 @@ function resetAircraft(lat,lon,elev){
   plane.elevator=0;plane.aileron=0;plane.rudder=0;
   plane.elevTrim=0;plane.ailTrim=0;plane.rudTrim=0;
   plane.alpha=0;plane.gForce=1;plane.speed=0;
-  plane.fuel=18000;plane.crashed=false;plane.brakeHold=false;plane.stall=false;
+  plane.fuel=18000;plane.crashed=false;plane.brakeHold=false;plane.parkingBrake=false;plane.stall=false;
   plane.gearCompress=0;plane.gearSpringVel=0;plane.justTouched=false;
   plane.turbTimer=0;plane.turbPhase=Math.random()*100;
   plane.gearPos=1.0;plane.gearTarget=1.0;
@@ -2639,6 +2822,8 @@ function resetAircraft(lat,lon,elev){
 
   AP.master=false;AP.apInhibit=false;AP.athr=false;AP.athrArmed=false;AP.hdgMode=false;AP.altMode=false;AP.vsMode=false;AP.spdMode=false;
   ENG.battery=true;ENG.fuelPumps=true;ENG.apuBleed=true;ENG.ignition=false;
+  AIRSYS.fuel.leftPump=true;AIRSYS.fuel.rightPump=true;AIRSYS.fuel.centerLeft=false;AIRSYS.fuel.centerRight=false;
+  AIRSYS.engine.fuelCutoffLeft=false;AIRSYS.engine.fuelCutoffRight=false;
   window._genL=true;window._genR=true;window._apuGen=true;
   ENG.apu.running=true;ENG.apu.n2=100;ENG.apu.egt=380;ENG.apu.spooling=false;
   ENG.L.n1=22;ENG.L.n2=58;ENG.L.egt=380;ENG.L.ff=600;ENG.L.state='RUNNING';
@@ -2687,6 +2872,7 @@ function startEngines(){
   if(ENG.L.state==='RUNNING'&&ENG.R.state==='RUNNING'){showMsg('ENGINES ALREADY RUNNING');return;}
   if(!electricalPower()){showMsg('ENGINE START INHIBITED · NO ELECTRICAL POWER',2500);return;}
   if(!ENG.fuelPumps){showMsg('ENGINE START INHIBITED · FUEL PUMPS OFF',2500);return;}
+  if(AIRSYS.engine.fuelCutoffLeft||AIRSYS.engine.fuelCutoffRight){showMsg('ENGINE START INHIBITED · FUEL CUTOFF',2500);return;}
   ENG.starting=true;ENG.startTimer=0;
   showMsg('ENGINE START SEQUENCE');
   ENG.L.state='STARTING';ENG.L.starterTimer=0;
@@ -2937,7 +3123,7 @@ function readInput(dt){
     if(keys['ShiftLeft']||keys['ShiftRight'])plane.throttle=BABYLON.Scalar.Clamp(plane.throttle+dt*rate,0,1);
     if(keys['ControlLeft']||keys['ControlRight'])plane.throttle=BABYLON.Scalar.Clamp(plane.throttle-dt*rate,0,1);
   }
-  plane.brakeHold=!!keys['Space']&&!faults.has('BRAKE_FAIL');
+  plane.brakeHold=(!!keys['Space']||plane.parkingBrake)&&!faults.has('BRAKE_FAIL');
 }
 
 const tmpM=BABYLON.Matrix.Identity();
@@ -4154,11 +4340,18 @@ function drawEICAS(ctx,W,H){
     const rows=[];
     const status=(ok)=>ok?G:A;
     if(page==='SYS')rows.push(
-      ['HYDRAULICS',faults.has('HYD_LOSS')?'LOW PRESSURE':'NORMAL',faults.has('HYD_LOSS')?R:G],
+      ['HYDRAULICS',faults.has('HYD_LOSS')?'LOW PRESSURE':`SYS A ${AIRSYS.hydraulic.leftEngine?'ENG':'—'}/${AIRSYS.hydraulic.systemAElectric?'ELEC':'—'} · SYS B ${AIRSYS.hydraulic.rightEngine?'ENG':'—'}/${AIRSYS.hydraulic.systemBElectric?'ELEC':'—'}`,faults.has('HYD_LOSS')?R:G],
       ['ELECTRICAL',faults.has('ELEC_BUS')?'BUS FAULT':electricalPower()?'POWERED':'NO POWER',faults.has('ELEC_BUS')?R:electricalPower()?G:R],
+      ['BATTERY / EXT PWR',(ENG.battery?'BAT ON':'BAT OFF')+' · '+(AIRSYS.electrical.extPower?'EXT ON':'EXT OFF'),electricalPower()?G:A],
       ['FUEL',DV.flags.fuel?'SENSOR FAULT':Math.round(DV.fuel).toLocaleString()+' KG',DV.flags.fuel?R:G],
-      ['FUEL PUMPS',ENG.fuelPumps?'ON':'OFF',ENG.fuelPumps?G:A],
+      ['FUEL PUMPS',`L ${AIRSYS.fuel.leftPump?'ON':'OFF'} · R ${AIRSYS.fuel.rightPump?'ON':'OFF'} · C ${AIRSYS.fuel.centerLeft||AIRSYS.fuel.centerRight?'ON':'OFF'}`,ENG.fuelPumps?G:A],
+      ['FUEL CROSSFEED',AIRSYS.fuel.crossfeed?'OPEN':'CLOSED',C],
       ['ENGINE GENERATORS',(ENG.L.state==='RUNNING'&&window._genL!==false?'L ':'')+(ENG.R.state==='RUNNING'&&window._genR!==false?'R':'')||'OFF',status((ENG.L.state==='RUNNING'&&window._genL!==false)||(ENG.R.state==='RUNNING'&&window._genR!==false))],
+      ['ANTI-ICE',`WING ${AIRSYS.antiIce.wing?'ON':'OFF'} · ENG ${AIRSYS.antiIce.engineLeft||AIRSYS.antiIce.engineRight?'ON':'OFF'} · WIN ${AIRSYS.antiIce.windowLeft&&AIRSYS.antiIce.windowRight?'ON':'CHECK'}`,AIRSYS.antiIce.wing||AIRSYS.antiIce.engineLeft||AIRSYS.antiIce.engineRight?G:C],
+      ['AIR CONDITIONING',`PACKS ${AIRSYS.air.packLeft&&AIRSYS.air.packRight?'ON':'CHECK'} · TRIM ${AIRSYS.air.trimLeft&&AIRSYS.air.trimRight?'ON':'CHECK'}`,AIRSYS.air.packLeft&&AIRSYS.air.packRight?G:A],
+      ['PRESSURIZATION',`${AIRSYS.air.outflow} · LANDING ALT ${AIRSYS.air.landingAltitude} FT`,C],
+      ['CABIN',`BELT ${window._belts?'ON':'OFF'} · NS ${window._noSmoke?'ON':'OFF'} · OXY ${AIRSYS.cabin.oxygen?'ON':'OFF'} · EM ${AIRSYS.cabin.emergencyLights}`,window._belts||window._noSmoke?G:D],
+      ['GPWS OVERRIDES',[AIRSYS.gpws.terrainOverride&&'TERR',AIRSYS.gpws.gearOverride&&'GEAR',AIRSYS.gpws.flapOverride&&'FLAP',AIRSYS.gpws.glideslopeInhibit&&'G/S'].filter(Boolean).join(' · ')||'NONE',Object.values(AIRSYS.gpws).some(Boolean)?A:G],
       ['FLIGHT CONTROLS','NORMAL',G],['GEAR',plane.gearPos>.9?'DOWN':plane.gearPos<.1?'UP':'TRANSIT',plane.gearPos>.9||plane.gearPos<.1?G:A],
       ['FLAPS',FLAPS[plane.flaps].name,C],['CABIN / DOORS','NOT SIMULATED',D]
     );
@@ -6596,12 +6789,16 @@ function xfUpdate(dt){
   if(air&&vs<-150&&!f('RADALT_FAIL')){
     const steps=[[2500,'TWENTY FIVE HUNDRED'],[1000,'ONE THOUSAND'],[500,'FIVE HUNDRED'],[400,'FOUR HUNDRED'],[300,'THREE HUNDRED'],[200,'TWO HUNDRED'],[100,'ONE HUNDRED'],[50,'FIFTY'],[40,'FORTY'],[30,'THIRTY'],[20,'TWENTY'],[10,'TEN']];
     for(const [h,t] of steps){if((XF.lastAgl>h&&agl<=h&&plane.gearPos>.8)||(XF.lastAgl>h&&agl<=h&&h>=500)){
-      showMsg(t,900);speak(t.toLowerCase(),1.3);if(h===500&&plane.gearPos<.8)setTimeout(()=>speak('too low gear'),1600);break;}}
+      showMsg(t,900);speak(t.toLowerCase(),1.3);if(h===500&&plane.gearPos<.8&&!AIRSYS.gpws.gearOverride)setTimeout(()=>speak('too low gear'),1600);break;}}
     if(agl<2500&&agl>50&&-vs>2200+agl*.6&&now-XF.lastCall>2.5){XF.lastCall=now;showMsg('⚠ SINK RATE',1200);speak('sink rate. pull up',1.2);}
-    if(agl<1000&&agl>100&&plane.gearPos<.5&&kts<200&&now-XF.lastCall>6){XF.lastCall=now;showMsg('⚠ TOO LOW GEAR',1500);speak('too low gear');}
-    if(agl<1000&&agl>200&&plane.flaps<1&&kts<190&&plane.gearPos>.8&&now-XF.lastCall>8){XF.lastCall=now;showMsg('⚠ TOO LOW FLAPS',1500);speak('too low flaps');}
+    if(!AIRSYS.gpws.gearOverride&&agl<1000&&agl>100&&plane.gearPos<.5&&kts<200&&now-XF.lastCall>6){XF.lastCall=now;showMsg('⚠ TOO LOW GEAR',1500);speak('too low gear');}
+    if(!AIRSYS.gpws.flapOverride&&agl<1000&&agl>200&&plane.flaps<1&&kts<190&&plane.gearPos>.8&&now-XF.lastCall>8){XF.lastCall=now;showMsg('⚠ TOO LOW FLAPS',1500);speak('too low flaps');}
+    const ils=window._ilsDev;
+    if(!AIRSYS.gpws.glideslopeInhibit&&AP.appr&&ils&&ils.valid&&agl<1000&&agl>100&&ils.gs<-.5&&now-XF.lastCall>8){
+      XF.lastCall=now;showMsg('⚠ GLIDESLOPE',1500);speak('glideslope');
+    }
   }
-  if(air&&agl<400&&agl>30&&plane.vel.y<-8&&now-XF.lastCall>2){XF.lastCall=now;showMsg('⚠ PULL UP',1000);speak('pull up. pull up.',1.3);}
+  if(air&&!AIRSYS.gpws.terrainOverride&&agl<400&&agl>30&&plane.vel.y<-8&&now-XF.lastCall>2){XF.lastCall=now;showMsg('⚠ PULL UP',1000);speak('pull up. pull up.',1.3);}
   if(air&&agl<400&&agl>30&&faults.has('ICING')===false&&plane.alpha>ACFG.stallAlpha*.92&&now-XF.lastCall>3){XF.lastCall=now;playSfx('mdstall.mp3',()=>_ttsFallback('stall. stall.',1.3));}
   if(air&&plane.stall&&!plane.onGround&&now-(XF.lastStallSnd||0)>4){XF.lastStallSnd=now;playSfx('mdstall.mp3',()=>_ttsFallback('stall. stall.',1.3));}
   XF.lastAgl=agl;
@@ -6657,7 +6854,7 @@ const MINS={on:true,dh:200,last:9999,appr:false,hit:false,bank:0,ter:0,os:false,
       if(bk>40&&now-MINS.bank>3){MINS.bank=now;showMsg('⚠ BANK ANGLE',1200);speak('bank angle');}}
     if(air&&kts>345){if(!MINS.os){MINS.os=true;showMsg('⚠ OVERSPEED',1500);speak('overspeed');}}else if(kts<335)MINS.os=false;
     if(air&&faults.has('MICROBURST')&&now-(MINS.ws||0)>4){MINS.ws=now;showMsg('⚠ WINDSHEAR',1500);speak('windshear');}
-    if(air&&agl<2500&&agl>80&&plane.speed>50&&now-MINS.ter>3){
+    if(air&&!AIRSYS.gpws.terrainOverride&&agl<2500&&agl>80&&plane.speed>50&&now-MINS.ter>3){
       const t1=sampleTerrain(plane.pos.x+plane.vel.x*10,plane.pos.z+plane.vel.z*10),t2=sampleTerrain(plane.pos.x+plane.vel.x*5,plane.pos.z+plane.vel.z*5);
       if(t2>plane.pos.y-60){MINS.ter=now;showMsg('⚠ TERRAIN · PULL UP',1800);speak('terrain pull up');}
       else if(t1>plane.pos.y-60&&plane.gearPos<.5){MINS.ter=now;showMsg('⚠ TERRAIN',1500);speak('terrain');}}
@@ -8192,7 +8389,7 @@ NJ.forEach(p=>{if(p.analog)ANALOG_SET.add(p.id);if(p.brand==='airbus')AIRBUS_SET
         if(g._spin&&ENG.L.state==='RUNNING'){const r=(25+plane.throttle*70)*dt;g._spin.forEach(d=>d.rotation.z+=r);}
         if(g._navLights)g._navLights.forEach(m=>m.setEnabled(window._navOn!==false));
         if(g._strobes){const on=window._strobeOn!==false&&(Math.floor(performance.now()/450)%3)===0;g._strobes.forEach((m,i)=>m.setEnabled(i<2?on:window._strobeOn!==false));}
-        if(g._beacons){const on=(performance.now()%1100)<160&&ENG.L.state==='RUNNING';g._beacons.forEach(m=>m.setEnabled(on));}
+        if(g._beacons){const on=AIRSYS.lights.beacon&&(performance.now()%1100)<160;g._beacons.forEach(m=>m.setEnabled(on));}
         if(g._fans&&ENG.L.state==='RUNNING'){const r=(18+plane.throttle*60)*dt;g._fans.forEach(f=>f.rotation.z+=r);}
       }catch(e){}
     });
@@ -9872,7 +10069,7 @@ void main(){
         setTimeout(()=>{el.style.display='none';},2500);
       }
       // TOO LOW TERRAIN
-      if(agl<80&&agl>0&&vsi<-600&&now>_puCooldown){
+      if(!AIRSYS.gpws.terrainOverride&&agl<80&&agl>0&&vsi<-600&&now>_puCooldown){
         el.textContent='⚠ TOO LOW TERRAIN';
         el.style.background='rgba(200,0,0,.88)';
         el.style.display='block';
@@ -10891,16 +11088,23 @@ void main(){
     act:()=>{CKI.snd&&CKI.snd('lever');dispatchKey('KeyG');}});
 
   /* ---------- 2. PEDESTAL BUTTON BANK (8 lit pushbuttons) + AUTOBRAKE KNOB ---------- */
-  const BTN=[['APU',[.95,.7,.15]],['ANTI-ICE',[.95,.7,.15]],['PACK L',[.1,.9,.3]],['PACK R',[.1,.9,.3]],
-             ['SEAT BELTS',[.95,.7,.15]],['NO SMOKE',[.95,.7,.15]],['GND PWR',[.1,.9,.3]],['PARK BRK',[.95,.2,.15]]];
-  const btnOn=BTN.map(()=>false);
+  const BTN=[
+    {label:'APU',color:[.95,.7,.15],isOn:()=>ENG.apu.running||ENG.apu.spooling,status:()=>ENG.apu.spooling?'STARTING':ENG.apu.running?'RUN':'OFF',act:toggleAPU},
+    {label:'ANTI-ICE',color:[.95,.7,.15],isOn:()=>!!window._antiIceOn,status:()=>window._antiIceOn?'ON':'OFF',act:()=>{if(window._toggleAntiIce)window._toggleAntiIce();AIRSYS.antiIce.wing=!!window._antiIceOn;}},
+    {label:'PACK L',color:[.1,.9,.3],isOn:()=>AIRSYS.air.packLeft,status:()=>AIRSYS.air.packLeft?'ON':'OFF',act:()=>{AIRSYS.air.packLeft=!AIRSYS.air.packLeft;}},
+    {label:'PACK R',color:[.1,.9,.3],isOn:()=>AIRSYS.air.packRight,status:()=>AIRSYS.air.packRight?'ON':'OFF',act:()=>{AIRSYS.air.packRight=!AIRSYS.air.packRight;}},
+    {label:'SEAT BELTS',color:[.95,.7,.15],isOn:()=>!!window._belts,status:()=>AIRSYS.cabin.beltMode,act:()=>{const modes=['AUTO','ON','OFF'];AIRSYS.cabin.beltMode=modes[(modes.indexOf(AIRSYS.cabin.beltMode)+1)%modes.length];}},
+    {label:'NO SMOKE',color:[.95,.7,.15],isOn:()=>AIRSYS.cabin.noSmoke,status:()=>AIRSYS.cabin.noSmoke?'ON':'OFF',act:()=>{AIRSYS.cabin.noSmoke=!AIRSYS.cabin.noSmoke;window._noSmoke=AIRSYS.cabin.noSmoke;}},
+    {label:'GND PWR',color:[.1,.9,.3],isOn:()=>AIRSYS.electrical.extPower,status:()=>AIRSYS.electrical.extPower?'CONNECTED':'OFF',act:()=>{AIRSYS.electrical.extPower=!AIRSYS.electrical.extPower;}},
+    {label:'PARK BRK',color:[.95,.2,.15],isOn:()=>plane.parkingBrake,status:()=>plane.parkingBrake?'SET':'OFF',act:()=>{plane.parkingBrake=!plane.parkingBrake;}}
+  ];
   const lampMats=[];
   const btnBody=mkStd('pb_body',.1,.1,.11,.25);
   BTN.forEach((b,i)=>{
     const x=-.195+(i%4)*.13, z=13.5+Math.floor(i/4)*.14;
     bx('pb_btn'+i,.085,.018,.08,x,-.283,z,btnBody);
     const lm=mkStd('pb_lampM'+i,.08,.08,.08,0);lm.emissiveColor=new BABYLON.Color3(0,0,0);
-    lampMats.push({lm,col:b[1]});
+    lampMats.push({lm,col:b.color});
     bx('pb_lamp'+i,.05,.004,.03,x,-.272,z,lm);
   });
   CKI.addMesh(BTN.map((b,i)=>'pb_btn'+i).concat(BTN.map((b,i)=>'pb_lamp'+i)),{label:'PEDESTAL SWITCH',
@@ -10908,8 +11112,8 @@ void main(){
   // one spec per button so each gets its own label/state
   BTN.forEach((b,i)=>{
     CKI.meshSpecs=CKI.meshSpecs.filter(s=>!(s.names&&s.names.indexOf('pb_btn'+i)>=0));
-    CKI.addMesh(['pb_btn'+i,'pb_lamp'+i],{label:b[0],state:()=>btnOn[i]?'ON':'OFF',
-      act:()=>{btnOn[i]=!btnOn[i];CKI.snd&&CKI.snd('sw');toast(b[0]+' '+(btnOn[i]?'ON':'OFF'));}});
+    CKI.addMesh(['pb_btn'+i,'pb_lamp'+i],{label:b.label,state:b.status,
+      act:()=>{b.act();CKI.snd&&CKI.snd('sw');toast(b.label+' '+b.status());}});
   });
 
   const abkMat=mkStd('abk_m',.12,.12,.13,.3);
@@ -10926,7 +11130,7 @@ void main(){
     const dt=Math.min(.05,scene.getEngine().getDeltaTime()/1000);
     const tgt=plane.gearDown?.32:-.32;lever+=(tgt-lever)*Math.min(1,dt*10);gPv.rotation.x=-lever;
     const kt=plane._ab?Math.PI*.75:0;knobA+=(kt-knobA)*Math.min(1,dt*8);abk.rotation.y=knobA;
-    for(let i=0;i<lampMats.length;i++){const L=lampMats[i];const on=btnOn[i];
+    for(let i=0;i<lampMats.length;i++){const L=lampMats[i],on=BTN[i].isOn();
       L.lm.emissiveColor=on?new BABYLON.Color3(L.col[0],L.col[1],L.col[2]):new BABYLON.Color3(0,0,0);
       L.lm.diffuseColor=on?new BABYLON.Color3(L.col[0],L.col[1],L.col[2]):new BABYLON.Color3(.08,.08,.08);}
   });
