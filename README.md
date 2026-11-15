@@ -8,7 +8,7 @@
 
 ## ✨ Key Features
 
-* **Global Terrain:** ESRI satellite imagery with configurable resolution and optional Google Maps API key support.
+* **Global Terrain:** Select ESRI/Google satellite imagery or OpenStreetMap street tiles, with configurable resolution and optional Google Maps API key support.
 * **Airports & Landmarks:** Fly from 200+ preset global hubs and scenic landmarks (e.g., Mount Everest, Grand Canyon) or custom coordinates.
 * **Flight Setup:** Select start states (Cruise, Takeoff, Short Final), time of day, weather conditions, or the 28-kt Crosswind Challenge.
 * **Flight Audio:** Aircraft-specific GPWS callouts and warning sounds for Airbus, MD, Boeing, and 747 aircraft, with repeating sustained alerts plus engine, wind, and landing-gear ambience.
@@ -46,6 +46,7 @@ window.aviationAlerts.silence(); // resume() to re-enable active alerts
 * **Cockpit Controls:** In cockpit view, hover and click the MCP, EFIS, display-select, and overhead controls. The on-screen **MASTER WARNING** and **MASTER CAUTION** buttons acknowledge active alerts; matching controls are also available on the instrument panel. Use the wheel or click either side of MCP value windows to adjust targets. Arm the autothrottle before engaging speed/N1 modes; lowering the disengage bar inhibits autopilot re-engagement until raised.
 * **Flight Displays:** PFD controls set minimums, baro, FPV, and meters; ND controls set mode, range, traffic, bearing pointers, and overlays. DSP buttons switch EICAS pages, while master-alert and CANC/RCL controls acknowledge, cancel, and recall messages.
 * **Aircraft Systems:** A **SYSTEMS** panel is available in every cockpit view, with the same fuel/hydraulic, electrical, anti-ice, air/pressurization, cabin, GPWS, lighting, and engine controls across the fleet. On the 737/787, these controls are also available on the 3D overhead/pedestal. GPWS mode is selected with the flight-control overhead rotary and toggled with its adjacent GPWS switch. Selected effects are simulated; other controls provide state/indications rather than aircraft-specific system dynamics.
+* **Map Imagery:** Choose **OpenStreetMap streets** from the setup screen's **Map imagery** selector. The in-flight **Imagery Source** button also cycles between global imagery, OpenStreetMap, and Saskatchewan SGIC; OpenStreetMap attribution is shown in the simulator.
 
 ---
 

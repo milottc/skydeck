@@ -7788,17 +7788,33 @@ document.querySelector('.faultBtn[data-clear="all"]').addEventListener('click',(
   fireTimers.L=0;fireTimers.R=0;
   showMsg('ALL FAULTS CLEARED',2000);
 });
-document.getElementById('imgToggle').addEventListener('click',()=>{
-  imagerySource=imagerySource==='esri'?'osm':imagerySource==='osm'?'canada':'esri';
+const imagerySourceSelect=document.getElementById('imagerySourceSelect');
+const imagerySourceLabel=source=>source==='osm'?'OPENSTREETMAP':source==='canada'?'CANADA · SGIC':'GLOBAL · ESRI';
+const syncImagerySourceControls=()=>{
   const btn=document.getElementById('imgToggle');
-  btn.textContent=imagerySource==='osm'?'🗺 OPENSTREETMAP':imagerySource==='canada'?'🍁 CANADA · SGIC':'🌍 GLOBAL · ESRI';
+  btn.textContent=(imagerySource==='osm'?'🗺 ':imagerySource==='canada'?'🍁 ':'🌍 ')+imagerySourceLabel(imagerySource);
   btn.classList.toggle('imgOn',imagerySource==='canada');
+  if(imagerySourceSelect)imagerySourceSelect.value=imagerySource;
+};
+const setImagerySource=source=>{
+  if(!['esri','osm','canada'].includes(source))return;
+  const changed=imagerySource!==source;
+  imagerySource=source;
+  syncImagerySourceControls();
+  if(!changed)return;
   showMsg(imagerySource==='osm'?'IMAGERY · OPENSTREETMAP':imagerySource==='canada'?'IMAGERY · CANADA SGIC (SASK)':'IMAGERY · ESRI GLOBAL',2500);
   if(typeof terrainCenter!=='undefined'&&typeof rebuildTerrainAsync==='function'){
     const cx=terrainCenter.x||0, cz=terrainCenter.z||0;
     terrainCenter={x:-999999,z:-999999};
     rebuildTerrainAsync(cx,cz);
   }
+};
+if(imagerySourceSelect){
+  syncImagerySourceControls();
+  imagerySourceSelect.addEventListener('change',()=>setImagerySource(imagerySourceSelect.value));
+}
+document.getElementById('imgToggle').addEventListener('click',()=>{
+  setImagerySource(imagerySource==='esri'?'osm':imagerySource==='osm'?'canada':'esri');
 });
 
 try{Object.defineProperty(window,'__sim',{configurable:true,get:()=>({scene,engine,camera,plane,AP,BABYLON,KS_RWY,KS_TERM})});}catch(e){}
