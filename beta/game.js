@@ -2230,12 +2230,14 @@ function triggerFire(key){
   faults.inject('ENG_FIRE_'+key);
   fireTimers[key]=0;
   ENG.fireWarning[key]=true;
-  try{masterWarn();setTimeout(()=>speak(key==='L'?'engine 1 fire':'engine 2 fire'),450);}catch(e){}
+  XF.fireSaid[key]=performance.now()/1000;
+  try{masterWarn();setTimeout(()=>{if(faults.has('ENG_FIRE_'+key))speak(key==='L'?'engine 1 fire':'engine 2 fire');},450);}catch(e){}
 }
 function extinguishFire(key){
   faults.clear('ENG_FIRE_'+key);
   ENG.fireWarning[key]=false;
   fireTimers[key]=0;
+  XF.fireSaid[key]=0;
 }
 
 function updateFaults(dt){
@@ -6013,9 +6015,11 @@ const atc=(function(){
 })();
 
 /* ===== EXTRA FAULTS, GPWS CALLOUTS, DYNAMIC PAPI ===== */
-const XF={t:{},fog0:null,thr:0,chaosT:20,lastCall:9999,said:{},lastAgl:0};
+const XF={t:{},fog0:null,thr:0,chaosT:20,lastCall:9999,said:{},fireSaid:{L:0,R:0},lastAgl:0};
 const MD_SET=new Set(['dc9','md83','dc10']);
 const AIRBUS_SET=new Set(['a320','a350','a380']);
+const BOEING_SET=new Set(['737','787','b737','b747','b748','b777','b727','b767']);
+const BOEING_747_SET=new Set(['b747','b748']);
 /* Each entry is [airbus file, MD file, Boeing/default file] — the repo uses three
    different naming schemes per aircraft family: Airbus = "airbus-gpws-callout-v2-*-ft.mp3",
    MD = "*-ft-over-the-ground.mp3", Boeing (and everything else) = plain "*.wav"/"*.mp3"
@@ -6023,38 +6027,42 @@ const AIRBUS_SET=new Set(['a320','a350','a380']);
    Airbus file, so Boeing callouts were playing with Airbus wording. */
 const ALT_FILES={
   '2500':['airbus-gpws-callout-v2-2500-ft.mp3','2500-ft-over-the-ground.mp3','2500.wav'],
+  '2000':['airbus-gpws-callout-v2-2000-ft.mp3',null,null],
   '1000':['airbus-gpws-callout-v2-1000-ft.mp3','1000-ft-over-the-ground.mp3','1000.wav'],
   '500': ['airbus-gpws-callout-v2-500-ft.mp3','500-ft-over-the-ground.mp3','500.wav'],
   '400': ['airbus-gpws-callout-v2-400-ft.mp3','400-ft-over-the-ground.mp3','400.wav'],
   '300': ['airbus-gpws-callout-v2-300-ft.mp3','300-ft-over-the-ground.mp3','300.wav'],
   '200': ['airbus-gpws-callout-v2-200-ft.mp3','200-ft-over-the-ground.mp3','200.wav'],
   '100': ['airbus-gpws-callout-v2-100-ft.mp3','100-ft-over-the-ground.mp3','100.wav'],
+  '70':  ['airbus-gpws-callout-v2-70-ft.mp3',null,null],
+  '60':  ['airbus-gpws-callout-v2-60-ft.mp3',null,null],
   '50':  ['airbus-gpws-callout-v2-50-ft.mp3','50-ft-over-the-ground.mp3','50.wav'],
   '40':  ['airbus-gpws-callout-v2-40-ft.mp3','40-ft-over-the-ground.mp3','40.wav'],
   '30':  ['airbus-gpws-callout-v2-30-ft.mp3','30-ft-over-the-ground.mp3','30.wav'],
   '20':  ['airbus-gpws-callout-v2-20-ft.mp3','20-ft-over-the-ground.mp3','20.wav'],
-  '10':  ['10.wav','10-ft-over-the-ground.mp3','10.wav'] // no dedicated Airbus "10 ft" sample exists
+  '10':  ['10.wav','10-ft-over-the-ground.mp3','10.wav'],
+  '5':   ['airbus-gpws-callout-v2-5-ft.mp3',null,null]
 };
 const MINIM_FILES=['airbus-gpws-callout-v2-minimum.mp3','minimums.mp3','MINIM.wav'];
 const APRMIN_FILES=['approaching-minimums.mp3','approaching-minimums.mp3','APRMIN.wav']; // no dedicated Airbus sample
 const pickMD=triple=>triple[AIRBUS_SET.has(window._activeModelId)?0:MD_SET.has(window._activeModelId)?1:2];
 const SFX_MAP=[
   [/approaching minimums/,'APRMIN','aprmin'],[/^minimums/,'MINIM','minim'],
-  [/twenty five hundred/,'2500','alt'],[/one thousand/,'1000','alt'],[/five hundred/,'500','alt'],
+  [/twenty five hundred/,'2500','alt'],[/two thousand/,'2000','alt'],[/one thousand/,'1000','alt'],[/five hundred/,'500','alt'],
   [/four hundred/,'400','alt'],[/three hundred/,'300','alt'],[/two hundred/,'200','alt'],
-  [/one hundred/,'100','alt'],[/^fifty/,'50','alt'],[/^forty/,'40','alt'],[/^thirty/,'30','alt'],
-  [/^twenty$/,'20','alt'],[/^ten$/,'10','alt'],
+  [/one hundred/,'100','alt'],[/^seventy/,'70','alt'],[/^sixty/,'60','alt'],[/^fifty/,'50','alt'],[/^forty/,'40','alt'],[/^thirty/,'30','alt'],
+  [/^twenty$/,'20','alt'],[/^ten$/,'10','alt'],[/^five$/,'5','alt'],
   [/terrain pull/,'TERPUL.wav'],[/too low terrain/,'LOWTRN.wav'],[/terrain/,'TERAIN.wav'],
-  [/sink rate/,'SNKRAT.wav'],[/pull up/,'PULLUP.wav'],[/too low gear/,'LOWGEA.wav'],
-  [/too low flaps/,'LOWFLP.wav'],[/bank angle/,'BNKANG.wav'],[/don't sink/,'DONSNK.wav'],
+  [/sink rate/,'SNKRAT.wav'],[/pull up/,'PULLUP.wav'],[/too low gear/,'LOWGEA.wav','gear'],
+  [/too low flaps/,'LOWFLP.wav','flaps'],[/bank angle/,'BNKANG.wav'],[/don't sink/,'DONSNK.wav'],
   [/overspeed/,'OVRSPD.mp3'],[/windshear ahead/,'windshear-ahead','wsahead'],
-  [/windshear|wind shear/,'windshear.mp3'],
+  [/windshear|wind shear/,'boeing_737_windshear.mp3','windshear'],
   [/altitude alert/,'ALTAL1.wav'],[/altitude deviation/,'ALTAL2.wav'],
   [/altitude entering|altitude capture/,'ALTENT.wav'],
-  [/autopilot disconnect/,'autopilot-disconnect.mp3'],
+  [/autopilot disconnect/,'autopilot-disconnect.mp3','apdisc'],
   [/engine 1 fire|engine one fire/,'1','fire'],
   [/engine 2 fire|engine two fire/,'2','fire'],
-  [/glideslope/,'glideslope.mp3'],[/clear of conflict/,'clear-of-conflict','coc'],
+  [/glideslope/,'glide_slope.mp3'],[/clear of conflict/,'clear-of-conflict','coc'],
   [/traffic,? traffic/,'traffic-traffic-traffic.mp3'],
   [/descend,? descend now/,'descend-descend-now.mp3'],
   [/descend,? descend/,'descend-descend.mp3'],
@@ -6062,7 +6070,7 @@ const SFX_MAP=[
   [/increase descen/,'increase-descend.mp3'],
   [/adjust vertical speed|^adjust$/,'adjust.mp3'],[/startup/,'STRTUP.wav']
 ];
-const SFX_BASES=['','https://milottc.github.io/Flight-sim/'];window._minsT=0;
+const SFX_BASES=['../assets/','assets/','','https://milottc.github.io/skydeck/assets/','https://milottc.github.io/Flight-sim/'];window._minsT=0;
 let _sfxSeq=0;
 /* Only one callout (WAV or speech) may play at a time. Starting a new one cuts the old one off,
    so a repeating warning never stacks on top of itself or on top of text-to-speech. */
@@ -6073,7 +6081,7 @@ function stopAllCallouts(){
 }
 function playSfx(file,onFail){
   stopAllCallouts();const myId=_sfxSeq;
-  const combos=SFX_BASES.map(b=>b+file);
+  const combos=/^https?:\/\//.test(file)?[file]:SFX_BASES.map(b=>b+file);
   let i=0;
   const tryNext=()=>{
     if(myId!==_sfxSeq)return;
@@ -6092,15 +6100,19 @@ const speak=(t,rate)=>{const l=t.toLowerCase();for(const [re,f,kind] of SFX_MAP)
     if(kind==='alt')file=pickMD(ALT_FILES[f]);
     else if(kind==='minim'){file=pickMD(MINIM_FILES);window._minsT=performance.now()/1000;}
     else if(kind==='aprmin')file=pickMD(APRMIN_FILES);
+    else if(kind==='gear')file=AIRBUS_SET.has(window._activeModelId)?'airbus-too-low-gear-alarm-sound-high-quality.mp3':f;
+    else if(kind==='flaps')file=AIRBUS_SET.has(window._activeModelId)?'airbus-too-low-flaps-alarm-sound-high-quality.mp3':f;
     else if(kind==='fire'){if(MD_SET.has(window._activeModelId))file='md-engine-'+f+'-fire.mp3';else{_ttsFallback(t,rate);return;}}
     else if(kind==='coc'){if(AIRBUS_SET.has(window._activeModelId))file='airbus-clear-of-conflict-warning.mp3';else{_ttsFallback(t,rate);return;}}
-    else if(kind==='wsahead'){if(AIRBUS_SET.has(window._activeModelId))file='airbus-2x-windshear-ahead-warning.mp3';else file='windshear.mp3';}
+    else if(kind==='wsahead'){if(AIRBUS_SET.has(window._activeModelId))file='airbus-2x-windshear-ahead-warning.mp3';else file='boeing_737_windshear.mp3';}
+    else if(kind==='windshear'&&AIRBUS_SET.has(window._activeModelId))file='airbus-2x-windshear-ahead-warning.mp3';
+    else if(kind==='apdisc')file=BOEING_747_SET.has(window._activeModelId)?'APDISC.wav':BOEING_SET.has(window._activeModelId)?'boeing-ap-disconnect.mp3':f;
     else file=f;
-    if(atc.voice)playSfx(file,()=>_ttsFallback(t,rate));
+    if(atc.voice){if(file)playSfx(file,()=>_ttsFallback(t,rate));else _ttsFallback(t,rate);}
     return;
   }}
   _ttsFallback(t,rate);};
-function masterWarn(){if(atc.voice&&AIRBUS_SET.has(window._activeModelId))playSfx('airbus-master-warn.mp3');}
+function masterWarn(){if(atc.voice&&AIRBUS_SET.has(window._activeModelId))playSfx('airbus-master-warning-sound-2.mp3');}
 
 let masterVol=.6,_prevVol=.6;
 const AMB=(function(){
@@ -6220,7 +6232,7 @@ function xfUpdate(dt){
     if(pool.length)faults.inject(pool[(Math.random()*pool.length)|0]);}}
   const gh=ACFG.gearHeight||2.5,agl=Math.max(0,(plane.pos.y-sampleSurface(plane.pos.x,plane.pos.z)-gh)*3.28084),vs=plane.vel.y*196.85,kts=plane.speed*1.94384;
   if(air&&vs<-150&&!f('RADALT_FAIL')){
-    const steps=[[2500,'TWENTY FIVE HUNDRED'],[1000,'ONE THOUSAND'],[500,'FIVE HUNDRED'],[400,'FOUR HUNDRED'],[300,'THREE HUNDRED'],[200,'TWO HUNDRED'],[100,'ONE HUNDRED'],[50,'FIFTY'],[40,'FORTY'],[30,'THIRTY'],[20,'TWENTY'],[10,'TEN']];
+    const steps=[[2500,'TWENTY FIVE HUNDRED'],[2000,'TWO THOUSAND'],[1000,'ONE THOUSAND'],[500,'FIVE HUNDRED'],[400,'FOUR HUNDRED'],[300,'THREE HUNDRED'],[200,'TWO HUNDRED'],[100,'ONE HUNDRED'],[70,'SEVENTY'],[60,'SIXTY'],[50,'FIFTY'],[40,'FORTY'],[30,'THIRTY'],[20,'TWENTY'],[10,'TEN'],[5,'FIVE']];
     for(const [h,t] of steps){if((XF.lastAgl>h&&agl<=h&&plane.gearPos>.8)||(XF.lastAgl>h&&agl<=h&&h>=500)){
       showMsg(t,900);speak(t.toLowerCase(),1.3);if(h===500&&plane.gearPos<.8)setTimeout(()=>speak('too low gear'),1600);break;}}
     if(agl<2500&&agl>50&&-vs>2200+agl*.6&&now-XF.lastCall>2.5){XF.lastCall=now;showMsg('⚠ SINK RATE',1200);speak('sink rate. pull up',1.2);}
@@ -6228,8 +6240,19 @@ function xfUpdate(dt){
     if(agl<1000&&agl>200&&plane.flaps<1&&kts<190&&plane.gearPos>.8&&now-XF.lastCall>8){XF.lastCall=now;showMsg('⚠ TOO LOW FLAPS',1500);speak('too low flaps');}
   }
   if(air&&agl<400&&agl>30&&plane.vel.y<-8&&now-XF.lastCall>2){XF.lastCall=now;showMsg('⚠ PULL UP',1000);speak('pull up. pull up.',1.3);}
-  if(air&&agl<400&&agl>30&&faults.has('ICING')===false&&plane.alpha>ACFG.stallAlpha*.92&&now-XF.lastCall>3){XF.lastCall=now;playSfx('mdstall.mp3',()=>_ttsFallback('stall. stall.',1.3));}
-  if(air&&plane.stall&&!plane.onGround&&now-(XF.lastStallSnd||0)>4){XF.lastStallSnd=now;playSfx('mdstall.mp3',()=>_ttsFallback('stall. stall.',1.3));}
+  const stallSfx=AIRBUS_SET.has(window._activeModelId)?'airbus-stall.mp3':'mdstall.mp3';
+  if(air&&plane.stall&&!plane.onGround&&now-(XF.lastStallSnd||0)>4){
+    XF.lastStallSnd=now;playSfx(stallSfx,()=>_ttsFallback('stall. stall.',1.3));
+  }else if(air&&agl<400&&agl>30&&faults.has('ICING')===false&&plane.alpha>ACFG.stallAlpha*.92&&now-(XF.lastStallCall||0)>4){
+    XF.lastStallCall=now;playSfx(stallSfx,()=>_ttsFallback('stall. stall.',1.3));
+  }
+  for(const key of ['L','R']){
+    const fault='ENG_FIRE_'+key;
+    if(!f(fault)){XF.fireSaid[key]=0;continue;}
+    if(now-(XF.fireSaid[key]||0)>4.5){
+      XF.fireSaid[key]=now;speak(key==='L'?'engine 1 fire':'engine 2 fire');
+    }
+  }
   XF.lastAgl=agl;
   if(!air)XF.lastAgl=0;
   if(window.apPapi&&window.apGeo){const g=window.apGeo;const inv=g.root.getWorldMatrix().clone().invert();const lp=BABYLON.Vector3.TransformCoordinates(plane.pos,inv);
@@ -6252,7 +6275,7 @@ scene.registerBeforeRender(()=>{try{xfUpdate(Math.min(.05,engine.getDeltaTime()/
   scene.registerBeforeRender(()=>{nl.setEnabled(landingOn&&window._taxiOn!==false);const a=plane.pos.y-sampleSurface(plane.pos.x,plane.pos.z);llights.forEach(l=>{l.range=Math.min(2200,400+a*1.2);});});})();
 
 /* ===== MINIMUMS + EXTRA GPWS ===== */
-const MINS={on:true,dh:200,last:9999,appr:false,hit:false,bank:0,ter:0,os:false,apPrev:false,altAl:false};
+const MINS={on:true,dh:200,last:9999,appr:false,hit:false,bank:0,ter:0,os:0,apPrev:false,altAl:false};
 (function(){
   const fms=document.getElementById('fms');
   if(fms){const row=document.createElement('div');row.className='row';row.innerHTML='<span class="lbl">MINIMUMS (RA ft)</span><input id="minsIn" type="number" step="10" value="200"><button id="minsOn" class="on">ON</button>';
@@ -6275,7 +6298,7 @@ const MINS={on:true,dh:200,last:9999,appr:false,hit:false,bank:0,ter:0,os:false,
     } else {mm.style.display='none';MINS.last=9999;if(!air){MINS.hit=false;MINS.appr=false;}}
     if(air&&agl>30&&agl<2500){plane.quat.toRotationMatrix(_nm);const bk=Math.abs(Math.asin(BABYLON.Scalar.Clamp(BABYLON.Vector3.TransformNormal(new BABYLON.Vector3(1,0,0),_nm).y,-1,1))*180/Math.PI);
       if(bk>40&&now-MINS.bank>3){MINS.bank=now;showMsg('⚠ BANK ANGLE',1200);speak('bank angle');}}
-    if(air&&kts>345){if(!MINS.os){MINS.os=true;showMsg('⚠ OVERSPEED',1500);speak('overspeed');}}else if(kts<335)MINS.os=false;
+    if(air&&kts>345){if(now-MINS.os>3.5){MINS.os=now;showMsg('⚠ OVERSPEED',1500);speak('overspeed');}}else if(kts<335)MINS.os=0;
     if(air&&faults.has('MICROBURST')&&now-(MINS.ws||0)>4){MINS.ws=now;showMsg('⚠ WINDSHEAR',1500);speak('windshear');}
     if(air&&agl<2500&&agl>80&&plane.speed>50&&now-MINS.ter>3){
       const t1=sampleTerrain(plane.pos.x+plane.vel.x*10,plane.pos.z+plane.vel.z*10),t2=sampleTerrain(plane.pos.x+plane.vel.x*5,plane.pos.z+plane.vel.z*5);

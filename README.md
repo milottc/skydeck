@@ -11,6 +11,7 @@
 * **Global Terrain:** ESRI satellite imagery with configurable resolution and optional Google Maps API key support.
 * **Airports & Landmarks:** Fly from 200+ preset global hubs and scenic landmarks (e.g., Mount Everest, Grand Canyon) or custom coordinates.
 * **Flight Setup:** Select start states (Cruise, Takeoff, Short Final), time of day, weather conditions, or the 28-kt Crosswind Challenge.
+* **Flight Audio:** Aircraft-specific GPWS callouts and warning sounds for Airbus, MD, Boeing, and 747 aircraft, with repeating sustained alerts plus engine, wind, and landing-gear ambience.
 * **Failure System:** Trigger over 30 mid-flight system, engine, and sensor failures, or enable Chaos Mode.
 * **Replay & Views:** 60-second instant replay with multi-camera angles (cockpit, chase, wing) and touch/keyboard/Wii Remote support.
 
