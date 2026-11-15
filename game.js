@@ -6706,26 +6706,26 @@ const AVIATION_ALERT_AUDIO=(function(){
     audio.volume=volume();
     audio.loop=!isOneShot;
     current={id,key,file,audio,token};
-    const finish=()=>{
-      if(token!==serial)return;
+    const finish=(retry=false)=>{
+      if(token!==serial||!current||current.token!==token)return;
       current=null;
       if(isOneShot){finishOneShot(token);return;}
       waitingId=id;
-      repeatTimer=setTimeout(()=>{repeatTimer=null;waitingId=null;reconcile();},Math.max(500,repeatMs));
+      repeatTimer=setTimeout(()=>{repeatTimer=null;waitingId=null;reconcile();},retry?750:Math.max(500,repeatMs));
     };
-    audio.onended=finish;
+    audio.onended=()=>finish(false);
     audio.onerror=()=>{
       if(token!==serial)return;
       console.warn('Unable to play configured alert audio:',resolveAudioPath(file));
-      finish();
+      finish(true);
     };
     audio.play().catch(error=>{
-      if(token===serial){console.warn('Alert audio playback was blocked or failed:',error);finish();}
+      if(token===serial){console.warn('Alert audio playback was blocked or failed:',error);finish(true);}
     });
   };
   function reconcile(){
     if(silenced){if(current)stopCurrent();return;}
-    if(!atc.voice||volume()<=0){if(oneShot)oneShot=null;if(current)stopCurrent();return;}
+    if(volume()<=0){if(oneShot)oneShot=null;if(current)stopCurrent();return;}
     const [id,spec]=sortedActive()[0]||[];
     if(oneShot){
       const higherPriorityAlert=spec&&spec.priority<oneShot.priority;
@@ -6770,7 +6770,7 @@ const AVIATION_ALERT_AUDIO=(function(){
     playOnce(key,fileOverride){
       const file=fileOverride||fileFor(key);
       if(!file){console.warn('No audio file configured for alert:',key);return;}
-      if(silenced||!atc.voice||volume()<=0)return;
+      if(silenced||volume()<=0)return;
       if(oneShot&&oneShot.playing)stopCurrent();
       oneShot={id:'one-shot',key,file,priority:11,playing:false,token:null};
       reconcile();
@@ -6784,7 +6784,7 @@ const AVIATION_ALERT_AUDIO=(function(){
       else reconcile();
     },
     clear(){active.clear();oneShot=null;stopCurrent();},
-    refresh(){missingKey=null;reconcile();}
+    refresh(){clearWait();missingKey=null;reconcile();}
   };
 })();
 window.aviationAlerts={
@@ -6992,6 +6992,7 @@ window.addEventListener('keydown',e=>{if(e.code==='KeyY'&&!/INPUT|SELECT|TEXTARE
 scene.registerBeforeRender(()=>{try{AMB.update(Math.min(.05,engine.getDeltaTime()/1000));}catch(e){}});
 const unlockAudio=()=>{
   audioUnlocked=true;
+  AVIATION_ALERT_AUDIO.refresh();
   if(ENG.L.state!=='OFF'||ENG.R.state!=='OFF')AMB.ensure();
   window.removeEventListener('pointerdown',unlockAudio);
   window.removeEventListener('keydown',unlockAudio);

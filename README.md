@@ -25,7 +25,7 @@ Some TCAS phrases share the closest available local recording: `climb`, `climbNo
 
 Choose **Match selected aircraft**, **Boeing**, **McDonnell Douglas (MD)**, or **Airbus** under the home-screen Options to switch voice profiles. In the browser console, `window.setAviationAudioProfile('airbus')` switches profiles programmatically; use `'auto'` to follow the selected aircraft again.
 
-Detected TCAS and GPWS alerts loop with a profile-configured sound until their simulated conditions clear. Pull Up, Terrain, Windshear, and TCAS RAs interrupt lower-priority cautions; lower-priority active alerts resume when the warning clears. A resolved TCAS alert stops its loop and plays Clear of Conflict once. The alert interface is also available for triggering and resolving any configured alert:
+Detected TCAS and GPWS alerts repeat with a profile-configured sound until their simulated conditions clear. Pull Up, Terrain, Windshear, and TCAS RAs interrupt lower-priority cautions; lower-priority active alerts resume when the warning clears. A resolved TCAS alert stops its loop and plays Clear of Conflict once. The ATC readback mute does not silence warning alerts; use the global sound mute to silence them. Failed or autoplay-blocked warning playback retries promptly and is retried after the next user interaction. The alert interface is also available for triggering and resolving any configured alert:
 
 ```js
 window.aviationAlerts.trigger('demo-pull-up', 'pullUp', 0, 1800);
