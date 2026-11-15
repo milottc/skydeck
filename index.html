@@ -322,15 +322,17 @@ body.cockpit #flightSidebar{opacity:.82}
 
 #masterWarn{position:absolute;left:50%;top:200px;transform:translateX(-50%);display:none;gap:12px;pointer-events:none}
 #masterWarn.on{display:flex}
-#masterWarn>div{
+#masterWarn>button{
+  appearance:none;-webkit-appearance:none;cursor:pointer;font-family:inherit;
   padding:10px 20px;border-radius:10px;
   font-weight:800;letter-spacing:2.5px;font-size:13px;
   display:none;
   border:2px solid #000;
   box-shadow:0 3px 0 #000;
   text-transform:uppercase;
+  pointer-events:auto;
 }
-#masterWarn>div.show{display:block;animation:pulse .4s infinite alternate}
+#masterWarn>button.show{display:block;animation:pulse .4s infinite alternate}
 #masterWarn .mw{background:#b91c1c;color:#fff}
 #masterWarn .mc{background:#d97706;color:#fff}
 
@@ -1587,8 +1589,8 @@ body.pfd-hidden #compass {
   <div id="windWarn">⚠ WIND SHEAR / TURBULENCE</div>
   <div id="faultPanel"><div class="fh">FAULT LIST</div><div id="faultList"></div></div>
   <div id="masterWarn">
-    <div class="mw" id="mwWarn">MASTER WARNING</div>
-    <div class="mc" id="mwCaution">MASTER CAUTION</div>
+    <button type="button" class="mw" id="mwWarn" aria-label="Acknowledge master warning" title="Acknowledge master warning">MASTER WARNING</button>
+    <button type="button" class="mc" id="mwCaution" aria-label="Acknowledge master caution" title="Acknowledge master caution">MASTER CAUTION</button>
   </div>
 </div>
 
@@ -2104,6 +2106,15 @@ body.pfd-hidden #compass {
           <select id="mouseSel">
             <option value="std">Standard (mouse up = nose up)</option>
             <option value="inv">Inverted (mouse up = nose down)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Warning voice profile</label>
+          <select id="alertProfileSelect">
+            <option value="auto">Match selected aircraft</option>
+            <option value="boeing">Boeing</option>
+            <option value="md">McDonnell Douglas (MD)</option>
+            <option value="airbus">Airbus</option>
           </select>
         </div>
 
