@@ -5916,7 +5916,7 @@ const SFX_MAP=[
   [/autopilot disconnect/,'autopilot-disconnect.mp3'],
   [/engine 1 fire|engine one fire/,'1','fire'],
   [/engine 2 fire|engine two fire/,'2','fire'],
-  [/glideslope/,'glideslope.mp3'],[/clear of conflict/,'clear-of-conflict','coc'],
+  [/glideslope/,'glide_slope.mp3'],[/clear of conflict/,'clear-of-conflict','coc'],
   [/traffic,? traffic/,'traffic-traffic-traffic.mp3'],
   [/descend,? descend now/,'descend-descend-now.mp3'],
   [/descend,? descend/,'descend-descend.mp3'],

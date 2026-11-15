@@ -497,7 +497,7 @@ const Imagery={mode:'esri',googleSession:null,googleKey:'',maxZoom:19,
     }catch(e){return{ok:false,name:'ESRI'};}
   },
   url(z,x,y){
-    if(imagerySource==='osm')return `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+    if(imagerySource==='osm')return `https://tile.openstreetmap.de/${z}/${x}/${y}.png`;
     if(this.mode==='google')return `https://tile.googleapis.com/v1/2dtiles/${z}/${x}/${y}?session=${this.googleSession}&key=${this.googleKey}`;
     const ca=getCanadaRegionForTile(z,x,y);
     if(ca){ try{return ca.buildUrl(z,x,y);}catch(e){} }
@@ -2156,36 +2156,126 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
     }
     const systemSections=['FLT CONTROL','NAV / DISPLAYS','ELECTRICAL','FUEL / HYD','ANTI-ICE','AIR COND','LIGHTS','ENG / APU'];
     const systemToggle=document.createElement('button');
-    systemToggle.type='button';systemToggle.textContent='SYSTEMS';
-    systemToggle.setAttribute('aria-label','Open aircraft systems controls');
-    systemToggle.style.cssText='display:none;position:fixed;right:14px;bottom:14px;z-index:610;padding:8px 12px;border:1px solid #56b8dd;border-radius:8px;background:#102234;color:#d9f5ff;font:700 12px system-ui;cursor:pointer;';
+    systemToggle.id='cockpitControlsToggle';systemToggle.className='cockpitControlsToggle';
+    systemToggle.type='button';systemToggle.textContent='✦ COCKPIT CONTROLS';
+    systemToggle.setAttribute('aria-label','Open cockpit controls');
     const systemPanel=document.createElement('div');
-    systemPanel.style.cssText='display:none;position:fixed;right:14px;bottom:58px;z-index:611;width:min(620px,calc(100vw - 28px));max-height:72vh;overflow:auto;padding:12px;border:1px solid #39718b;border-radius:10px;background:rgba(7,15,24,.97);color:#e4f5ff;font:12px system-ui;box-shadow:0 10px 32px #000b;';
+    systemPanel.id='cockpitControlsPanel';systemPanel.className='cockpitControlsPanel';
+    systemPanel.setAttribute('role','region');systemPanel.setAttribute('aria-label','Cockpit controls');
     const systemHeader=document.createElement('div');
-    systemHeader.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:800;letter-spacing:.08em;';
-    const systemTitle=document.createElement('span');systemTitle.textContent='AIRCRAFT SYSTEMS';
-    const systemClose=document.createElement('button');systemClose.type='button';systemClose.textContent='CLOSE';
-    systemClose.style.cssText='padding:5px 8px;border:1px solid #426176;border-radius:6px;background:#152838;color:#d9f5ff;cursor:pointer;';
-    systemHeader.append(systemTitle,systemClose);
+    systemHeader.className='cockpitControlsHeader';
+    const titleWrap=document.createElement('div');
+    const systemTitle=document.createElement('div');systemTitle.className='cockpitControlsTitle';systemTitle.textContent='COCKPIT CONTROL DESK';
+    const systemHint=document.createElement('div');systemHint.className='cockpitControlsHint';systemHint.textContent='Flight controls, autopilot, and every modeled overhead switch';
+    titleWrap.append(systemTitle,systemHint);
+    const systemClose=document.createElement('button');systemClose.type='button';systemClose.className='cockpitControlsClose';
+    systemClose.textContent='CLOSE';systemClose.setAttribute('aria-label','Close cockpit controls');
+    systemHeader.append(titleWrap,systemClose);
     const systemGrid=document.createElement('div');
-    systemGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:8px;';
+    systemGrid.id='cockpitControlGrid';
     systemPanel.append(systemHeader,systemGrid);
     document.body.append(systemToggle,systemPanel);
+    systemToggle.setAttribute('aria-controls',systemPanel.id);
+    systemToggle.setAttribute('aria-expanded','false');
     const systemButtons=[],systemKnobs=[];
+    const createControlSection=(name,open=false)=>{
+      const section=document.createElement('details');section.className='cockpitControlGroup';section.open=open;
+      const heading=document.createElement('summary');heading.textContent=name;section.appendChild(heading);
+      const grid=document.createElement('div');grid.className='cockpitControlButtons';section.appendChild(grid);
+      systemGrid.appendChild(section);return{section,grid};
+    };
+    const {grid:flightGrid}=createControlSection('FLIGHT CONTROLS & AUTOPILOT',true);
+    const clickFmsControl=id=>{
+      const button=document.getElementById(id);
+      if(button)button.click();else showMsg('FLIGHT CONTROL PANEL NOT READY',1800);
+    };
+    const flightControls=[
+      {label:'AUTOPILOT',tip:'Engage or disconnect the autopilot',state:()=>AP.master?'ON':'OFF',on:()=>AP.master,act:()=>dispatchKey('KeyP')},
+      {label:'AUTOTHROTTLE',tip:'Arm or disconnect autothrottle',state:()=>AP.athr?'ON':'OFF',on:()=>AP.athr,act:()=>dispatchKey('KeyT')},
+      {label:'FLIGHT DIRECTOR',tip:'Toggle both flight director bars',state:()=>AP.fd!==false?'ON':'OFF',on:()=>AP.fd!==false,act:()=>{AP.fd=!(AP.fd!==false);EFIS.fdL=AP.fd;EFIS.fdR=AP.fd;}},
+      {label:'HEADING HOLD',tip:'Toggle heading select mode',state:()=>AP.hdgMode?'ON':'OFF',on:()=>AP.hdgMode,act:()=>clickFmsControl('aHDG')},
+      {label:'LNAV',tip:'Follow the active flight plan',state:()=>AP.lnav?'ON':'OFF',on:()=>AP.lnav,act:()=>clickFmsControl('aLNAV')},
+      {label:'ALTITUDE HOLD',tip:'Hold the selected altitude',state:()=>AP.altMode?'ON':'OFF',on:()=>AP.altMode,act:()=>clickFmsControl('aALT')},
+      {label:'VERTICAL SPEED',tip:'Hold the selected vertical speed',state:()=>AP.vsMode?'ON':'OFF',on:()=>AP.vsMode,act:()=>clickFmsControl('aVS')},
+      {label:'VNAV',tip:'Toggle vertical navigation',state:()=>AP.vnav?'ON':'OFF',on:()=>AP.vnav,act:()=>clickFmsControl('aVNAV')},
+      {label:'APPROACH',tip:'Arm or disarm the ILS-style approach',state:()=>AP.appr?'ARMED':'OFF',on:()=>AP.appr,act:()=>clickFmsControl('aAPPR')},
+      {label:'FLAPS',tip:'Cycle the flap detent',state:()=>FLAPS[plane.flaps].name,on:()=>plane.flaps>0,act:()=>dispatchKey('KeyF')},
+      {label:'LANDING GEAR',tip:'Raise or lower the landing gear',state:()=>plane.gearDown?'DOWN':'UP',on:()=>plane.gearDown,act:()=>dispatchKey('KeyG')},
+      {label:'SPEEDBRAKE',tip:'Toggle spoilers / speedbrake',state:()=>plane.spoilerDeploy>.5?'DEPLOYED':'RETRACTED',on:()=>plane.spoilerDeploy>.5,act:()=>dispatchKey('KeyB')},
+      {label:'THRUST REVERSER',tip:'Toggle thrust reversers when permitted',state:()=>plane.reverserOn?'ON':'OFF',on:()=>plane.reverserOn,act:()=>dispatchKey('KeyN')},
+      {label:'AUTOBRAKE',tip:'Toggle the simulated autobrake',state:()=>plane._ab?'ARMED':'OFF',on:()=>plane._ab,act:()=>dispatchKey('KeyM')},
+      {label:'START ENGINES',tip:'Start the engines',state:()=>ENG.L.state==='RUNNING'&&ENG.R.state==='RUNNING'?'RUNNING':ENG.L.state==='OFF'&&ENG.R.state==='OFF'?'OFF':'STARTING',on:()=>ENG.L.state==='RUNNING'||ENG.R.state==='RUNNING',act:()=>dispatchKey('KeyI')},
+      {label:'LANDING LIGHTS',tip:'Toggle landing lights',state:()=>landingOn?'ON':'OFF',on:()=>landingOn,act:()=>dispatchKey('KeyL')},
+      {label:'TAXI LIGHT',tip:'Toggle taxi / nose light',state:()=>window._taxiOn!==false?'ON':'OFF',on:()=>window._taxiOn!==false,act:()=>{window._taxiOn=!(window._taxiOn!==false);}},
+      {label:'NAV LIGHTS',tip:'Toggle navigation lights',state:()=>window._navOn!==false?'ON':'OFF',on:()=>window._navOn!==false,act:()=>{window._navOn=!(window._navOn!==false);}},
+      {label:'STROBE LIGHTS',tip:'Toggle strobe lights',state:()=>window._strobeOn!==false?'ON':'OFF',on:()=>window._strobeOn!==false,act:()=>{window._strobeOn=!(window._strobeOn!==false);}},
+      {label:'PFD OVERLAY',tip:'Show or hide the PFD overlay',state:()=>document.body.classList.contains('pfd-hidden')?'HIDDEN':'SHOWN',on:()=>!document.body.classList.contains('pfd-hidden'),act:()=>dispatchKey('KeyX')},
+      {label:'FMS / MAP',tip:'Open or close the flight management map',state:()=>document.getElementById('fms')?.classList.contains('show')?'OPEN':'CLOSED',on:()=>!!document.getElementById('fms')?.classList.contains('show'),act:()=>dispatchKey('KeyJ')},
+      {label:'ATC',tip:'Open or close ATC communications',state:()=>document.getElementById('atc')?.classList.contains('show')?'OPEN':'CLOSED',on:()=>!!document.getElementById('atc')?.classList.contains('show'),act:()=>dispatchKey('KeyK')},
+      {label:'CAMERA',tip:'Cycle cockpit, chase, and other camera views',state:()=>document.getElementById('camBadge')?.textContent.replace('CAM · ','')||'CHASE',on:()=>false,act:()=>dispatchKey('KeyC')},
+      {label:'SOUND',tip:'Mute or restore simulator sound',state:()=>masterVol>0?'ON':'MUTED',on:()=>masterVol>0,act:()=>dispatchKey('KeyY')}
+    ];
+    const flightButtons=[];
+    flightControls.forEach(control=>{
+      const button=document.createElement('button');button.type='button';button.className='cockpitControlButton';button.title=control.tip;
+      const label=document.createElement('span');label.textContent=control.label;
+      const value=document.createElement('small');button.append(label,value);
+      button.addEventListener('click',()=>{snd('sw');control.act();refreshSystemControls();});
+      flightGrid.appendChild(button);flightButtons.push({button,value,control});
+    });
+    const {section:targetSection,grid:targetGrid}=createControlSection('MCP SELECTED TARGETS');
+    targetGrid.className='cockpitTargetControls';
+    targetSection.open=true;
+    const targetControls=[
+      {label:'HEADING BUG',value:()=>`${Math.round(AP.hdgTarget).toString().padStart(3,'0')}°`,adjust:d=>{AP.hdgTarget=((Math.round(AP.hdgTarget+d*5)%360)+360)%360;}},
+      {label:'ALTITUDE BUG',value:()=>`${Math.round(AP.altTarget).toLocaleString()} FT`,adjust:d=>{const step=AP.altTarget>=10000?1000:100;AP.altTarget=Math.max(0,Math.min(45000,Math.round((AP.altTarget+d*step)/step)*step));}},
+      {label:'VERTICAL SPEED',value:()=>`${Math.round(AP.vsTarget)} FPM`,adjust:d=>{AP.vsTarget=Math.max(-6000,Math.min(6000,AP.vsTarget+d*100));}},
+      {label:'AIRSPEED',value:()=>`${Math.round(AP.spdTarget)} KT`,adjust:d=>{AP.speedUnit='IAS';AP.spdTarget=Math.max(80,Math.min(400,Math.round((AP.spdTarget+d*5)/5)*5));}},
+      {label:'COURSE',value:()=>`${Math.round(AP.courseTarget).toString().padStart(3,'0')}°`,adjust:d=>{AP.courseTarget=((Math.round(AP.courseTarget+d)%360)+360)%360;}},
+      {label:'THROTTLE',value:()=>`${Math.round(plane.throttle*100)}%`,adjust:d=>{plane.throttle=Math.max(0,Math.min(1,plane.throttle+d*.05));}}
+    ];
+    const targetButtons=[];
+    targetControls.forEach(control=>{
+      const row=document.createElement('div');row.className='cockpitTargetControl';
+      const label=document.createElement('span');label.className='cockpitTargetLabel';label.textContent=control.label;
+      const value=document.createElement('span');value.className='cockpitTargetValue';value.textContent=control.value();
+      const minus=document.createElement('button');minus.type='button';minus.textContent='−';minus.setAttribute('aria-label',`Decrease ${control.label.toLowerCase()}`);
+      const plus=document.createElement('button');plus.type='button';plus.textContent='+';plus.setAttribute('aria-label',`Increase ${control.label.toLowerCase()}`);
+      minus.addEventListener('click',()=>{snd('knob');control.adjust(-1);refreshSystemControls();});
+      plus.addEventListener('click',()=>{snd('knob');control.adjust(1);refreshSystemControls();});
+      row.append(label,value,minus,plus);targetGrid.appendChild(row);targetButtons.push({value,control});
+    });
+    const {grid:mcpGrid}=createControlSection('MCP BUTTONS & SELECTORS');
+    const mcpControlNames=[
+      'SPEED','N1','LVL CHG','VNAV','HDG SEL','APP','ALT HLD','V/S','LNAV',
+      'A/P CMD A','A/P CMD B','AUTOTHROTTLE ARM','FLIGHT DIRECTOR LEFT','FLIGHT DIRECTOR RIGHT',
+      'CLIMB / CONTINUOUS THRUST','AUTOPILOT DISENGAGE BAR','AUTOTHROTTLE ENGAGE',
+      'HEADING / TRACK SELECT','LOCALIZER ONLY','BANK ANGLE LIMIT','V/S - FPA SELECT',
+      'ALTITUDE INTERVENTION','ALTITUDE INCREMENT · AUTO / 1000 FT','IAS / MACH SELECT'
+    ];
+    const mcpButtons=[];
+    mcpControlNames.forEach(name=>{
+      const button=document.createElement('button');button.type='button';button.className='cockpitControlButton';
+      button.title=name;
+      const label=document.createElement('span');label.textContent=name;
+      const value=document.createElement('small');button.append(label,value);
+      button.addEventListener('click',()=>{
+        const spec=CKI.tex.mcpP?.specs.find(item=>item.label===name);
+        if(spec&&spec.act){snd('sw');spec.act();refreshSystemControls();}
+        else showMsg('MCP CONTROL NOT AVAILABLE',1600);
+      });
+      mcpGrid.appendChild(button);mcpButtons.push({button,value,name});
+    });
     systemSections.forEach((name,g)=>{
-      const section=document.createElement('section');
-      section.style.cssText='padding:8px;border:1px solid #273c4d;border-radius:7px;background:#0d1924;';
-      const heading=document.createElement('div');heading.textContent=name;
-      heading.style.cssText='margin-bottom:6px;color:#7fc8e7;font-weight:800;font-size:10px;letter-spacing:.1em;';
-      const grid=document.createElement('div');
-      grid.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;';
+      const {section,grid}=createControlSection(name);
+      const knobSpecs=CKI.tex.ohp.specs.filter(s=>s.rect&&s.rect[1]===300&&Math.floor(s.rect[0]/256)===g);
+      section.querySelector('summary').appendChild(document.createElement('small')).textContent=`8 SWITCHES · ${knobSpecs.length} SELECTORS`;
       for(let r=0;r<2;r++)for(let i=0;i<4;i++){
         const key=g+'_'+r+'_'+i,d=D[key];
         if(!d)continue;
-        const button=document.createElement('button');button.type='button';button.title=d.tip||d.label;
-        button.style.cssText='display:flex;justify-content:space-between;gap:6px;padding:6px;border:1px solid #31495b;border-radius:5px;background:#142330;color:#dbeaf2;text-align:left;cursor:pointer;';
+        const button=document.createElement('button');button.type='button';button.className='cockpitControlButton';button.title=d.tip||d.label;
         const label=document.createElement('span');label.textContent=d.label;
-        const value=document.createElement('small');value.style.cssText='color:#91d9f5;text-align:right;';
+        const value=document.createElement('small');
         button.append(label,value);
         button.addEventListener('click',()=>{
           snd('sw');if(d.act)d.act();else d.on=!d.on;
@@ -2193,24 +2283,36 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
         });
         systemButtons.push({button,value,d,key});grid.appendChild(button);
       }
-      const knobSpecs=CKI.tex.ohp.specs.filter(s=>s.rect&&s.rect[1]===300&&Math.floor(s.rect[0]/256)===g);
       knobSpecs.forEach(spec=>{
-        const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:5px;margin-top:5px;padding-top:5px;border-top:1px solid #263a49;';
+        const row=document.createElement('div');row.className='cockpitTargetControl';
         const label=document.createElement('span');label.textContent=spec.label;
-        const value=document.createElement('small');value.style.cssText='color:#91d9f5;';
+        label.className='cockpitTargetLabel';
+        const value=document.createElement('small');value.className='cockpitTargetValue';
         const minus=document.createElement('button'),plus=document.createElement('button');
         minus.type=plus.type='button';minus.textContent='−';plus.textContent='+';
-        [minus,plus].forEach(b=>b.style.cssText='width:26px;height:24px;border:1px solid #426176;border-radius:4px;background:#152838;color:#d9f5ff;cursor:pointer;');
+        minus.className=plus.className='cockpitTargetStep';
+        minus.setAttribute('aria-label',`Decrease ${spec.label.toLowerCase()}`);
+        plus.setAttribute('aria-label',`Increase ${spec.label.toLowerCase()}`);
         minus.addEventListener('click',()=>{spec.act(null,-1);paint();refreshSystemControls();});
         plus.addEventListener('click',()=>{spec.act(null,1);paint();refreshSystemControls();});
         row.append(label,value,minus,plus);grid.appendChild(row);systemKnobs.push({spec,value});
       });
-      section.append(heading,grid);systemGrid.appendChild(section);
     });
     function refreshSystemControls(){
+      flightButtons.forEach(({button,value,control})=>{
+        button.classList.toggle('on',control.on());
+        value.textContent=control.state();
+      });
+      targetButtons.forEach(({value,control})=>{value.textContent=control.value();});
+      mcpButtons.forEach(({button,value,name})=>{
+        const spec=CKI.tex.mcpP?.specs.find(item=>item.label===name);
+        const state=spec&&spec.state?String(spec.state()):'N/A';
+        button.disabled=!spec||!spec.act;
+        value.textContent=state;
+        button.classList.toggle('on',/^(ON|ARMED|ENGAGED|VNAV|TRACK|AUTO|CLB)$/.test(state));
+      });
       systemButtons.forEach(({button,value,d,key})=>{
         button.classList.toggle('on',stateOf(key));
-        button.style.background=stateOf(key)?'#1b3c4d':'#142330';
         value.textContent=d.display?d.display():(d.get?(d.get()?'ON':'OFF'):(d.on?'ON':'OFF'));
       });
       systemKnobs.forEach(({spec,value})=>{value.textContent=spec.state?spec.state():'';});
@@ -2218,10 +2320,14 @@ try{M.seat.albedoColor=new BABYLON.Color3(.74,.72,.66);M.seat.roughness=1;M.seat
     systemToggle.addEventListener('click',()=>{
       const open=systemPanel.style.display!=='block';
       systemPanel.style.display=open?'block':'none';systemToggle.setAttribute('aria-expanded',String(open));
+      systemToggle.textContent=open?'✦ CLOSE CONTROLS':'✦ COCKPIT CONTROLS';
+      systemToggle.setAttribute('aria-label',open?'Close cockpit controls':'Open cockpit controls');
       if(open)refreshSystemControls();
     });
-    systemClose.addEventListener('click',()=>{systemPanel.style.display='none';systemToggle.setAttribute('aria-expanded','false');});
-    scene.registerBeforeRender(()=>{systemToggle.style.display=camMode===1?'block':'none';if(camMode!==1)systemPanel.style.display='none';});
+    const closeSystemPanel=()=>{systemPanel.style.display='none';systemToggle.setAttribute('aria-expanded','false');systemToggle.setAttribute('aria-label','Open cockpit controls');systemToggle.textContent='✦ COCKPIT CONTROLS';};
+    systemClose.addEventListener('click',closeSystemPanel);
+    systemPanel.addEventListener('keydown',e=>{if(e.key==='Escape')closeSystemPanel();});
+    scene.registerBeforeRender(()=>{systemToggle.style.display=camMode===1?'block':'none';if(camMode!==1&&systemPanel.style.display==='block')closeSystemPanel();});
     setInterval(()=>{let h='';try{for(const k in D)h+=stateOf(k)?1:0;}catch(e){return;}if(h!==lastHash){lastHash=h;try{paint();}catch(e){}}if(systemPanel.style.display==='block')refreshSystemControls();},250);
   }
 
@@ -7030,8 +7136,7 @@ function xfUpdate(dt){
     const steps=[[2500,'TWENTY FIVE HUNDRED'],[2000,'TWO THOUSAND'],[1000,'ONE THOUSAND'],[500,'FIVE HUNDRED'],[400,'FOUR HUNDRED'],[300,'THREE HUNDRED'],[200,'TWO HUNDRED'],[100,'ONE HUNDRED'],[70,'SEVENTY'],[60,'SIXTY'],[50,'FIFTY'],[40,'FORTY'],[30,'THIRTY'],[20,'TWENTY'],[10,'TEN'],[5,'FIVE']];
     for(const [h,t] of steps){if((XF.lastAgl>h&&agl<=h&&plane.gearPos>.8)||(XF.lastAgl>h&&agl<=h&&h>=500)){
       showMsg(t,900);
-      if(h===20&&activeAudioProfile()==='airbus')window.aviationAlerts.callout('retard');
-      else speak(t.toLowerCase(),1.3);
+      speak(t.toLowerCase(),1.3);
       break;}}
   }
   let gpwsAlert=null;
