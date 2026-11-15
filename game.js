@@ -462,8 +462,8 @@ const tx2lon=(x,z)=>x/Math.pow(2,z)*360-180;
 const ty2lat=(y,z)=>{const n=Math.PI-2*Math.PI*y/Math.pow(2,z);return 180/Math.PI*Math.atan(.5*(Math.exp(n)-Math.exp(-n)));};
 const tileRange=(nw,se,z)=>({x0:Math.floor(lon2tx(nw.lon,z)),x1:Math.floor(lon2tx(se.lon,z)),y0:Math.floor(lat2ty(nw.lat,z)),y1:Math.floor(lat2ty(se.lat,z))});
 
-/* Regional imagery (Canada) */
-let useCanadaImagery=false;
+/* Imagery sources */
+let imagerySource='esri';
 const CANADA_REGIONS=[{
   name:'SASKATCHEWAN',
   bounds:{minLat:49.0,maxLat:60.0,minLon:-110.0,maxLon:-101.0},
@@ -476,7 +476,7 @@ const CANADA_REGIONS=[{
   }
 }];
 function getCanadaRegionForTile(z,x,y){
-  if(!useCanadaImagery)return null;
+  if(imagerySource!=='canada')return null;
   const lat=ty2lat(y+0.5,z),lon=tx2lon(x+0.5,z);
   for(const r of CANADA_REGIONS){
     const b=r.bounds;
@@ -497,18 +497,20 @@ const Imagery={mode:'esri',googleSession:null,googleKey:'',maxZoom:19,
     }catch(e){return{ok:false,name:'ESRI'};}
   },
   url(z,x,y){
+    if(imagerySource==='osm')return `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
     if(this.mode==='google')return `https://tile.googleapis.com/v1/2dtiles/${z}/${x}/${y}?session=${this.googleSession}&key=${this.googleKey}`;
     const ca=getCanadaRegionForTile(z,x,y);
     if(ca){ try{return ca.buildUrl(z,x,y);}catch(e){} }
     return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
   }
 };
+window.__imagerySource=()=>imagerySource;
 function fetchT(url,opts,ms){return Promise.race([fetch(url,opts),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);}
 function withTimeout(p,ms,l){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error(l+' timeout')),ms))]);}
 
 const imgCache=new Map(),imgPending=new Map();
 const TILE_CONC=8;let tileActive=0;const tileQ=[];
-function runTileQueue(){while(tileActive<TILE_CONC&&tileQ.length){const job=tileQ.shift();tileActive++;job(()=>{tileActive--;runTileQueue();});}}
+function runTileQueue(){const limit=imagerySource==='osm'?2:TILE_CONC;while(tileActive<limit&&tileQ.length){const job=tileQ.shift();tileActive++;job(()=>{tileActive--;runTileQueue();});}}
 function loadImage(key,url,offKey){
   if(imgCache.has(key))return Promise.resolve(imgCache.get(key));
   if(imgPending.has(key))return imgPending.get(key);
@@ -544,7 +546,7 @@ function loadHeightTile(z,x,y){
 /* ===== OFFLINE MAP PRELOAD: saves the tiles the sim streams around the aircraft ===== */
 const OFFMAP={
   IMG_ZOOMS:[12,13,14,15,16],ELEV_ZOOMS:[9,10,11,12,13],
-  imgKey:(ca,z,x,y)=>`img/${ca?'ca':'ww'}/${z}/${x}/${y}`,
+  imgKey:(source,z,x,y)=>`img/${typeof source==='string'?source:source?'ca':'ww'}/${z}/${x}/${y}`,
   elevKey:(z,x,y)=>`elev/${z}/${x}/${y}`,
   plan(center,radiusM){
     const nw=worldToLL(center.x-radiusM,center.z-radiusM),se=worldToLL(center.x+radiusM,center.z+radiusM);
@@ -590,7 +592,8 @@ async function offlineDownload(center,radiusM,onP){
     const c={x:plane.pos.x,z:plane.pos.z},R=CFG.terrainExtent/2+2000;
     const plan=OFFMAP.plan(c,R);
     const fresh=plan.filter(t=>!OFF.has(t.key)).length;
-    if(!confirm(`Save ${plan.length} map tiles (about ${OFFMAP.estimateMB(plan)} MB, ${fresh} not yet stored) around your position for offline use?`))return;
+    const osmNote=imagerySource==='osm'?' OpenStreetMap tiles are not included.':'';
+    if(!confirm(`Save ${plan.length} map tiles (about ${OFFMAP.estimateMB(plan)} MB, ${fresh} not yet stored) around your position for offline use?${osmNote}`))return;
     b.disabled=true;
     const res=await offlineDownload(c,R,(d,n,f)=>{b.textContent=`⬇ ${d}/${n}${f?' ('+f+' failed)':''}`;});
     b.disabled=false;b.textContent='⬇ OFFLINE MAPS';
@@ -4025,7 +4028,7 @@ function updateHUD(){
   const ll=worldToLL(plane.pos.x,plane.pos.z);
   el.pos.textContent=ll.lat.toFixed(4)+'°N '+ll.lon.toFixed(4)+'°E';
   el.fps.textContent=Math.round(engine.getFps())+' FPS';
-  el.src.textContent=useCanadaImagery?'ESRI + SGIC':'ESRI';
+  el.src.textContent=imagerySource==='osm'?'OPENSTREETMAP':imagerySource==='canada'?'ESRI + SGIC':Imagery.mode==='google'?'GOOGLE':'ESRI';
   el.apTxt.textContent='AP '+(AP.master?'ON':'OFF')+(AP.appr?' · APPR':(AP.lnav?' · LNAV':(AP.hdgMode?' · HDG':'')))+(AP.vsMode?' · VS':(AP.altMode?' · ALT':''))+(AP.athr?' · SPD':'');
   const N1avg=(ENG.L.n1+ENG.R.n1)/2;
   el.engTxt.textContent='ENG '+(ENG.L.state==='RUNNING'?'RUN':'OFF')+' N1 '+Math.round(N1avg)+'%';
@@ -4774,8 +4777,9 @@ function imgGate(frac,capMs){return new Promise(res=>{const t0=performance.now()
    DynamicTexture is refreshed every ~400ms so the terrain fills in progressively. */
 async function buildTerrainTexture(cx,cz,live){
   const nw=worldToLL(cx-E/2,cz-E/2),se=worldToLL(cx+E/2,cz+E/2);
-  let z=Math.min(Imagery.maxZoom,19),r;
-  while(z>5){r=tileRange(nw,se,z);if((r.x1-r.x0+1)*(r.y1-r.y0+1)<=CFG.maxImageryTiles)break;z--;}
+  let z=Math.min(Imagery.maxZoom,imagerySource==='osm'?16:19),r;
+  const maxTiles=imagerySource==='osm'?30:CFG.maxImageryTiles;
+  while(z>5){r=tileRange(nw,se,z);if((r.x1-r.x0+1)*(r.y1-r.y0+1)<=maxTiles)break;z--;}
   const C=CFG.texSize;
   const off=document.createElement('canvas');off.width=C;off.height=C;
   const oc=off.getContext('2d');
@@ -4792,7 +4796,9 @@ async function buildTerrainTexture(cx,cz,live){
     terrainTex.getContext().drawImage(off,0,0,C,C);
     terrainTex.update(false);
   };
-  const jobs=coords.map(({tx,ty})=>loadImage(`${Imagery.mode}/${useCanadaImagery?'ca':'ww'}/${z}/${tx}/${ty}`,Imagery.url(z,tx,ty),OFFMAP.imgKey(!!getCanadaRegionForTile(z,tx,ty),z,tx,ty)).then(img=>{
+  const jobs=coords.map(({tx,ty})=>{
+    const ca=getCanadaRegionForTile(z,tx,ty),source=imagerySource==='osm'?'osm':ca?'ca':'ww';
+    return loadImage(`${Imagery.mode}/${source}/${z}/${tx}/${ty}`,Imagery.url(z,tx,ty),OFFMAP.imgKey(source,z,tx,ty)).then(img=>{
     imgProg.f++;
     if(img){
       drawn++;
@@ -4802,7 +4808,7 @@ async function buildTerrainTexture(cx,cz,live){
       try{oc.drawImage(img,px,py,pw+.5,ph+.5);}catch(e){}
     }
     if(live){push(false);lsProgress(0.3+0.7*imgProg.f/total,'Streaming imagery '+imgProg.f+' / '+total);}
-  }));
+  });});
   await Promise.all(jobs);
   try{oc.filter='none';}catch(e){}
   push(true);
@@ -5867,8 +5873,9 @@ const MAPV={mpp:70,follow:true,cx:0,cz:0,tap:true,hdgUp:false};
       let loads=0;
       mctx.save();mctx.translate(W/2,H/2);mctx.rotate(rot);mctx.translate(-W/2,-H/2);
       for(let tx=r.x0;tx<=r.x1;tx++)for(let ty=r.y0;ty<=r.y1;ty++){
-        const key=`${Imagery.mode}/${useCanadaImagery?'ca':'ww'}/${z}/${tx}/${ty}`,img=imgCache.get(key);
-        if(!img){if(loads<6&&!imgPending.has(key)){loads++;loadImage(key,Imagery.url(z,tx,ty),OFFMAP.imgKey(!!getCanadaRegionForTile(z,tx,ty),z,tx,ty));}continue;}
+        const ca=getCanadaRegionForTile(z,tx,ty),source=imagerySource==='osm'?'osm':ca?'ca':'ww';
+        const key=`${Imagery.mode}/${source}/${z}/${tx}/${ty}`,img=imgCache.get(key);
+        if(!img){if(loads<6&&!imgPending.has(key)){loads++;loadImage(key,Imagery.url(z,tx,ty),OFFMAP.imgKey(source,z,tx,ty));}continue;}
         const p0=llToWorld(ty2lat(ty,z),tx2lon(tx,z)),p1=llToWorld(ty2lat(ty+1,z),tx2lon(tx+1,z));
         const a=mapToScreen(p0.x,p0.z,cx,cz,mpp,W,H,0),b=mapToScreen(p1.x,p1.z,cx,cz,mpp,W,H,0);
         mctx.drawImage(img,a[0],a[1],b[0]-a[0]+.6,b[1]-a[1]+.6);
@@ -6586,7 +6593,7 @@ const atc=(function(){
 })();
 
 /* ===== EXTRA FAULTS, GPWS CALLOUTS, DYNAMIC PAPI ===== */
-const XF={t:{},fog0:null,thr:0,chaosT:20,lastCall:9999,said:{},lastAgl:0};
+const XF={t:{},fog0:null,thr:0,chaosT:20,said:{},lastAgl:0};
 const MD_SET=new Set(['dc9','md83','dc10']);
 const AIRBUS_SET=new Set(['a320','a350','a380']);
 /* Each entry is [airbus file, MD file, Boeing/default file] — the repo uses three
@@ -6805,17 +6812,36 @@ function xfUpdate(dt){
   if(air&&vs<-150&&!f('RADALT_FAIL')){
     const steps=[[2500,'TWENTY FIVE HUNDRED'],[1000,'ONE THOUSAND'],[500,'FIVE HUNDRED'],[400,'FOUR HUNDRED'],[300,'THREE HUNDRED'],[200,'TWO HUNDRED'],[100,'ONE HUNDRED'],[50,'FIFTY'],[40,'FORTY'],[30,'THIRTY'],[20,'TWENTY'],[10,'TEN']];
     for(const [h,t] of steps){if((XF.lastAgl>h&&agl<=h&&plane.gearPos>.8)||(XF.lastAgl>h&&agl<=h&&h>=500)){
-      showMsg(t,900);speak(t.toLowerCase(),1.3);if(h===500&&plane.gearPos<.8&&!AIRSYS.gpws.gearOverride)setTimeout(()=>speak('too low gear'),1600);break;}}
-    if(agl<2500&&agl>50&&-vs>2200+agl*.6&&now-XF.lastCall>2.5){XF.lastCall=now;showMsg('⚠ SINK RATE',1200);speak('sink rate. pull up',1.2);}
-    if(!AIRSYS.gpws.gearOverride&&agl<1000&&agl>100&&plane.gearPos<.5&&kts<200&&now-XF.lastCall>6){XF.lastCall=now;showMsg('⚠ TOO LOW GEAR',1500);speak('too low gear');}
-    if(!AIRSYS.gpws.flapOverride&&agl<1000&&agl>200&&plane.flaps<1&&kts<190&&plane.gearPos>.8&&now-XF.lastCall>8){XF.lastCall=now;showMsg('⚠ TOO LOW FLAPS',1500);speak('too low flaps');}
-    const ils=window._ilsDev;
-    if(!AIRSYS.gpws.glideslopeInhibit&&AP.appr&&ils&&ils.valid&&agl<1000&&agl>100&&ils.gs<-.5&&now-XF.lastCall>8){
-      XF.lastCall=now;showMsg('⚠ GLIDESLOPE',1500);speak('glideslope');
-    }
+      showMsg(t,900);speak(t.toLowerCase(),1.3);break;}}
   }
-  if(air&&!AIRSYS.gpws.terrainOverride&&agl<400&&agl>30&&plane.vel.y<-8&&now-XF.lastCall>2){XF.lastCall=now;showMsg('⚠ PULL UP',1000);speak('pull up. pull up.',1.3);}
-  if(air&&agl<400&&agl>30&&faults.has('ICING')===false&&plane.alpha>ACFG.stallAlpha*.92&&now-XF.lastCall>3){XF.lastCall=now;playSfx('mdstall.mp3',()=>_ttsFallback('stall. stall.',1.3));}
+  let gpwsAlert=null;
+  const queueGpws=(id,priority,label,phrase,repeat,duration=1500)=>{
+    if(now-(XF.said[id]??-Infinity)<repeat)return;
+    if(!gpwsAlert||priority<gpwsAlert.priority)gpwsAlert={id,priority,label,phrase,repeat,duration};
+  };
+  if(air&&!f('RADALT_FAIL')){
+    if(!AIRSYS.gpws.terrainOverride&&agl<700&&agl>30&&vs<-1400)
+      queueGpws('pullup',0,'PULL UP','pull up. pull up.',3.5,1300);
+    if(!AIRSYS.gpws.terrainOverride&&agl<250&&agl>30&&plane.gearPos<.5&&vs<-500)
+      queueGpws('terrain',1,'TOO LOW TERRAIN','too low terrain',5);
+    if(agl<2500&&agl>40&&-vs>Math.max(850,900+agl*.15))
+      queueGpws('sink',2,'SINK RATE','sink rate',5.5,1300);
+    if(!AIRSYS.gpws.gearOverride&&agl<1200&&agl>100&&vs<-100&&plane.gearPos<.5&&kts>80)
+      queueGpws('gear',3,'TOO LOW GEAR','too low gear',7);
+    if(!AIRSYS.gpws.flapOverride&&agl<1000&&agl>100&&vs<-100&&plane.flaps<1&&plane.gearPos>.8&&kts>80)
+      queueGpws('flaps',4,'TOO LOW FLAPS','too low flaps',7);
+    const ils=window._ilsDev;
+    if(!AIRSYS.gpws.glideslopeInhibit&&ils&&ils.valid&&agl<1500&&agl>100&&vs<-100&&ils.gs<-.35)
+      queueGpws('glideslope',5,'GLIDESLOPE','glideslope',ils.gs<-1.2?4:5.5);
+  }
+  if(gpwsAlert){
+    XF.said[gpwsAlert.id]=now;
+    showMsg('⚠ '+gpwsAlert.label,gpwsAlert.duration);
+    speak(gpwsAlert.phrase,1.2);
+  }
+  if(air&&agl<400&&agl>30&&faults.has('ICING')===false&&plane.alpha>ACFG.stallAlpha*.92&&now-(XF.lastStallCall||0)>4){
+    XF.lastStallCall=now;playSfx('mdstall.mp3',()=>_ttsFallback('stall. stall.',1.3));
+  }
   if(air&&plane.stall&&!plane.onGround&&now-(XF.lastStallSnd||0)>4){XF.lastStallSnd=now;playSfx('mdstall.mp3',()=>_ttsFallback('stall. stall.',1.3));}
   XF.lastAgl=agl;
   if(!air)XF.lastAgl=0;
@@ -7519,11 +7545,11 @@ document.querySelector('.faultBtn[data-clear="all"]').addEventListener('click',(
   showMsg('ALL FAULTS CLEARED',2000);
 });
 document.getElementById('imgToggle').addEventListener('click',()=>{
-  useCanadaImagery=!useCanadaImagery;
+  imagerySource=imagerySource==='esri'?'osm':imagerySource==='osm'?'canada':'esri';
   const btn=document.getElementById('imgToggle');
-  btn.textContent=useCanadaImagery?'🍁 CANADA · SGIC':'🌍 GLOBAL · ESRI';
-  btn.classList.toggle('imgOn',useCanadaImagery);
-  showMsg(useCanadaImagery?'IMAGERY · CANADA SGIC (SASK)':'IMAGERY · ESRI GLOBAL',2500);
+  btn.textContent=imagerySource==='osm'?'🗺 OPENSTREETMAP':imagerySource==='canada'?'🍁 CANADA · SGIC':'🌍 GLOBAL · ESRI';
+  btn.classList.toggle('imgOn',imagerySource==='canada');
+  showMsg(imagerySource==='osm'?'IMAGERY · OPENSTREETMAP':imagerySource==='canada'?'IMAGERY · CANADA SGIC (SASK)':'IMAGERY · ESRI GLOBAL',2500);
   if(typeof terrainCenter!=='undefined'&&typeof rebuildTerrainAsync==='function'){
     const cx=terrainCenter.x||0, cz=terrainCenter.z||0;
     terrainCenter={x:-999999,z:-999999};
@@ -7613,7 +7639,7 @@ startBtn.addEventListener('click',async()=>{
   try{
     loadEl.textContent='Authenticating imagery…';
     await Imagery.init(key);
-    el.src.textContent=Imagery.mode==='google'?'GOOGLE':'ESRI';
+    el.src.textContent=imagerySource==='osm'?'OPENSTREETMAP':imagerySource==='canada'?'ESRI + SGIC':Imagery.mode==='google'?'GOOGLE':'ESRI';
   }catch(e){}
   
   try{
@@ -9005,11 +9031,28 @@ NJ.forEach(p=>{if(p.analog)ANALOG_SET.add(p.id);if(p.brand==='airbus')AIRBUS_SET
     contractList=genContractList();
   }
 
-  document.getElementById('chContr').addEventListener('click',()=>{if(contrEl.classList.contains('show')){contrEl.classList.remove('show');return;}renderContracts();contrEl.classList.add('show');shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');});
-  document.getElementById('chShop').addEventListener('click',()=>{
-    if(shopEl.classList.contains('show')){shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');return;}
+  function showContracts(){
+    if(overlay.classList.contains('hidden'))return;
+    renderContracts();contrEl.classList.add('show');shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');
+  }
+  function showShop(){
+    if(overlay.classList.contains('hidden'))return;
     renderShop();shopEl.classList.add('show');shopEl.setAttribute('aria-hidden','false');contrEl.classList.remove('show');
+  }
+  document.getElementById('chContr').addEventListener('click',()=>{
+    if(overlay.classList.contains('hidden'))return;
+    if(contrEl.classList.contains('show')){contrEl.classList.remove('show');return;}
+    showContracts();
   });
+  document.getElementById('chShop').addEventListener('click',()=>{
+    if(overlay.classList.contains('hidden'))return;
+    if(shopEl.classList.contains('show')){shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');return;}
+    showShop();
+  });
+  document.querySelectorAll('[data-home-panel]').forEach(button=>button.addEventListener('click',()=>{
+    if(button.dataset.homePanel==='missions')showContracts();
+    else if(button.dataset.homePanel==='hangar')showShop();
+  }));
   document.getElementById('cpX').addEventListener('click',()=>contrEl.classList.remove('show'));
   document.getElementById('spX').addEventListener('click',()=>{shopEl.classList.remove('show');shopEl.setAttribute('aria-hidden','true');});
   document.getElementById('cpRefresh').addEventListener('click',()=>{contractList=genContractList();renderContracts();showMsg('↻ CONTRACTS REFRESHED',1800);});
@@ -11488,17 +11531,19 @@ void main(){
         for(let a=0;a<=8&&!airport;a++)for(let b=0;b<=8&&!airport;b++){
           if(window.airportBlend&&window.airportBlend(cx-HALF+a*SIZE/8,cz-HALF+b*SIZE/8))airport=true;}
         mesh.setEnabled(!airport);
-        centre={x:cx,z:cz,lat:O().lat,lon:O().lon};
+        centre={x:cx,z:cz,lat:O().lat,lon:O().lon,source:'esri',visible:!airport};
       }finally{building=false;}
     }
 
     scene.registerBeforeRender(()=>{
+      const source=window.__imagerySource?window.__imagerySource():'esri';
+      if(source!=='esri'){mesh.setEnabled(false);return;}
       if(building||plane.hold||plane.crashed)return;
       const c=centre;
       if(c){
         const same=c.lat===O().lat&&c.lon===O().lon;
         if(!same)mesh.setEnabled(false);
-        if(same&&Math.hypot(plane.pos.x-c.x,plane.pos.z-c.z)<RING)return;
+        if(same&&c.source===source&&Math.hypot(plane.pos.x-c.x,plane.pos.z-c.z)<RING){mesh.setEnabled(c.visible);return;}
       }
       build(plane.pos.x,plane.pos.z).catch(e=>console.warn('[hdGround]',e));
     });

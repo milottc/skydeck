@@ -1246,7 +1246,8 @@ body:has(#overlay:not(.hidden)) #flightSidebar #careerHud{
   flex-direction:row;align-items:center;gap:6px;padding:7px 9px;border:1px solid #263652;
   border-radius:12px;background:#111a2e;box-shadow:0 3px 0 #000,0 10px 30px rgba(0,0,0,.5);
 }
-body:has(#overlay:not(.hidden)) #flightSidebar .chBtn{display:none}
+body:has(#overlay:not(.hidden)) #flightSidebar .chBtn,
+body:has(#overlay.hidden) #flightSidebar .chBtn{display:none}
 body:has(#overlay:not(.hidden)) #flightSidebar .chStat{min-height:0;padding:5px 9px}
 /* Push overlay content below the career HUD */
 #overlay {
@@ -1515,7 +1516,7 @@ body.pfd-hidden #compass {
         <div class="shopKicker">CAREER · HANGAR</div>
         <h1>Aircraft Store</h1>
       </div>
-      <button id="spX" type="button" aria-label="Return to flight">Back to flight</button>
+      <button id="spX" type="button" aria-label="Return to home">Back to home</button>
     </header>
     <section class="redeemBox" aria-labelledby="redeemTitle">
       <div class="redeemTitle" id="redeemTitle">REDEEM A CODE</div>
@@ -1678,6 +1679,12 @@ body.pfd-hidden #compass {
           </button>
           <button class="homeNavItem" type="button" data-home-jump="homeControls" aria-label="Controls and key bindings">
             <span class="navIcon" aria-hidden="true">⌨</span><span>Controls</span>
+          </button>
+          <button class="homeNavItem" type="button" data-home-panel="missions" aria-label="Missions and lessons">
+            <span class="navIcon" aria-hidden="true">📋</span><span>Missions</span>
+          </button>
+          <button class="homeNavItem" type="button" data-home-panel="hangar" aria-label="Aircraft hangar and store">
+            <span class="navIcon" aria-hidden="true">🛒</span><span>Hangar / Store</span>
           </button>
         </nav>
         <section class="homeCol homeMain" id="homeSetup">
