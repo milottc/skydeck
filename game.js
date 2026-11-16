@@ -2695,28 +2695,11 @@ function setFuelCutoff(side){
   showMsg((side==='L'?'LEFT':'RIGHT')+' ENGINE FUEL '+(AIRSYS.engine[key]?'CUTOFF':'ON · STARTER REQUIRED'));
 }
 
-const AP={master:false,fd:true,athr:false,athrArmed:false,yd:true,n1Mode:false,lvlChg:false,cmdChannel:'A',locMode:false,apInhibit:false,
-  hdgMode:false,hdgTarget:0,courseTarget:260,altMode:false,altTarget:10000,altIncrement:'AUTO',
-  vsMode:false,vsTarget:0,vsModeType:'VS',fpaTarget:0,spdMode:false,spdTarget:250,
-  speedUnit:'IAS',machTarget:.78,bankLimit:25,bankMode:'AUTO',thrustMode:'CLB',trackMode:false};
-const AIRSYS={
-  electrical:{extPower:false,busTie:true,towingPower:false,utility:true},
-  hydraulic:{leftEngine:true,rightEngine:true,systemAElectric:false,systemBElectric:false},
-  fuel:{crossfeed:false,leftPump:false,rightPump:false,centerLeft:false,centerRight:false},
-  antiIce:{wing:false,engineLeft:false,engineRight:false,windowLeft:true,windowRight:true,wiperLeft:'OFF',wiperRight:'OFF',rainRepellent:false},
-  air:{packLeft:true,packRight:true,trimLeft:true,trimRight:true,recircUpper:true,recircLower:true,
-    equipCooling:'AUTO',outflow:'AUTO',landingAltitude:0,zoneTemp:22},
-  cabin:{beltMode:'AUTO',oxygen:false,noSmoke:true,emergencyLights:'ARMED'},
-  gpws:{terrainOverride:false,gearOverride:false,flapOverride:false,glideslopeInhibit:false},
-  lights:{beacon:true,masterBrightness:1},
-  engine:{eecLeft:'NORM',eecRight:'NORM',fuelCutoffLeft:false,fuelCutoffRight:false}
-};
 scene.registerBeforeRender(()=>{
   const altFt=plane.pos.y*3.28084;
   window._belts=AIRSYS.cabin.beltMode==='ON'||(AIRSYS.cabin.beltMode==='AUTO'&&(altFt<10000||plane.flaps>0||plane.gearDown));
   window._noSmoke=AIRSYS.cabin.noSmoke;
 });
-const EFIS={fpv:false,meters:false,baroHpa:1013.25,baroUnit:'HPA',minsSource:'RADIO',fdL:true,fdR:true};
 
 const windVec=new BABYLON.Vector3(0,0,0);
 
