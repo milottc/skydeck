@@ -4836,18 +4836,18 @@ const TITLE_STYLE={
  'AER LINGUS':['Aer Lingus','600 100px Arial'],
  'LUFTHANSA':['Lufthansa','bold 104px Arial'],
  'UNITED':['UNITED','bold 104px Arial'],
- 'JAPAN AIRLINES':['JAPAN AIRLINES','bold 86px Arial'],
+ 'JAPAN AIRLINES':['JAPAN AIRLINES','bold 84px Arial'],
  'KOREAN AIR':['KOREAN AIR','96px Arial'],
- 'QATAR AIRWAYS':['QATAR','100px Georgia'],
+ 'QATAR AIRWAYS':['QATAR','bold 108px Georgia'],
  'WESTJET':['WestJet','bold 104px Arial'],
  'SOUTHWEST':['Southwest','bold 100px Arial'],
- 'BRITISH AIRWAYS':['BRITISH AIRWAYS','82px Arial'],
- 'CATHAY PACIFIC':['CATHAY PACIFIC','80px Arial'],
+ 'BRITISH AIRWAYS':['BRITISH AIRWAYS','bold italic 84px Georgia'],
+ 'CATHAY PACIFIC':['CATHAY PACIFIC','bold 78px Arial'],
  'AMERICAN':['American','104px Arial'],
- 'TURKISH AIRLINES':['TURKISH AIRLINES','bold 82px Arial'],
+ 'TURKISH AIRLINES':['TURKISH AIRLINES','bold 78px Arial'],
  'ALASKA':['Alaska','italic bold 110px Georgia'],
  'FINNAIR':['FINNAIR','italic bold 104px Arial'],
- 'VIETNAM AIRLINES':['Vietnam Airlines','92px Georgia']
+ 'VIETNAM AIRLINES':['Vietnam Airlines','bold 90px Georgia']
 };
 for(const L of LIVS){
  if(REAL_PAINT[L.n]){
@@ -4950,11 +4950,12 @@ const hawaiian=LIVS.find(l=>l.n==='HAWAIIAN');hawaiian.finfn=tailArt(g=>{circle(
 const paintTypedTitle=paintTitle;
 paintTitle=function(g,L,W,H){
  const id=SOURCED_MAP[L.n]+'/logo',a=SOURCED_ART[id];
- // Only use horizontal logo lockups; tall corporate stacks are unsuitable for this airframe decal.
- if(a&&a.bounds.w/a.bounds.h>2.2&&!['KOREAN AIR','QATAR AIRWAYS','KLM ROYAL DUTCH AIRLINES','JAPAN AIRLINES','CATHAY PACIFIC','AMERICAN','SINGAPORE AIRLINES','QANTAS','LOT'].includes(L.n)){
+ // Use the airline's own vector wordmark whenever its lockup fits this long fuselage decal.
+ // Tight vector bounds keep the lettering crisp and stop logo symbols from being cropped.
+ if(a&&a.bounds.w/a.bounds.h>2.2&&L.n!=='KLM ROYAL DUTCH AIRLINES'){
   g.clearRect(0,0,W,H);const c='rgb('+L.tc.map(v=>Math.round(v*255)).join(',')+')';
-  sourceArt(g,id,65,L.sub?8:18,W-130,L.sub?H*.62:H-36,c);
-  if(L.sub){g.fillStyle=c;g.font='24px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(L.sub,W/2,H*.85,W-80);}
+  sourceArt(g,id,50,L.sub?8:20,W-100,L.sub?H*.68:H-40,null);
+  if(L.sub){g.fillStyle=c;g.font='26px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(L.sub,W/2,H*.88,W-80);}
  }else paintTypedTitle(g,L,W,H);
 };
 const c3=a=>new BABYLON.Color3(a[0],a[1],a[2]),css=a=>'rgb('+a.map(v=>Math.round(v*255)).join(',')+')';
@@ -4964,7 +4965,8 @@ const FUS_W=512*LIVERY_OPTIONS.textureScale,FUS_H=2048*LIVERY_OPTIONS.textureSca
 const fusTex=new BABYLON.DynamicTexture('fusTex',{width:FUS_W,height:FUS_H},scene,true);
 fusTex.anisotropicFilteringLevel=8;
 const embs=[]; // No decorative discs obscuring the airline tail.
-const nameTex=new BABYLON.DynamicTexture('nameTex',{width:1536,height:192},scene,true);nameTex.hasAlpha=true;
+const nameTex=new BABYLON.DynamicTexture('nameTex',{width:3072,height:384},scene,true);
+nameTex.anisotropicFilteringLevel=8;nameTex.hasAlpha=true;
 const nameMat=new BABYLON.StandardMaterial('nameM',scene);nameMat.diffuseTexture=nameTex;nameMat.useAlphaFromDiffuseTexture=true;
 nameMat.emissiveTexture=nameTex;nameMat.disableLighting=true;nameMat.specularColor=BABYLON.Color3.Black();nameMat.backFaceCulling=false;nameMat.zOffset=-4;
 const namePlanes=[1,-1].map(sg=>{const q=BABYLON.MeshBuilder.CreatePlane('name'+sg,{width:9.6,height:.95},scene);
@@ -5055,7 +5057,7 @@ function applyLivery(i){
   embs.forEach(m=>{m.emissiveColor=c3(L.e);});
   // Hide the solid decorative discs which obscure tail artwork.
   [1,-1].forEach(sg=>{const mesh=scene.getMeshByName("emb"+sg);if(mesh)mesh.setEnabled(false);});
-  const g2=nameTex.getContext();paintTitle(g2,L,1536,192);
+  const g2=nameTex.getContext();paintTitle(g2,L,3072,384);
   nameTex.update();namePlanes.forEach(q=>q.setEnabled(!!L.nm));
   try{if(window.liveryOthers)window.liveryOthers();}catch(e){console.error('liveryOthers',e);}
 }
