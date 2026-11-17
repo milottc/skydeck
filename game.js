@@ -97,206 +97,10 @@ const ksAt=(r,s,o)=>[r.A[0]+r.ux*s+r.uz*o, r.A[1]+r.uz*s-r.ux*o];
 const KS_TERM=ksXZ(37.6160,-122.3892);   /* centre of the terminal horseshoe / central garage */
 const KS_FIELD=ksXZ(37.6165,-122.3790);  /* middle of the airfield, between the terminals and the 1L/1R runways */
 
-const LOCS={
-  // North America — Canada — Ontario
-  CYYZ:{lat:43.6772,lon:-79.6306,elev:173},  // Toronto Pearson
-  CYTZ:{lat:43.6275,lon:-79.3962,elev:77},   // Toronto Billy Bishop (Island)
-  CYKF:{lat:43.4608,lon:-80.3786,elev:321},  // Waterloo
-  CYOO:{lat:43.9228,lon:-78.8950,elev:137},  // Oshawa
-  CYHM:{lat:43.1736,lon:-79.9350,elev:238},  // Hamilton
-  CYKZ:{lat:43.8608,lon:-79.3703,elev:190},  // Buttonville (Toronto north)
-  CYXU:{lat:43.0356,lon:-81.1531,elev:278},  // London ON
-  CYWG:{lat:49.9100,lon:-97.2398,elev:239},  // Winnipeg
-  // Canada — Quebec
-  CYUL:{lat:45.4706,lon:-73.7408,elev:36},   // Montréal Trudeau
-  CYMX:{lat:45.6795,lon:-74.0056,elev:57},   // Montréal Mirabel
-  CYHU:{lat:45.5175,lon:-73.4197,elev:27},   // St-Hubert (Longueuil)
-  CYQB:{lat:46.7911,lon:-71.3933,elev:74},   // Quebec City
-  CYSB:{lat:46.6253,lon:-80.7989,elev:348},  // Sudbury
-  // Canada — BC / West
-  CYVR:{lat:49.1947,lon:-123.1792,elev:4},   // Vancouver Intl
-  CYYJ:{lat:48.6469,lon:-123.4258,elev:19},  // Victoria
-  CZBB:{lat:49.0942,lon:-122.3597,elev:2},   // Boundary Bay (Delta BC)
-  CYCD:{lat:49.0547,lon:-123.8697,elev:6},   // Nanaimo
-  CYXS:{lat:53.8894,lon:-122.6792,elev:691}, // Prince George
-  CYXX:{lat:49.0253,lon:-122.3606,elev:58},  // Abbotsford
-  // Canada — Alberta / Prairies
-  CYYC:{lat:51.1139,lon:-114.0203,elev:1084},// Calgary Intl
-  CYBW:{lat:51.1131,lon:-114.3744,elev:1118},// Springbank (Calgary area)
-  CYEG:{lat:53.3097,lon:-113.5800,elev:723}, // Edmonton Intl
-  CYXD:{lat:53.5728,lon:-113.5214,elev:671}, // Edmonton City Centre (Blatchford)
-  CYXE:{lat:52.1333,lon:-106.6667,elev:480}, // Saskatoon
-  CYQR:{lat:50.4319,lon:-104.6177,elev:577}, // Regina
-  CYBR:{lat:49.9108,lon:-99.9519,elev:357},  // Brandon
-  // Canada — East / Maritimes
-  CYOW:{lat:45.3225,lon:-75.6692,elev:114},  // Ottawa
-  CYYG:{lat:46.2900,lon:-63.1211,elev:55},   // Charlottetown
-  CYHZ:{lat:44.8808,lon:-63.5086,elev:145},  // Halifax
-  CYQM:{lat:46.1122,lon:-64.6786,elev:71},   // Moncton
-  CYFC:{lat:45.8719,lon:-66.5372,elev:34},   // Fredericton
-  CYSJ:{lat:45.3161,lon:-65.8900,elev:38},   // Saint John NB
-  CYYT:{lat:47.6186,lon:-52.7519,elev:140},  // St. John's NL
-  CYGV:{lat:51.3994,lon:-56.0819,elev:48},   // Havre-Saint-Pierre / La Grande Rivière area
-  // USA — Northeast / Mid-Atlantic regional
-  KBUF:{lat:42.9405,lon:-78.7322,elev:215},  // Buffalo
-  KSYR:{lat:43.1112,lon:-76.1063,elev:128},  // Syracuse
-  KALB:{lat:42.7483,lon:-73.8017,elev:89},   // Albany
-  KPVD:{lat:41.7265,lon:-71.4282,elev:15},   // Providence
-  KMHT:{lat:42.9326,lon:-71.4357,elev:81},   // Manchester NH
-  KBGR:{lat:44.8074,lon:-68.8282,elev:59},   // Bangor
-  KPWM:{lat:43.6462,lon:-70.3093,elev:76},   // Portland ME
-  KHPN:{lat:41.0670,lon:-73.7076,elev:122},  // Westchester (White Plains)
-  KTEB:{lat:40.8501,lon:-74.0608,elev:3},    // Teterboro NJ (small jets)
-  KABE:{lat:40.6521,lon:-75.4408,elev:124},  // Allentown PA
-  KAVP:{lat:41.3385,lon:-75.7234,elev:289},  // Scranton/Wilkes-Barre
-  KISP:{lat:40.7952,lon:-73.1002,elev:28},   // Long Island MacArthur
-  KHVN:{lat:41.2638,lon:-72.8868,elev:4},    // New Haven
-  // USA — Midwest regional
-  KMDW:{lat:41.7860,lon:-87.7524,elev:188},  // Chicago Midway
-  KGRR:{lat:42.8808,lon:-85.5228,elev:245},  // Grand Rapids
-  KLAN:{lat:42.7787,lon:-84.5874,elev:282},  // Lansing
-  KFTW:{lat:32.8199,lon:-97.3622,elev:218},  // Ft. Worth Meacham
-  KHOU:{lat:29.6454,lon:-95.2789,elev:14},   // Houston Hobby
-  KSAT:{lat:29.5337,lon:-98.4698,elev:242},  // San Antonio
-  // El Paso is already in LOCS as KELP below — no duplicate needed
-  KCOS:{lat:38.8058,lon:-104.7008,elev:1881},// Colorado Springs
-  KDSM:{lat:41.5340,lon:-93.6631,elev:294},  // Des Moines
-  KOMA:{lat:41.3032,lon:-95.8941,elev:299},  // Omaha Eppley
-  KICT:{lat:37.6499,lon:-97.4331,elev:408},  // Wichita
-  KMCI:{lat:39.2976,lon:-94.7139,elev:313},  // Kansas City
-  KLIT:{lat:34.7294,lon:-92.2243,elev:75},   // Little Rock
-  // USA — South regional
-  KBHM:{lat:33.5629,lon:-86.7535,elev:193},  // Birmingham AL
-  KMOB:{lat:30.6912,lon:-88.2428,elev:67},   // Mobile
-  KJAN:{lat:32.3112,lon:-90.0759,elev:97},   // Jackson MS
-  KCHA:{lat:35.0353,lon:-85.2038,elev:218},  // Chattanooga
-  KTYS:{lat:35.8118,lon:-83.9940,elev:293},  // Knoxville
-  KAVL:{lat:35.4362,lon:-82.5419,elev:661},  // Asheville NC
-  KMYR:{lat:33.6797,lon:-78.9283,elev:9},    // Myrtle Beach
-  KCHS:{lat:32.8986,lon:-80.0405,elev:14},   // Charleston SC
-  KSAV:{lat:32.1276,lon:-81.2021,elev:15},   // Savannah
-  KJAX:{lat:30.4941,lon:-81.6879,elev:9},    // Jacksonville
-  KPNS:{lat:30.4734,lon:-87.1866,elev:36},   // Pensacola
-  // USA — West regional
-  KBUR:{lat:34.2007,lon:-118.3585,elev:238}, // Burbank / Hollywood
-  KLGB:{lat:33.8177,lon:-118.1517,elev:18},  // Long Beach
-  KONT:{lat:34.0560,lon:-117.6012,elev:288}, // Ontario CA
-  KOAK:{lat:37.7213,lon:-122.2208,elev:2},   // Oakland
-  KSJC:{lat:37.3626,lon:-121.9290,elev:18},  // San Jose
-  KSMF:{lat:38.6954,lon:-121.5908,elev:8},   // Sacramento
-  KFAT:{lat:36.7762,lon:-119.7181,elev:102}, // Fresno
-  KRNO:{lat:39.4991,lon:-119.7681,elev:1341},// Reno
-  KBOI:{lat:43.5644,lon:-116.2228,elev:874}, // Boise
-  KBZN:{lat:45.7775,lon:-111.1531,elev:1369},// Bozeman
-  KMSN:{lat:43.1399,lon:-89.3375,elev:265},  // Madison WI
-  KFSD:{lat:43.5820,lon:-96.7419,elev:437},  // Sioux Falls
-  // USA — Hawaii / Alaska
-  PHKO:{lat:19.7386,lon:-156.0456,elev:14},  // Kona
-  PHOG:{lat:20.8986,lon:-156.4305,elev:49},  // Maui Kahului
-  PANC:{lat:61.1744,lon:-149.9964,elev:46},  // Anchorage
-  PAFA:{lat:64.8151,lon:-147.8561,elev:135}, // Fairbanks
-  PAJN:{lat:58.3550,lon:-134.5763,elev:6},   // Juneau
-  // North America — USA
-  KJFK:{lat:40.6413,lon:-73.7781,elev:4},KLAX:{lat:33.9425,lon:-118.4081,elev:38},
-  KORD:{lat:41.9742,lon:-87.9073,elev:202},KATL:{lat:33.6367,lon:-84.4281,elev:313},
-  KDFW:{lat:32.8968,lon:-97.0380,elev:182},KDEN:{lat:39.8561,lon:-104.6737,elev:1655},
-  KSFO:{lat:KS_REF.lat,lon:KS_REF.lon,elev:4},KLAS:{lat:36.0840,lon:-115.1537,elev:664},
-  KMIA:{lat:25.7959,lon:-80.2870,elev:3},KSEA:{lat:47.4502,lon:-122.3088,elev:132},
-  KPHX:{lat:33.4373,lon:-112.0078,elev:337},KIAH:{lat:29.9902,lon:-95.3368,elev:30},
-  KEWR:{lat:40.6895,lon:-74.1745,elev:9},KMSP:{lat:44.8848,lon:-93.2223,elev:256},
-  KDTW:{lat:42.2124,lon:-83.3534,elev:195},KBOS:{lat:42.3656,lon:-71.0096,elev:9},
-  KPHL:{lat:39.8721,lon:-75.2411,elev:11},KLGA:{lat:40.7773,lon:-73.8726,elev:7},
-  KBWI:{lat:39.1754,lon:-76.6683,elev:46},KDCA:{lat:38.8521,lon:-77.0377,elev:15},
-  KSLC:{lat:40.7884,lon:-111.9778,elev:1288},KFLL:{lat:26.0726,lon:-80.1527,elev:3},
-  KMCO:{lat:28.4294,lon:-81.3089,elev:29},KIAH2:{lat:29.9844,lon:-95.3414,elev:30},
-  KSTL:{lat:38.7487,lon:-90.3700,elev:189},KCLT:{lat:35.2140,lon:-80.9431,elev:237},
-  KSAN:{lat:32.7336,lon:-117.1897,elev:5},KTPA:{lat:27.9755,lon:-82.5332,elev:9},
-  KPDX:{lat:45.5888,lon:-122.5975,elev:9},KMEM:{lat:35.0424,lon:-89.9767,elev:103},
-  KBNA:{lat:36.1245,lon:-86.6782,elev:183},KAUS:{lat:30.1945,lon:-97.6699,elev:160},
-  KMSY:{lat:29.9934,lon:-90.2580,elev:2},KRDU:{lat:35.8776,lon:-78.7875,elev:132},
-  KRIC:{lat:37.5052,lon:-77.3197,elev:52},KCMH:{lat:39.9998,lon:-82.8919,elev:248},
-  KPIT:{lat:40.4915,lon:-80.2329,elev:365},KIND:{lat:39.7173,lon:-86.2944,elev:246},
-  KSNA:{lat:33.6757,lon:-117.8682,elev:17},KSDF:{lat:38.1744,lon:-85.7360,elev:149},
-  KELP:{lat:31.8072,lon:-106.3779,elev:1194},KABQ:{lat:35.0402,lon:-106.6090,elev:1640},
-  KTUS:{lat:32.1161,lon:-110.9410,elev:779},KOKC:{lat:35.3931,lon:-97.6007,elev:398},
-  KTUL:{lat:36.1984,lon:-95.8881,elev:202},KOMAHA:{lat:41.3032,lon:-95.8941,elev:299},
-  // USA scenic
-  ALPS:{lat:46.5,lon:7.9,elev:3600},
-  EVEREST:{lat:27.9881,lon:86.925,elev:5300},GRANDCANYON:{lat:35.9524,lon:-112.147,elev:2000},
-  // Mexico / Caribbean
-  MMMX:{lat:19.4363,lon:-99.0721,elev:2237},MMGL:{lat:20.5218,lon:-103.3111,elev:1521},
-  MMUN:{lat:21.0365,lon:-86.8771,elev:7},MMTY:{lat:25.7785,lon:-100.1066,elev:366},
-  MYNN:{lat:25.0390,lon:-77.4662,elev:5},MBPV:{lat:21.7737,lon:-72.1887,elev:6},
-  TJSJ:{lat:18.4394,lon:-66.0018,elev:9},MDSD:{lat:18.4297,lon:-69.6689,elev:17},
-  // South America
-  SBGR:{lat:-23.4356,lon:-46.4731,elev:750},SCEL:{lat:-33.3930,lon:-70.7858,elev:474},
-  SKBO:{lat:4.7016,lon:-74.1469,elev:2549},SEQM:{lat:-0.1292,lon:-78.3576,elev:2400},
-  SPJC:{lat:-12.0219,lon:-77.1143,elev:13},SAEZ:{lat:-34.8222,lon:-58.5358,elev:20},
-  SBSP:{lat:-23.6261,lon:-46.6564,elev:802},SBPA:{lat:-29.9944,lon:-51.1714,elev:3},
-  SBRJ:{lat:-22.9100,lon:-43.1631,elev:9},SBCF:{lat:-19.6244,lon:-43.9719,elev:827},
-  // Europe — UK/Ireland
-  EGLL:{lat:51.47,lon:-0.4543,elev:25},EGKK:{lat:51.1481,lon:-0.1903,elev:62},
-  EGCC:{lat:53.3537,lon:-2.2750,elev:76},EGNX:{lat:52.8311,lon:-1.3281,elev:99},
-  EGBB:{lat:52.4539,lon:-1.7480,elev:99},EGGD:{lat:51.3827,lon:-2.7191,elev:189},
-  EGSS:{lat:51.8850,lon:0.2350,elev:103},EIDW:{lat:53.4213,lon:-6.2701,elev:74},
-  // Europe — Western
-  LFPG:{lat:48.9969,lon:2.5483,elev:119},LFPO:{lat:48.7233,lon:2.3794,elev:96},
-  LSZH:{lat:47.4647,lon:8.5492,elev:432},LSGG:{lat:46.2381,lon:6.1089,elev:430},
-  EHAM:{lat:52.3105,lon:4.7683,elev:-3},EBBR:{lat:50.9014,lon:4.4844,elev:56},
-  EDDF:{lat:50.0264,lon:8.5431,elev:111},EDDM:{lat:48.3537,lon:11.7860,elev:448},
-  EDDL:{lat:51.2895,lon:6.7668,elev:45},EDDB:{lat:52.3667,lon:13.5033,elev:37},
-  LEMD:{lat:40.4936,lon:-3.5668,elev:610},LEBL:{lat:41.2971,lon:2.0785,elev:4},
-  LIRF:{lat:41.8003,lon:12.2389,elev:14},LIML:{lat:45.4454,lon:9.2763,elev:107},
-  LPPT:{lat:38.7756,lon:-9.1359,elev:113},LHBP:{lat:47.4369,lon:19.2556,elev:151},
-  LOWW:{lat:48.1103,lon:16.5697,elev:183},LSZA:{lat:46.0044,lon:8.9109,elev:276},
-  ESSA:{lat:59.6519,lon:17.9186,elev:42},ENGM:{lat:60.1939,lon:11.1004,elev:208},
-  EKCH:{lat:55.6180,lon:12.6561,elev:17},EFHK:{lat:60.3172,lon:24.9633,elev:55},
-  EPWA:{lat:52.1657,lon:20.9671,elev:110},LKPR:{lat:50.1008,lon:14.2600,elev:381},
-  LYBE:{lat:44.8184,lon:20.3091,elev:99},LGAV:{lat:37.9364,lon:23.9445,elev:94},
-  LTBA:{lat:40.9762,lon:28.8146,elev:157},LTFM:{lat:41.2753,lon:28.7519,elev:99},
-  // Europe — Eastern / Russia
-  UUEE:{lat:55.9736,lon:37.4125,elev:190},UUDD:{lat:55.4088,lon:37.9063,elev:178},
-  UKBB:{lat:50.3450,lon:30.8947,elev:120},EVRA:{lat:56.9236,lon:23.9711,elev:10},
-  EYVI:{lat:54.6341,lon:25.2858,elev:197},UMMS:{lat:53.8825,lon:28.0322,elev:204},
-  LROP:{lat:44.5722,lon:26.1022,elev:95},LBSF:{lat:42.6967,lon:23.4114,elev:531},
-  // Middle East / Africa
-  OMDB:{lat:25.2532,lon:55.3657,elev:19},OMAA:{lat:24.4330,lon:54.6511,elev:27},
-  OERK:{lat:24.9576,lon:46.6988,elev:620},OEJN:{lat:21.6796,lon:39.1565,elev:17},
-  OTHH:{lat:25.2731,lon:51.6081,elev:13},OKBK:{lat:29.2267,lon:47.9689,elev:55},
-  HECA:{lat:30.1219,lon:31.4056,elev:74},HAAB:{lat:8.9779,lon:38.7993,elev:2334},
-  DNMM:{lat:6.5774,lon:3.3213,elev:38},FAOR:{lat:-26.1392,lon:28.2460,elev:1694},
-  FACT:{lat:-33.9648,lon:18.6017,elev:46},FMMI:{lat:-18.7969,lon:47.4788,elev:1276},
-  FCBB:{lat:-4.2517,lon:15.2531,elev:315},GOOG:{lat:14.7447,lon:-17.4902,elev:24},
-  DTTA:{lat:36.8510,lon:10.2272,elev:6},GMME:{lat:34.0510,lon:-6.7517,elev:276},
-  HKJK:{lat:-1.3192,lon:36.9275,elev:1624},HTDA:{lat:-6.8781,lon:39.2026,elev:55},
-  // Asia — East
-  RJTT:{lat:35.5494,lon:139.7798,elev:6},RJAA:{lat:35.7647,lon:140.3864,elev:41},
-  RKSI:{lat:37.4602,lon:126.4407,elev:23},RKSS:{lat:37.5583,lon:126.7906,elev:18},
-  ZSPD:{lat:31.1434,lon:121.8052,elev:4},ZBAA:{lat:40.0799,lon:116.5845,elev:35},
-  ZGGG:{lat:23.3924,lon:113.2990,elev:15},VHHH:{lat:22.3080,lon:113.9185,elev:9},
-  RCTP:{lat:25.0777,lon:121.2328,elev:33},WMKK:{lat:2.7456,lon:101.7099,elev:21},
-  WSSS:{lat:1.3644,lon:103.9915,elev:7},VTBS:{lat:13.9132,lon:100.6070,elev:8},
-  WIII:{lat:-6.1256,lon:106.6558,elev:8},RPLL:{lat:14.5086,lon:121.0197,elev:21},
-  VOMM:{lat:12.9900,lon:80.1693,elev:16},VIDP:{lat:28.5665,lon:77.1031,elev:237},
-  VABB:{lat:19.0896,lon:72.8656,elev:11},OMAB:{lat:24.2528,lon:54.6511,elev:27},
-  // Asia — Central / South
-  OAKB:{lat:34.5659,lon:69.2123,elev:1791},OPKC:{lat:24.9065,lon:67.1608,elev:22},
-  VCBI:{lat:7.1808,lon:79.8841,elev:7},UAAA:{lat:43.3528,lon:77.0405,elev:647},
-  UTDD:{lat:38.5433,lon:68.8247,elev:864},
-  // Oceania / Pacific
-  YSSY:{lat:-33.9399,lon:151.1753,elev:6},YMML:{lat:-37.6733,lon:144.8430,elev:131},
-  YBBN:{lat:-27.3842,lon:153.1175,elev:5},YPPH:{lat:-31.9403,lon:115.9669,elev:15},
-  NZAA:{lat:-37.0082,lon:174.7917,elev:7},NZWN:{lat:-41.3272,lon:174.8051,elev:12},
-  NFFN:{lat:-17.7554,lon:177.4432,elev:5},NTAA:{lat:-17.5534,lon:-149.6062,elev:2},
-  PGUM:{lat:13.4834,lon:144.7960,elev:91},PHNL:{lat:21.3245,lon:-157.9251,elev:4},
-  // Scenic
-  MATTERHORN:{lat:45.9763,lon:7.6586,elev:4300},FUJI:{lat:35.3606,lon:138.7274,elev:3700},
-  YOSEMITE:{lat:37.7456,lon:-119.5936,elev:1200},ZION:{lat:37.2982,lon:-113.0263,elev:1300},
-  MONUMENT:{lat:36.9980,lon:-110.0985,elev:1700},GEIRANGER:{lat:62.1049,lon:7.2058,elev:0},
-  IGUAZU:{lat:-25.6958,lon:-54.4353,elev:185},VICTORIA:{lat:-17.9314,lon:25.8564,elev:1000},
-  ANTARCTICAPEN:{lat:-63.4,lon:-57.0,elev:0},GREENLAND:{lat:72.0,lon:-40.0,elev:2000}
-};
-const RUNWAYS={
+// Runway data: hdg in degrees magnetic, len/wid in metres.
+// Entries marked "approx" are from memory and must be verified against
+// current AIP/AIS before any operational use.
+const RUNWAYS = Object.freeze({
   // Canada — Ontario
   CYYZ:{hdg:60,len:3389,wid:61},CYTZ:{hdg:80,len:1216,wid:30},
   CYKF:{hdg:140,len:1524,wid:46},CYOO:{hdg:120,len:1768,wid:46},
@@ -324,7 +128,7 @@ const RUNWAYS={
   KJFK:{hdg:44,len:3400,wid:60},KLAX:{hdg:69,len:3685,wid:61},
   KORD:{hdg:100,len:3657,wid:61},KATL:{hdg:98,len:3624,wid:61},
   KDFW:{hdg:180,len:4085,wid:61},KDEN:{hdg:170,len:4877,wid:61},
-  KSFO:{hdg:KS_RWY[0].hdg,len:KS_RWY[0].len,wid:61,des:KS_RWY[0].des,extras:KS_RWY.slice(1),custom:true},
+  KSFO:{hdg:280,len:3618,wid:61},  // approx; 28R/10L assumed primary, unverified
   KLAS:{hdg:190,len:4423,wid:61},KMIA:{hdg:90,len:3962,wid:61},
   KSEA:{hdg:163,len:3627,wid:61},KPHX:{hdg:260,len:3459,wid:61},
   KIAH:{hdg:150,len:3963,wid:61},KEWR:{hdg:40,len:3353,wid:46},
@@ -435,7 +239,264 @@ const RUNWAYS={
   NZAA:{hdg:50,len:3635,wid:61},NZWN:{hdg:160,len:1935,wid:46},
   NFFN:{hdg:20,len:3000,wid:46},PHNL:{hdg:80,len:3750,wid:61},
   PGUM:{hdg:60,len:3197,wid:61},
-};
+
+  // ===== Special / remote / unusual strips (all approx — verify) =====
+  VNLK:{hdg:60,len:527,wid:20},     // Lukla, Nepal (Tenzing-Hillary) — approx, ~2860 m elev
+  VNKT:{hdg:20,len:3050,wid:45},    // Kathmandu Tribhuvan — approx
+  VQPR:{hdg:150,len:2265,wid:45},   // Paro, Bhutan — approx
+  TNCS:{hdg:100,len:400,wid:30},    // Saba (Juancho E. Yrausquin), Caribbean — approx
+  TNCM:{hdg:100,len:2180,wid:45},   // Princess Juliana, St. Maarten — approx
+  LXGB:{hdg:90,len:1800,wid:45},    // Gibraltar — approx
+  LFLJ:{hdg:180,len:525,wid:20},    // Courchevel, France (steep, short) — approx
+  EGPR:{hdg:60,len:600,wid:30},     // Barra, Scotland (beach runway) — approx
+  LPMA:{hdg:50,len:2781,wid:45},    // Madeira (Funchal) — approx
+  SAUS:{hdg:70,len:1800,wid:30},    // Ushuaia, Argentina — approx
+});
+
+const LOCS = Object.freeze({
+  // North America — Canada — Ontario
+  CYYZ:{lat:43.6772,lon:-79.6306,elev:173},  // Toronto Pearson
+  CYTZ:{lat:43.6275,lon:-79.3962,elev:77},   // Toronto Billy Bishop (Island)
+  CYKF:{lat:43.4608,lon:-80.3786,elev:321},  // Waterloo
+  CYOO:{lat:43.9228,lon:-78.8950,elev:137},  // Oshawa
+  CYHM:{lat:43.1736,lon:-79.9350,elev:238},  // Hamilton
+  CYKZ:{lat:43.8608,lon:-79.3703,elev:190},  // Buttonville (Toronto north)
+  CYXU:{lat:43.0356,lon:-81.1531,elev:278},  // London ON
+  CYWG:{lat:49.9100,lon:-97.2398,elev:239},  // Winnipeg
+  // Canada — Quebec
+  CYUL:{lat:45.4706,lon:-73.7408,elev:36},   // Montréal Trudeau
+  CYMX:{lat:45.6795,lon:-74.0056,elev:57},   // Montréal Mirabel
+  CYHU:{lat:45.5175,lon:-73.4197,elev:27},   // St-Hubert (Longueuil)
+  CYQB:{lat:46.7911,lon:-71.3933,elev:74},   // Quebec City
+  CYSB:{lat:46.6253,lon:-80.7989,elev:348},  // Sudbury
+  // Canada — BC / West
+  CYVR:{lat:49.1947,lon:-123.1792,elev:4},   // Vancouver Intl
+  CYYJ:{lat:48.6469,lon:-123.4258,elev:19},  // Victoria
+  CZBB:{lat:49.0942,lon:-122.3597,elev:2},   // Boundary Bay (Delta BC)
+  CYCD:{lat:49.0547,lon:-123.8697,elev:6},   // Nanaimo
+  CYXS:{lat:53.8894,lon:-122.6792,elev:691}, // Prince George
+  CYXX:{lat:49.0253,lon:-122.3606,elev:58},  // Abbotsford
+  // Canada — Alberta / Prairies
+  CYYC:{lat:51.1139,lon:-114.0203,elev:1084},// Calgary Intl
+  CYBW:{lat:51.1131,lon:-114.3744,elev:1118},// Springbank (Calgary area)
+  CYEG:{lat:53.3097,lon:-113.5800,elev:723}, // Edmonton Intl
+  CYXD:{lat:53.5728,lon:-113.5214,elev:671}, // Edmonton City Centre (Blatchford)
+  CYXE:{lat:52.1333,lon:-106.6667,elev:480}, // Saskatoon
+  CYQR:{lat:50.4319,lon:-104.6177,elev:577}, // Regina
+  CYBR:{lat:49.9108,lon:-99.9519,elev:357},  // Brandon
+  // Canada — East / Maritimes
+  CYOW:{lat:45.3225,lon:-75.6692,elev:114},  // Ottawa
+  CYYG:{lat:46.2900,lon:-63.1211,elev:55},   // Charlottetown
+  CYHZ:{lat:44.8808,lon:-63.5086,elev:145},  // Halifax
+  CYQM:{lat:46.1122,lon:-64.6786,elev:71},   // Moncton
+  CYFC:{lat:45.8719,lon:-66.5372,elev:34},   // Fredericton
+  CYSJ:{lat:45.3161,lon:-65.8900,elev:38},   // Saint John NB
+  CYYT:{lat:47.6186,lon:-52.7519,elev:140},  // St. John's NL
+  CYGV:{lat:51.3994,lon:-56.0819,elev:48},   // Havre-Saint-Pierre / La Grande Rivière area
+  // USA — Northeast / Mid-Atlantic regional
+  KBUF:{lat:42.9405,lon:-78.7322,elev:215},  // Buffalo
+  KSYR:{lat:43.1112,lon:-76.1063,elev:128},  // Syracuse
+  KALB:{lat:42.7483,lon:-73.8017,elev:89},   // Albany
+  KPVD:{lat:41.7265,lon:-71.4282,elev:15},   // Providence
+  KMHT:{lat:42.9326,lon:-71.4357,elev:81},   // Manchester NH
+  KBGR:{lat:44.8074,lon:-68.8282,elev:59},   // Bangor
+  KPWM:{lat:43.6462,lon:-70.3093,elev:76},   // Portland ME
+  KHPN:{lat:41.0670,lon:-73.7076,elev:122},  // Westchester (White Plains)
+  KTEB:{lat:40.8501,lon:-74.0608,elev:3},    // Teterboro NJ (small jets)
+  KABE:{lat:40.6521,lon:-75.4408,elev:124},  // Allentown PA
+  KAVP:{lat:41.3385,lon:-75.7234,elev:289},  // Scranton/Wilkes-Barre
+  KISP:{lat:40.7952,lon:-73.1002,elev:28},   // Long Island MacArthur
+  KHVN:{lat:41.2638,lon:-72.8868,elev:4},    // New Haven
+  // USA — Midwest regional
+  KMDW:{lat:41.7860,lon:-87.7524,elev:188},  // Chicago Midway
+  KGRR:{lat:42.8808,lon:-85.5228,elev:245},  // Grand Rapids
+  KLAN:{lat:42.7787,lon:-84.5874,elev:282},  // Lansing
+  KFTW:{lat:32.8199,lon:-97.3622,elev:218},  // Ft. Worth Meacham
+  KHOU:{lat:29.6454,lon:-95.2789,elev:14},   // Houston Hobby
+  KSAT:{lat:29.5337,lon:-98.4698,elev:242},  // San Antonio
+  KCOS:{lat:38.8058,lon:-104.7008,elev:1881},// Colorado Springs
+  KDSM:{lat:41.5340,lon:-93.6631,elev:294},  // Des Moines
+  KOMA:{lat:41.3032,lon:-95.8941,elev:299},  // Omaha Eppley
+  KICT:{lat:37.6499,lon:-97.4331,elev:408},  // Wichita
+  KMCI:{lat:39.2976,lon:-94.7139,elev:313},  // Kansas City
+  KLIT:{lat:34.7294,lon:-92.2243,elev:75},   // Little Rock
+  // USA — South regional
+  KBHM:{lat:33.5629,lon:-86.7535,elev:193},  // Birmingham AL
+  KMOB:{lat:30.6912,lon:-88.2428,elev:67},   // Mobile
+  KJAN:{lat:32.3112,lon:-90.0759,elev:97},   // Jackson MS
+  KCHA:{lat:35.0353,lon:-85.2038,elev:218},  // Chattanooga
+  KTYS:{lat:35.8118,lon:-83.9940,elev:293},  // Knoxville
+  KAVL:{lat:35.4362,lon:-82.5419,elev:661},  // Asheville NC
+  KMYR:{lat:33.6797,lon:-78.9283,elev:9},    // Myrtle Beach
+  KCHS:{lat:32.8986,lon:-80.0405,elev:14},   // Charleston SC
+  KSAV:{lat:32.1276,lon:-81.2021,elev:15},   // Savannah
+  KJAX:{lat:30.4941,lon:-81.6879,elev:9},    // Jacksonville
+  KPNS:{lat:30.4734,lon:-87.1866,elev:36},   // Pensacola
+  // USA — West regional
+  KBUR:{lat:34.2007,lon:-118.3585,elev:238}, // Burbank / Hollywood
+  KLGB:{lat:33.8177,lon:-118.1517,elev:18},  // Long Beach
+  KONT:{lat:34.0560,lon:-117.6012,elev:288}, // Ontario CA
+  KOAK:{lat:37.7213,lon:-122.2208,elev:2},   // Oakland
+  KSJC:{lat:37.3626,lon:-121.9290,elev:18},  // San Jose
+  KSMF:{lat:38.6954,lon:-121.5908,elev:8},   // Sacramento
+  KFAT:{lat:36.7762,lon:-119.7181,elev:102}, // Fresno
+  KRNO:{lat:39.4991,lon:-119.7681,elev:1341},// Reno
+  KBOI:{lat:43.5644,lon:-116.2228,elev:874}, // Boise
+  KBZN:{lat:45.7775,lon:-111.1531,elev:1369},// Bozeman
+  KMSN:{lat:43.1399,lon:-89.3375,elev:265},  // Madison WI
+  KFSD:{lat:43.5820,lon:-96.7419,elev:437},  // Sioux Falls
+  // USA — Hawaii / Alaska
+  PHKO:{lat:19.7386,lon:-156.0456,elev:14},  // Kona
+  PHOG:{lat:20.8986,lon:-156.4305,elev:49},  // Maui Kahului
+  PANC:{lat:61.1744,lon:-149.9964,elev:46},  // Anchorage
+  PAFA:{lat:64.8151,lon:-147.8561,elev:135}, // Fairbanks
+  PAJN:{lat:58.3550,lon:-134.5763,elev:6},   // Juneau
+  // USA — major hubs
+  KJFK:{lat:40.6413,lon:-73.7781,elev:4},
+  KLAX:{lat:33.9425,lon:-118.4081,elev:38},
+  KORD:{lat:41.9742,lon:-87.9073,elev:202},
+  KATL:{lat:33.6367,lon:-84.4281,elev:313},
+  KDFW:{lat:32.8968,lon:-97.0380,elev:182},
+  KDEN:{lat:39.8561,lon:-104.6737,elev:1655},
+  KSFO:{lat:37.6213,lon:-122.3790,elev:4},   // San Francisco Intl
+  KLAS:{lat:36.0840,lon:-115.1537,elev:664},
+  KMIA:{lat:25.7959,lon:-80.2870,elev:3},
+  KSEA:{lat:47.4502,lon:-122.3088,elev:132},
+  KPHX:{lat:33.4373,lon:-112.0078,elev:337},
+  KIAH:{lat:29.9902,lon:-95.3368,elev:30},
+  KEWR:{lat:40.6895,lon:-74.1745,elev:9},
+  KMSP:{lat:44.8848,lon:-93.2223,elev:256},
+  KDTW:{lat:42.2124,lon:-83.3534,elev:195},
+  KBOS:{lat:42.3656,lon:-71.0096,elev:9},
+  KPHL:{lat:39.8721,lon:-75.2411,elev:11},
+  KLGA:{lat:40.7773,lon:-73.8726,elev:7},
+  KBWI:{lat:39.1754,lon:-76.6683,elev:46},
+  KDCA:{lat:38.8521,lon:-77.0377,elev:15},
+  KSLC:{lat:40.7884,lon:-111.9778,elev:1288},
+  KFLL:{lat:26.0726,lon:-80.1527,elev:3},
+  KMCO:{lat:28.4294,lon:-81.3089,elev:29},
+  KSTL:{lat:38.7487,lon:-90.3700,elev:189},
+  KCLT:{lat:35.2140,lon:-80.9431,elev:237},
+  KSAN:{lat:32.7336,lon:-117.1897,elev:5},
+  KTPA:{lat:27.9755,lon:-82.5332,elev:9},
+  KPDX:{lat:45.5888,lon:-122.5975,elev:9},
+  KMEM:{lat:35.0424,lon:-89.9767,elev:103},
+  KBNA:{lat:36.1245,lon:-86.6782,elev:183},
+  KAUS:{lat:30.1945,lon:-97.6699,elev:160},
+  KMSY:{lat:29.9934,lon:-90.2580,elev:2},
+  KRDU:{lat:35.8776,lon:-78.7875,elev:132},
+  KRIC:{lat:37.5052,lon:-77.3197,elev:52},
+  KCMH:{lat:39.9998,lon:-82.8919,elev:248},
+  KPIT:{lat:40.4915,lon:-80.2329,elev:365},
+  KIND:{lat:39.7173,lon:-86.2944,elev:246},
+  KSNA:{lat:33.6757,lon:-117.8682,elev:17},
+  KSDF:{lat:38.1744,lon:-85.7360,elev:149},
+  KELP:{lat:31.8072,lon:-106.3779,elev:1194},
+  KABQ:{lat:35.0402,lon:-106.6090,elev:1640},
+  KTUS:{lat:32.1161,lon:-110.9410,elev:779},
+  KOKC:{lat:35.3931,lon:-97.6007,elev:398},
+  KTUL:{lat:36.1984,lon:-95.8881,elev:202},
+  // Mexico / Caribbean
+  MMMX:{lat:19.4363,lon:-99.0721,elev:2237},MMGL:{lat:20.5218,lon:-103.3111,elev:1521},
+  MMUN:{lat:21.0365,lon:-86.8771,elev:7},MMTY:{lat:25.7785,lon:-100.1066,elev:366},
+  MYNN:{lat:25.0390,lon:-77.4662,elev:5},MBPV:{lat:21.7737,lon:-72.1887,elev:6},
+  TJSJ:{lat:18.4394,lon:-66.0018,elev:9},MDSD:{lat:18.4297,lon:-69.6689,elev:17},
+  // South America
+  SBGR:{lat:-23.4356,lon:-46.4731,elev:750},SCEL:{lat:-33.3930,lon:-70.7858,elev:474},
+  SKBO:{lat:4.7016,lon:-74.1469,elev:2549},SEQM:{lat:-0.1292,lon:-78.3576,elev:2400},
+  SPJC:{lat:-12.0219,lon:-77.1143,elev:13},SAEZ:{lat:-34.8222,lon:-58.5358,elev:20},
+  SBSP:{lat:-23.6261,lon:-46.6564,elev:802},SBPA:{lat:-29.9944,lon:-51.1714,elev:3},
+  SBRJ:{lat:-22.9100,lon:-43.1631,elev:9},SBCF:{lat:-19.6244,lon:-43.9719,elev:827},
+  // Europe — UK/Ireland
+  EGLL:{lat:51.47,lon:-0.4543,elev:25},EGKK:{lat:51.1481,lon:-0.1903,elev:62},
+  EGCC:{lat:53.3537,lon:-2.2750,elev:76},EGNX:{lat:52.8311,lon:-1.3281,elev:99},
+  EGBB:{lat:52.4539,lon:-1.7480,elev:99},EGGD:{lat:51.3827,lon:-2.7191,elev:189},
+  EGSS:{lat:51.8850,lon:0.2350,elev:103},EIDW:{lat:53.4213,lon:-6.2701,elev:74},
+  // Europe — Western
+  LFPG:{lat:48.9969,lon:2.5483,elev:119},LFPO:{lat:48.7233,lon:2.3794,elev:96},
+  LSZH:{lat:47.4647,lon:8.5492,elev:432},LSGG:{lat:46.2381,lon:6.1089,elev:430},
+  EHAM:{lat:52.3105,lon:4.7683,elev:-3},EBBR:{lat:50.9014,lon:4.4844,elev:56},
+  EDDF:{lat:50.0264,lon:8.5431,elev:111},EDDM:{lat:48.3537,lon:11.7860,elev:448},
+  EDDL:{lat:51.2895,lon:6.7668,elev:45},EDDB:{lat:52.3667,lon:13.5033,elev:37},
+  LEMD:{lat:40.4936,lon:-3.5668,elev:610},LEBL:{lat:41.2971,lon:2.0785,elev:4},
+  LIRF:{lat:41.8003,lon:12.2389,elev:14},LIML:{lat:45.4454,lon:9.2763,elev:107},
+  LPPT:{lat:38.7756,lon:-9.1359,elev:113},LHBP:{lat:47.4369,lon:19.2556,elev:151},
+  LOWW:{lat:48.1103,lon:16.5697,elev:183},LSZA:{lat:46.0044,lon:8.9109,elev:276},
+  ESSA:{lat:59.6519,lon:17.9186,elev:42},ENGM:{lat:60.1939,lon:11.1004,elev:208},
+  EKCH:{lat:55.6180,lon:12.6561,elev:17},EFHK:{lat:60.3172,lon:24.9633,elev:55},
+  EPWA:{lat:52.1657,lon:20.9671,elev:110},LKPR:{lat:50.1008,lon:14.2600,elev:381},
+  LYBE:{lat:44.8184,lon:20.3091,elev:99},LGAV:{lat:37.9364,lon:23.9445,elev:94},
+  LTBA:{lat:40.9762,lon:28.8146,elev:157},LTFM:{lat:41.2753,lon:28.7519,elev:99},
+  // Europe — Eastern / Russia
+  UUEE:{lat:55.9736,lon:37.4125,elev:190},UUDD:{lat:55.4088,lon:37.9063,elev:178},
+  UKBB:{lat:50.3450,lon:30.8947,elev:120},EVRA:{lat:56.9236,lon:23.9711,elev:10},
+  EYVI:{lat:54.6341,lon:25.2858,elev:197},UMMS:{lat:53.8825,lon:28.0322,elev:204},
+  LROP:{lat:44.5722,lon:26.1022,elev:95},LBSF:{lat:42.6967,lon:23.4114,elev:531},
+  // Middle East / Africa
+  OMDB:{lat:25.2532,lon:55.3657,elev:19},OMAA:{lat:24.4330,lon:54.6511,elev:27},
+  OMAB:{lat:24.2528,lon:54.6511,elev:27},    // TODO: same coords as OMAA — verify or remove
+  OERK:{lat:24.9576,lon:46.6988,elev:620},OEJN:{lat:21.6796,lon:39.1565,elev:17},
+  OTHH:{lat:25.2731,lon:51.6081,elev:13},OKBK:{lat:29.2267,lon:47.9689,elev:55},
+  HECA:{lat:30.1219,lon:31.4056,elev:74},HAAB:{lat:8.9779,lon:38.7993,elev:2334},
+  DNMM:{lat:6.5774,lon:3.3213,elev:38},FAOR:{lat:-26.1392,lon:28.2460,elev:1694},
+  FACT:{lat:-33.9648,lon:18.6017,elev:46},FMMI:{lat:-18.7969,lon:47.4788,elev:1276},
+  FCBB:{lat:-4.2517,lon:15.2531,elev:315},GOOG:{lat:14.7447,lon:-17.4902,elev:24},
+  DTTA:{lat:36.8510,lon:10.2272,elev:6},GMME:{lat:34.0510,lon:-6.7517,elev:276},
+  HKJK:{lat:-1.3192,lon:36.9275,elev:1624},HTDA:{lat:-6.8781,lon:39.2026,elev:55},
+  // Asia — East
+  RJTT:{lat:35.5494,lon:139.7798,elev:6},RJAA:{lat:35.7647,lon:140.3864,elev:41},
+  RKSI:{lat:37.4602,lon:126.4407,elev:23},RKSS:{lat:37.5583,lon:126.7906,elev:18},
+  ZSPD:{lat:31.1434,lon:121.8052,elev:4},ZBAA:{lat:40.0799,lon:116.5845,elev:35},
+  ZGGG:{lat:23.3924,lon:113.2990,elev:15},VHHH:{lat:22.3080,lon:113.9185,elev:9},
+  RCTP:{lat:25.0777,lon:121.2328,elev:33},WMKK:{lat:2.7456,lon:101.7099,elev:21},
+  WSSS:{lat:1.3644,lon:103.9915,elev:7},VTBS:{lat:13.9132,lon:100.6070,elev:8},
+  WIII:{lat:-6.1256,lon:106.6558,elev:8},RPLL:{lat:14.5086,lon:121.0197,elev:21},
+  VOMM:{lat:12.9900,lon:80.1693,elev:16},VIDP:{lat:28.5665,lon:77.1031,elev:237},
+  VABB:{lat:19.0896,lon:72.8656,elev:11},
+  // Asia — Central / South
+  OAKB:{lat:34.5659,lon:69.2123,elev:1791},OPKC:{lat:24.9065,lon:67.1608,elev:22},
+  VCBI:{lat:7.1808,lon:79.8841,elev:7},UAAA:{lat:43.3528,lon:77.0405,elev:647},
+  UTDD:{lat:38.5433,lon:68.8247,elev:864},
+  // Oceania / Pacific
+  YSSY:{lat:-33.9399,lon:151.1753,elev:6},YMML:{lat:-37.6733,lon:144.8430,elev:131},
+  YBBN:{lat:-27.3842,lon:153.1175,elev:5},YPPH:{lat:-31.9403,lon:115.9669,elev:15},
+  NZAA:{lat:-37.0082,lon:174.7917,elev:7},NZWN:{lat:-41.3272,lon:174.8051,elev:12},
+  NFFN:{lat:-17.7554,lon:177.4432,elev:5},NTAA:{lat:-17.5534,lon:-149.6062,elev:2},
+  PGUM:{lat:13.4834,lon:144.7960,elev:91},PHNL:{lat:21.3245,lon:-157.9251,elev:4},
+
+  // ===== Special / remote / unusual strips (all approx — verify) =====
+  VNLK:{lat:27.6867,lon:86.7297,elev:2860},   // Lukla, Nepal — approx
+  VNKT:{lat:27.6966,lon:85.3591,elev:1338},   // Kathmandu Tribhuvan — approx
+  VQPR:{lat:27.4032,lon:89.4246,elev:2235},   // Paro, Bhutan — approx
+  TNCS:{lat:17.6356,lon:-63.2361,elev:600},   // Saba — approx (elev unverified)
+  TNCM:{lat:18.0408,lon:-63.1189,elev:13},    // Princess Juliana, St. Maarten — approx
+  LXGB:{lat:36.1512,lon:-5.3497,elev:5},      // Gibraltar — approx
+  LFLJ:{lat:45.3972,lon:6.6347,elev:2008},    // Courchevel — approx
+  EGPR:{lat:57.0055,lon:-7.4437,elev:5},      // Barra, Scotland — approx
+  LPMA:{lat:32.6942,lon:-16.7745,elev:58},    // Madeira — approx
+  SAUS:{lat:-54.8433,lon:-68.3109,elev:31},   // Ushuaia — approx
+
+  // Scenic (no runway; for map/reference use)
+  ALPS:{lat:46.5,lon:7.9,elev:3600},
+  EVEREST:{lat:27.9881,lon:86.925,elev:5300},
+  GRANDCANYON:{lat:35.9524,lon:-112.147,elev:2000},
+  MATTERHORN:{lat:45.9763,lon:7.6586,elev:4300},
+  FUJI:{lat:35.3606,lon:138.7274,elev:3700},
+  YOSEMITE:{lat:37.7456,lon:-119.5936,elev:1200},
+  ZION:{lat:37.2982,lon:-113.0263,elev:1300},
+  MONUMENT:{lat:36.9980,lon:-110.0985,elev:1700},
+  GEIRANGER:{lat:62.1049,lon:7.2058,elev:0},
+  IGUAZU:{lat:-25.6958,lon:-54.4353,elev:185},
+  VICTORIA:{lat:-17.9314,lon:25.8564,elev:1000},
+  ANTARCTICAPEN:{lat:-63.4,lon:-57.0,elev:0},
+  GREENLAND:{lat:72.0,lon:-40.0,elev:2000},
+});
+
+// Consistency check: every runway airport should have a location.
+for (const icao of Object.keys(RUNWAYS)) {
+  if (!LOCS[icao]) console.warn(`No LOCS entry for ${icao}`);
+}
+
 let runwayMesh=null, runwayY=0, runwayHdgDeg=0, runwayLenM=0, runwayWidM=0;
 
 const WEATHER={
@@ -4543,6 +4604,7 @@ function drawScreens(hdg,pitch,bank){
 }
 
 /* ===== LIVERIES ===== */
+/* ===== LIVERIES ===== */
 const LIVS=[
  {n:'CLASSIC BLUE',nm:'SKYDECK',f:'bold 104px Arial',tc:[.04,.14,.4],b:[.97,.98,1],a:[.04,.14,.4],t:[.04,.14,.4],e:[.95,.95,1]},
  {n:'CRIMSON',nm:'CRIMSON',f:'bold 104px Arial',tc:[.55,.04,.08],b:[.98,.98,.98],a:[.75,.05,.1],t:[.75,.05,.1],e:[1,1,1],belly:[.76,.78,.8],rear:1},
@@ -4567,6 +4629,41 @@ LIVS.push(
  {n:'CARBON',nm:'CARBON',f:'bold 104px Arial',tc:[.08,.72,.48],b:[.17,.18,.2],a:[.1,.9,.6],t:[.06,.07,.08],e:[.1,.9,.6],belly:[.08,.09,.1]},
  {n:'CATHAY PACIFIC',nm:'CATHAY',nm2:'PACIFIC',f:'bold 82px Arial',tc:[.02,.26,.23],tc2:[.02,.26,.23],b:[.99,.99,.97],a:[.0,.27,.22],t:[.0,.24,.2],e:[.98,.99,.97],belly:[.78,.82,.8]},
  {n:'KLM ROYAL DUTCH AIRLINES',nm:'KLM',sub:'ROYAL DUTCH AIRLINES',f:'bold 128px Arial',tc:[.0,.2,.49],b:[.99,.99,1],a:[.0,.2,.52],t:[.0,.22,.56],e:[1,1,1],belly:[.84,.9,.96]});
+
+/* ===== ADDED AIRLINES ===== */
+LIVS.push(
+ {n:'AIR FRANCE',nm:'AIR FRANCE',f:'bold 96px Arial',tc:[.02,.08,.32],b:[.99,.99,.99],a:[.02,.08,.32],t:[.02,.08,.32],e:[.02,.08,.32],nac:[.02,.08,.32]},
+ {n:'AMERICAN',nm:'American',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.82,.84,.86],a:[.93,.94,.95],t:[.93,.94,.95],e:[.0,.2,.5],nac:[.82,.84,.86],belly:[.72,.74,.76]},
+ {n:'UNITED',nm:'United',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.9,.7,.2],nac:[.0,.2,.5]},
+ {n:'SINGAPORE AIRLINES',nm:'SINGAPORE AIRLINES',f:'bold 80px Arial',tc:[.05,.12,.3],b:[.99,.99,.99],a:[.05,.12,.3],t:[.05,.12,.3],e:[.85,.7,.3],nac:[.05,.12,.3]},
+ {n:'ANA',nm:'ANA',f:'bold 128px Arial',tc:[.0,.25,.55],b:[.99,.99,.99],a:[.0,.25,.55],t:[.0,.25,.55],e:[.0,.25,.55],nac:[.0,.25,.55]},
+ {n:'JAPAN AIRLINES',nm:'JAL',f:'bold 128px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.99,.99,.99],e:[.8,.05,.1],nac:[.99,.99,.99]},
+ {n:'KOREAN AIR',nm:'KOREAN AIR',f:'bold 96px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.4,.65,.85],e:[.0,.2,.5],nac:[.4,.65,.85]},
+ {n:'ETIHAD',nm:'ETIHAD',f:'bold 104px Arial',tc:[.55,.4,.15],b:[.98,.97,.94],a:[.75,.6,.3],t:[.75,.6,.3],e:[.75,.6,.3],nac:[.75,.6,.3]},
+ {n:'QATAR AIRWAYS',nm:'Qatar',f:'bold 112px Georgia,serif',tc:[.45,.05,.15],b:[.86,.87,.88],a:[.45,.05,.15],t:[.45,.05,.15],e:[.45,.05,.15],nac:[.45,.05,.15],belly:[.78,.79,.8]},
+ {n:'TURKISH AIRLINES',nm:'TURKISH',f:'bold 104px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.8,.05,.1],nac:[.8,.05,.1]},
+ {n:'IBERIA',nm:'IBERIA',f:'bold 104px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.95,.7,.1],nac:[.8,.05,.1]},
+ {n:'SAS',nm:'SAS',f:'bold 128px Arial',tc:[.0,.15,.45],b:[.99,.99,.99],a:[.0,.15,.45],t:[.0,.15,.45],e:[.0,.15,.45],nac:[.0,.15,.45]},
+ {n:'FINNAIR',nm:'FINNAIR',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.0,.2,.5],nac:[.0,.2,.5]},
+ {n:'NORWEGIAN',nm:'Norwegian',f:'bold 100px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.8,.05,.1],nac:[.8,.05,.1]},
+ {n:'EASYJET',nm:'easyJet',f:'bold 100px Arial',tc:[1,1,1],b:[.95,.5,.1],a:[.95,.5,.1],t:[.95,.5,.1],e:[.95,.5,.1],nac:[.95,.5,.1]},
+ {n:'AIR NEW ZEALAND',nm:'Air New Zealand',f:'bold 84px Arial',tc:[.05,.05,.05],b:[.99,.99,.99],a:[.05,.05,.05],t:[.05,.05,.05],e:[.05,.05,.05],nac:[.05,.05,.05]},
+ {n:'LATAM',nm:'LATAM',f:'bold 120px Arial',tc:[.15,.1,.4],b:[.99,.99,.99],a:[.15,.1,.4],t:[.15,.1,.4],e:[.15,.1,.4],nac:[.15,.1,.4]},
+ {n:'ALASKA',nm:'Alaska',f:'bold 104px Arial',tc:[.0,.25,.55],b:[.99,.99,.99],a:[.0,.25,.55],t:[.0,.25,.55],e:[.0,.25,.55],nac:[.0,.25,.55]},
+ {n:'JETBLUE',nm:'jetBlue',f:'bold 104px Arial',tc:[.0,.2,.55],b:[.99,.99,.99],a:[.0,.2,.55],t:[.0,.2,.55],e:[.0,.2,.55],nac:[.0,.2,.55]},
+ {n:'THAI',nm:'THAI',f:'bold 128px Arial',tc:[.4,.1,.4],b:[.99,.99,.99],a:[.4,.1,.4],t:[.4,.1,.4],e:[.9,.6,.2],nac:[.4,.1,.4]},
+ {n:'MALAYSIA',nm:'MALAYSIA',f:'bold 96px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.8,.05,.1],t:[.99,.99,.99],e:[.0,.2,.5],nac:[.0,.2,.5]},
+ {n:'CHINA EASTERN',nm:'CHINA EASTERN',f:'bold 84px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.8,.05,.1],nac:[.0,.2,.5]},
+ {n:'AIR CHINA',nm:'AIR CHINA',f:'bold 96px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.9,.7,.2],nac:[.8,.05,.1]},
+ {n:'AEROFLOT',nm:'AEROFLOT',f:'bold 96px Arial',tc:[.0,.2,.55],b:[.9,.91,.92],a:[.0,.2,.55],t:[.0,.2,.55],e:[.9,.7,.2],nac:[.0,.2,.55],belly:[.78,.8,.82]},
+ {n:'LOT',nm:'LOT',f:'bold 128px Arial',tc:[.0,.2,.55],b:[.99,.99,.99],a:[.0,.2,.55],t:[.0,.2,.55],e:[.0,.2,.55],nac:[.0,.2,.55]},
+ {n:'AER LINGUS',nm:'Aer Lingus',f:'bold 96px Arial',tc:[.0,.45,.25],b:[.99,.99,.99],a:[.0,.45,.25],t:[.0,.45,.25],e:[.0,.45,.25],nac:[.0,.45,.25]},
+ {n:'HAWAIIAN',nm:'HAWAIIAN',f:'bold 96px Arial',tc:[.4,.1,.35],b:[.99,.99,.99],a:[.4,.1,.35],t:[.4,.1,.35],e:[.9,.4,.6],nac:[.4,.1,.35]},
+ {n:'TUI',nm:'TUI',f:'bold 128px Arial',tc:[.0,.35,.65],b:[.99,.99,.99],a:[.0,.35,.65],t:[.0,.35,.65],e:[.9,.1,.15],nac:[.0,.35,.65]},
+ {n:'SPIRIT',nm:'spirit',f:'bold 112px Arial',tc:[.1,.1,.1],b:[.98,.85,.1],a:[.1,.1,.1],t:[.1,.1,.1],e:[.1,.1,.1],nac:[.1,.1,.1]},
+ {n:'VIETNAM AIRLINES',nm:'VIETNAM AIRLINES',f:'bold 80px Arial',tc:[.0,.25,.5],b:[.99,.99,.99],a:[.0,.25,.5],t:[.0,.25,.5],e:[.9,.7,.2],nac:[.0,.25,.5]}
+);
+
 const EXTRA={
  'CLASSIC BLUE':{cheat:[.04,.14,.4],pin:[.5,.65,.95],finst:'chev',nac:[.04,.14,.4]},
  'CRIMSON':{cheat:[.75,.05,.1],pin:[.5,.5,.52],finst:'tip',nac:[.75,.05,.1]},
@@ -4590,8 +4687,153 @@ const EXTRA={
  'CARBON':{cheat:[.1,.9,.6],pin:[.1,.9,.6],finst:'tip',nac:[.06,.07,.08]},
  'CATHAY PACIFIC':{cheat:[.0,.27,.22],pin:[.12,.62,.56],finst:'tip',nac:[.0,.27,.22],
    finfn:(f,S)=>{f.save();f.fillStyle='#f8fbf8';for(let i=0;i<4;i++){const y=.34+i*.075;f.beginPath();f.moveTo(S*.3,S*(y+.28));f.quadraticCurveTo(S*.46,S*(y+.12),S*.7,S*(y-.12));f.quadraticCurveTo(S*.51,S*(y+.16),S*.3,S*(y+.28));f.closePath();f.fill();}f.restore();}},
- 'KLM ROYAL DUTCH AIRLINES':{cheat:[.0,.2,.52],pin:[.0,.62,.86],finst:'tip',nac:[.0,.2,.52],
-   finfn:(f,S)=>{f.save();f.fillStyle='#fff';f.beginPath();f.moveTo(S*.25,S*.35);f.lineTo(S*.34,S*.35);f.lineTo(S*.37,S*.23);f.lineTo(S*.43,S*.32);f.lineTo(S*.5,S*.19);f.lineTo(S*.57,S*.32);f.lineTo(S*.63,S*.23);f.lineTo(S*.66,S*.35);f.lineTo(S*.75,S*.35);f.lineTo(S*.75,S*.39);f.lineTo(S*.25,S*.39);f.closePath();f.fill();f.font='bold 76px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('KLM',S*.5,S*.62);f.restore();}}
+ 'KLM ROYAL DUTCH AIRLINES':{top:[.0,.2,.52],cheat:[.0,.12,.38],nac:[.0,.2,.52],
+   finfn:(f,S)=>{f.save();f.fillStyle='#fff';f.beginPath();f.moveTo(S*.25,S*.35);f.lineTo(S*.34,S*.35);f.lineTo(S*.37,S*.23);f.lineTo(S*.43,S*.32);f.lineTo(S*.5,S*.19);f.lineTo(S*.57,S*.32);f.lineTo(S*.63,S*.23);f.lineTo(S*.66,S*.35);f.lineTo(S*.75,S*.35);f.lineTo(S*.75,S*.39);f.lineTo(S*.25,S*.39);f.closePath();f.fill();f.font='bold 76px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('KLM',S*.5,S*.62);f.restore();}},
+
+ /* ---- new airlines ---- */
+ 'AIR FRANCE':{nac:[.02,.08,.32],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(0,S*.1);f.lineTo(S,S*.44);f.lineTo(S,S*.56);f.lineTo(0,S*.22);f.closePath();f.fill();
+   f.fillStyle='#e30613';f.beginPath();f.moveTo(0,S*.24);f.lineTo(S,S*.58);f.lineTo(S,S*.66);f.lineTo(0,S*.32);f.closePath();f.fill();
+   f.restore();}},
+ 'AMERICAN':{nac:[.82,.84,.86],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#005a9e';f.beginPath();f.moveTo(S*.1,S);f.lineTo(S*.55,S);f.lineTo(S*.92,S*.12);f.lineTo(S*.5,S*.12);f.closePath();f.fill();
+   f.fillStyle='#c8102e';f.beginPath();f.moveTo(S*.58,S);f.lineTo(S*.72,S);f.lineTo(S*.96,S*.5);f.lineTo(S*.96,S*.24);f.closePath();f.fill();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S);f.lineTo(S*.58,S);f.lineTo(S*.96,S*.18);f.lineTo(S*.9,S*.12);f.closePath();f.fill();
+   f.restore();}},
+ 'UNITED':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#f5c542';f.lineWidth=S*.028;
+   f.beginPath();f.arc(S*.5,S*.46,S*.26,0,Math.PI*2);f.stroke();
+   f.beginPath();f.ellipse(S*.5,S*.46,S*.1,S*.26,0,0,Math.PI*2);f.stroke();
+   f.beginPath();f.moveTo(S*.24,S*.46);f.lineTo(S*.76,S*.46);f.stroke();
+   f.beginPath();f.ellipse(S*.5,S*.46,S*.26,S*.09,0,0,Math.PI*2);f.stroke();
+   f.restore();}},
+ 'SINGAPORE AIRLINES':{nac:[.05,.12,.3],finfn:(f,S)=>{
+   f.save();f.fillStyle='#d4a94a';
+   f.beginPath();f.moveTo(S*.28,S*.66);f.quadraticCurveTo(S*.42,S*.34,S*.76,S*.28);
+   f.quadraticCurveTo(S*.56,S*.44,S*.56,S*.6);f.quadraticCurveTo(S*.44,S*.72,S*.28,S*.66);f.fill();
+   f.beginPath();f.moveTo(S*.46,S*.58);f.quadraticCurveTo(S*.58,S*.4,S*.78,S*.36);
+   f.quadraticCurveTo(S*.64,S*.5,S*.62,S*.64);f.quadraticCurveTo(S*.54,S*.64,S*.46,S*.58);f.fill();
+   f.restore();}},
+ 'ANA':{nac:[.0,.25,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.36)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('ANA',S*.5,S*.55);f.restore();}},
+ 'JAPAN AIRLINES':{nac:[.99,.99,.99],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#b01e2f';f.lineWidth=S*.12;f.lineCap='round';
+   f.beginPath();f.arc(S*.5,S*.78,S*.42,Math.PI*1.22,Math.PI*1.78);f.stroke();f.restore();}},
+ 'KOREAN AIR':{nac:[.4,.65,.85],finfn:(f,S)=>{
+   f.save();const cx=S*.5,cy=S*.5,r=S*.24;
+   f.fillStyle='#c8102e';f.beginPath();f.arc(cx,cy,r,Math.PI,0);f.fill();
+   f.fillStyle='#003478';f.beginPath();f.arc(cx,cy,r,0,Math.PI);f.fill();
+   f.fillStyle='#c8102e';f.beginPath();f.arc(cx-r/2,cy,r/2,0,Math.PI*2);f.fill();
+   f.fillStyle='#003478';f.beginPath();f.arc(cx+r/2,cy,r/2,0,Math.PI*2);f.fill();
+   f.restore();}},
+ 'ETIHAD':{nac:[.75,.6,.3],finfn:(f,S)=>{
+   f.save();f.strokeStyle='rgba(255,255,255,.5)';f.lineWidth=S*.01;
+   for(let i=0;i<7;i++){f.beginPath();f.moveTo(0,S*(.1+i*.12));f.lineTo(S,S*(.02+i*.12));f.stroke();}
+   f.restore();}},
+ 'QATAR AIRWAYS':{nac:[.45,.05,.15],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#fff';f.lineWidth=S*.032;f.lineCap='round';
+   f.beginPath();f.moveTo(S*.28,S*.62);f.lineTo(S*.58,S*.58);f.stroke();
+   f.beginPath();f.moveTo(S*.34,S*.62);f.lineTo(S*.32,S*.76);f.stroke();
+   f.beginPath();f.moveTo(S*.48,S*.6);f.lineTo(S*.48,S*.74);f.stroke();
+   f.beginPath();f.moveTo(S*.58,S*.58);f.lineTo(S*.64,S*.44);f.stroke();
+   f.beginPath();f.moveTo(S*.62,S*.46);f.lineTo(S*.56,S*.26);f.stroke();
+   f.beginPath();f.moveTo(S*.64,S*.45);f.lineTo(S*.72,S*.28);f.stroke();
+   f.restore();}},
+ 'TURKISH AIRLINES':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   f.beginPath();f.moveTo(S*.24,S*.62);f.quadraticCurveTo(S*.5,S*.28,S*.78,S*.54);
+   f.quadraticCurveTo(S*.56,S*.52,S*.5,S*.7);f.quadraticCurveTo(S*.38,S*.64,S*.24,S*.62);f.fill();
+   f.restore();}},
+ 'IBERIA':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f7c948';f.font='bold '+Math.round(S*.2)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('IBERIA',S*.5,S*.55);
+   f.strokeStyle='#f7c948';f.lineWidth=S*.02;f.beginPath();f.moveTo(S*.3,S*.38);f.lineTo(S*.7,S*.38);f.stroke();f.restore();}},
+ 'SAS':{nac:[.0,.15,.45],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold italic '+Math.round(S*.3)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('SAS',S*.5,S*.55);f.restore();}},
+ 'FINNAIR':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.18)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('FINNAIR',S*.5,S*.55);f.restore();}},
+ 'NORWEGIAN':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.42)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('n',S*.5,S*.42);
+   f.font='bold '+Math.round(S*.1)+'px Arial';f.fillText('NORWEGIAN',S*.5,S*.68);f.restore();}},
+ 'EASYJET':{nac:[.95,.5,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.18)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('easyJet',S*.5,S*.55);f.restore();}},
+ 'AIR NEW ZEALAND':{nac:[.05,.05,.05],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#fff';f.lineCap='round';
+   f.lineWidth=S*.045;f.beginPath();f.moveTo(S*.28,S*.82);f.quadraticCurveTo(S*.42,S*.55,S*.72,S*.18);f.stroke();
+   for(let i=0;i<7;i++){const t=i/6;const x=S*(.3+.4*t),y=S*(.8-.6*t);f.lineWidth=S*.016;
+     f.beginPath();f.moveTo(x,y);f.lineTo(x-S*.1,y-S*.08);f.stroke();
+     f.beginPath();f.moveTo(x,y);f.lineTo(x+S*.1,y-S*.1);f.stroke();}
+   f.restore();}},
+ 'LATAM':{nac:[.15,.1,.4],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.beginPath();
+   for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5;const r=i%2?S*.1:S*.24;const x=S*.5+Math.cos(a)*r,y=S*.5+Math.sin(a)*r;i?f.lineTo(x,y):f.moveTo(x,y);}
+   f.closePath();f.fill();f.restore();}},
+ 'ALASKA':{nac:[.0,.25,.55],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#fff';f.beginPath();f.arc(S*.5,S*.5,S*.2,0,Math.PI*2);f.fill();
+   f.fillStyle='#003f87';f.beginPath();f.arc(S*.5,S*.42,S*.2,Math.PI*1.05,Math.PI*1.95);f.fill();
+   f.beginPath();f.arc(S*.44,S*.52,S*.025,0,Math.PI*2);f.fill();
+   f.beginPath();f.arc(S*.56,S*.52,S*.025,0,Math.PI*2);f.fill();
+   f.restore();}},
+ 'JETBLUE':{nac:[.0,.2,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold italic '+Math.round(S*.19)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('jetBlue',S*.5,S*.55);f.restore();}},
+ 'THAI':{nac:[.4,.1,.4],finfn:(f,S)=>{
+   f.save();
+   for(let i=0;i<6;i++){const a=i*Math.PI/3;const x=S*.5+Math.cos(a)*S*.15,y=S*.5+Math.sin(a)*S*.15;
+     f.fillStyle='#f4b6c2';f.beginPath();f.ellipse(x,y,S*.11,S*.055,a,0,Math.PI*2);f.fill();}
+   f.fillStyle='#f7c948';f.beginPath();f.arc(S*.5,S*.5,S*.08,0,Math.PI*2);f.fill();f.restore();}},
+ 'MALAYSIA':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.72,S*.5);f.lineTo(S*.5,S*.86);f.lineTo(S*.28,S*.5);f.closePath();f.fill();
+   f.fillStyle='#cc0001';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.62,S*.5);f.lineTo(S*.5,S*.5);f.closePath();f.fill();
+   f.fillStyle='#003b7a';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.38,S*.5);f.lineTo(S*.5,S*.5);f.closePath();f.fill();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S*.5);f.lineTo(S*.62,S*.5);f.lineTo(S*.5,S*.86);f.closePath();f.fill();
+   f.fillStyle='#003b7a';f.beginPath();f.moveTo(S*.5,S*.5);f.lineTo(S*.38,S*.5);f.lineTo(S*.5,S*.86);f.closePath();f.fill();
+   f.restore();}},
+ 'CHINA EASTERN':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   f.beginPath();f.moveTo(S*.28,S*.62);f.quadraticCurveTo(S*.5,S*.32,S*.74,S*.5);
+   f.quadraticCurveTo(S*.56,S*.56,S*.5,S*.72);f.quadraticCurveTo(S*.38,S*.66,S*.28,S*.62);f.fill();
+   f.fillStyle='#d71920';f.beginPath();f.moveTo(S*.46,S*.56);f.lineTo(S*.58,S*.5);f.lineTo(S*.53,S*.62);f.closePath();f.fill();
+   f.restore();}},
+ 'AIR CHINA':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#f7c948';f.lineWidth=S*.045;f.lineCap='round';
+   f.beginPath();f.moveTo(S*.26,S*.74);f.quadraticCurveTo(S*.5,S*.3,S*.76,S*.28);f.stroke();
+   f.beginPath();f.moveTo(S*.44,S*.56);f.quadraticCurveTo(S*.6,S*.42,S*.76,S*.46);f.stroke();
+   f.restore();}},
+ 'AEROFLOT':{nac:[.0,.2,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f7c948';
+   f.beginPath();f.moveTo(S*.3,S*.72);f.quadraticCurveTo(S*.55,S*.34,S*.76,S*.26);
+   f.quadraticCurveTo(S*.56,S*.5,S*.5,S*.72);f.closePath();f.fill();f.restore();}},
+ 'LOT':{nac:[.0,.2,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   f.beginPath();f.moveTo(S*.34,S*.72);f.quadraticCurveTo(S*.44,S*.4,S*.72,S*.3);
+   f.quadraticCurveTo(S*.56,S*.5,S*.6,S*.66);f.quadraticCurveTo(S*.48,S*.7,S*.34,S*.72);f.fill();f.restore();}},
+ 'AER LINGUS':{nac:[.0,.45,.25],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   for(const [dx,dy] of [[0,-.13],[-.14,.06],[.14,.06]]){f.beginPath();f.arc(S*(.5+dx),S*(.42+dy),S*.1,0,Math.PI*2);f.fill();}
+   f.fillRect(S*.48,S*.46,S*.04,S*.26);
+   f.restore();}},
+ 'HAWAIIAN':{nac:[.4,.1,.35],finfn:(f,S)=>{
+   f.save();
+   for(let i=0;i<6;i++){const a=i*Math.PI/3;const x=S*.5+Math.cos(a)*S*.14,y=S*.5+Math.sin(a)*S*.14;
+     f.fillStyle='#f19cbb';f.beginPath();f.ellipse(x,y,S*.12,S*.05,a,0,Math.PI*2);f.fill();}
+   f.fillStyle='#fff';f.beginPath();f.arc(S*.5,S*.5,S*.07,0,Math.PI*2);f.fill();f.restore();}},
+ 'TUI':{nac:[.0,.35,.65],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#e30613';f.lineWidth=S*.08;f.lineCap='round';
+   f.beginPath();f.arc(S*.5,S*.5,S*.22,Math.PI*.15,Math.PI*.85);f.stroke();f.restore();}},
+ 'SPIRIT':{nac:[.1,.1,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f5d90a';f.beginPath();f.arc(S*.5,S*.5,S*.2,0,Math.PI*2);f.fill();
+   f.fillStyle='#111';f.font='bold '+Math.round(S*.12)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('spirit',S*.5,S*.5);f.restore();}},
+ 'VIETNAM AIRLINES':{nac:[.0,.25,.5],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f7c948';
+   f.beginPath();f.moveTo(S*.5,S*.24);f.quadraticCurveTo(S*.62,S*.4,S*.5,S*.56);
+   f.quadraticCurveTo(S*.38,S*.4,S*.5,S*.24);f.fill();
+   f.beginPath();f.moveTo(S*.5,S*.5);f.quadraticCurveTo(S*.7,S*.56,S*.66,S*.76);
+   f.quadraticCurveTo(S*.5,S*.7,S*.5,S*.5);f.fill();
+   f.beginPath();f.moveTo(S*.5,S*.5);f.quadraticCurveTo(S*.3,S*.56,S*.34,S*.76);
+   f.quadraticCurveTo(S*.5,S*.7,S*.5,S*.5);f.fill();f.restore();}}
 };
 LIVS.forEach(L=>Object.assign(L,EXTRA[L.n]||{}));
 const c3=a=>new BABYLON.Color3(a[0],a[1],a[2]),css=a=>'rgb('+a.map(v=>Math.round(v*255)).join(',')+')';
@@ -4628,10 +4870,12 @@ const rgba=(a,al)=>'rgba('+a.map(v=>Math.round(v*255)).join(',')+','+al+')';
 const finTex=new BABYLON.DynamicTexture('finTex',{width:512,height:512},scene,true);
 function paintStripe(g,xc,w,H,col){
   g.fillStyle=col;g.beginPath();
-  g.moveTo(xc-w*.12,H*.04);g.quadraticCurveTo(xc-w*.55,H*.4,xc-w*.8,H*.9);
-  g.quadraticCurveTo(xc-w*.42,H*.96,xc-w*.1,H*.94);
-  g.quadraticCurveTo(xc+w*.55,H*.4,xc+w*.8,H*.1);
-  g.quadraticCurveTo(xc+w*.42,H*.04,xc+w*.12,H*.04);
+  g.moveTo(xc,H*.03);
+  g.lineTo(xc+w/2,H*.07);
+  g.lineTo(xc+w/2,H*.93);
+  g.lineTo(xc,H*.97);
+  g.lineTo(xc-w/2,H*.93);
+  g.lineTo(xc-w/2,H*.07);
   g.closePath();g.fill();
 }
 function applyLivery(i){
@@ -4650,6 +4894,7 @@ function applyLivery(i){
     gr.addColorStop(0,rgba(L.belly,0));gr.addColorStop(.16,rgba(L.belly,1));gr.addColorStop(.84,rgba(L.belly,1));gr.addColorStop(1,rgba(L.belly,0));
     g.fillStyle=gr;g.fillRect(W*.5,H*.07,W*.5,H*.88);
   }
+  if(L.top){g.fillStyle=css(L.top);g.fillRect(0,0,W*.5,H);}
   if(L.rear){
     const edge=u=>H*(.2+.1*(1+Math.cos(4*Math.PI*u))/2);
     g.fillStyle=css(L.t);g.beginPath();g.moveTo(0,0);
@@ -4666,6 +4911,7 @@ function applyLivery(i){
     }
   }
   if(L.band){g.fillStyle=css(L.band);for(const u of [0,.5,1])g.fillRect((u-.012)*W,0,W*.024,H);}
+  if(L.fusfn){try{L.fusfn(g,W,H);}catch(e){console.error('fusfn',e);}}
   g.strokeStyle='rgba(0,0,0,.075)';g.lineWidth=1.3;
   for(let k=1;k<46;k++){const y=H*k/46;g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
   g.strokeStyle='rgba(0,0,0,.045)';
@@ -4709,6 +4955,7 @@ LIVS.forEach((L,i)=>{const o=document.createElement('option');o.value=i;o.textCo
 liverySel.addEventListener('change',()=>applyLivery(+liverySel.value));
 window.addEventListener('keydown',e=>{if(e.code==='KeyL'&&e.shiftKey&&overlay.classList.contains('hidden')){applyLivery(curLiv+1);liverySel.value=curLiv;showMsg('LIVERY · '+LIVS[curLiv].n,2000);}});
 applyLivery(0);
+
   status('terrain');
 const N=CFG.terrainGrid,E=CFG.terrainExtent,step=E/(N-1);
 const positions=new Float32Array(N*N*3);
@@ -11811,354 +12058,3 @@ void main(){
     console.log('[HD PACK 1] sharp near-field satellite ground online');
   }
 })();
-/* ===== LIVERIES ===== */
-const LIVS=[
- {n:'CLASSIC BLUE',nm:'SKYDECK',f:'bold 104px Arial',tc:[.04,.14,.4],b:[.97,.98,1],a:[.04,.14,.4],t:[.04,.14,.4],e:[.95,.95,1]},
- {n:'CRIMSON',nm:'CRIMSON',f:'bold 104px Arial',tc:[.55,.04,.08],b:[.98,.98,.98],a:[.75,.05,.1],t:[.75,.05,.1],e:[1,1,1],belly:[.76,.78,.8],rear:1},
- {n:'SUNSET',nm:'SUNSET AIR',f:'bold 96px Arial',tc:[.65,.22,.02],b:[.99,.97,.92],a:[.95,.45,.05],t:[.95,.45,.05],e:[.35,.1,.5],belly:[.95,.45,.05],rear:1},
- {n:'EMERALD',nm:'EMERALD',f:'bold 104px Arial',tc:[.02,.35,.2],b:[.97,.99,.97],a:[.02,.45,.25],t:[.02,.45,.25],e:[.95,.85,.25],rear:1},
- {n:'MIDNIGHT',nm:'MIDNIGHT',f:'bold 96px Arial',tc:[.9,.72,.28],b:[.12,.13,.16],a:[.85,.68,.2],t:[.05,.05,.07],e:[.85,.68,.2],belly:[.07,.08,.09],band:[.85,.68,.2]},
- {n:'MAPLE',nm:'MAPLE AIR',f:'bold 96px Arial',tc:[.68,.04,.08],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[1,1,1],rear:1,band:[.8,.05,.1]},
- {n:'RETRO 70s',nm:'SKYDECK',f:'bold 104px Arial',tc:[.35,.2,.08],b:[.94,.91,.82],a:[.85,.45,.1],t:[.55,.3,.1],e:[.95,.8,.2],band:[.85,.45,.1]},
- {n:'LUFTHANSA',nm:'Lufthansa',f:'bold 104px Arial',tc:[.04,.07,.3],b:[.98,.99,1],a:[.04,.07,.3],t:[.04,.07,.3],e:[.98,.8,.1]},
- {n:'EMIRATES',nm:'Emirates',f:'italic 112px "Brush Script MT","Segoe Script",cursive',tc:[.72,.04,.08],b:[.99,.99,.98],a:[.78,.05,.08],t:[.78,.05,.08],e:[.85,.7,.3],band:[.85,.7,.3]},
- {n:'QANTAS',nm:'QANTAS',f:'italic bold 104px "Trebuchet MS"',tc:[.8,.04,.08],b:[.99,.99,.99],a:[.85,.05,.1],t:[.85,.05,.1],e:[1,1,1],belly:[.84,.85,.87]},
- {n:'AIR CANADA',nm:'AIR CANADA',f:'bold 96px Arial',tc:[.72,.04,.08],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[1,1,1],belly:[.74,.76,.79],band:[.8,.05,.1]},
- {n:'DELTA',nm:'DELTA',f:'italic 900 104px "Arial Black",Impact',tc:[.0,.1,.35],b:[.98,.99,1],a:[.0,.1,.35],t:[.0,.1,.35],e:[.8,.1,.15],belly:[.72,.75,.79]},
- {n:'RYANAIR',nm:'RYANAIR',f:'bold 104px Arial',tc:[1,.85,.1],b:[.08,.2,.46],a:[1,.85,.1],t:[.05,.2,.55],e:[1,.85,.1],band:[1,.85,.1]},
- {n:'WESTJET',nm:'WESTJET',f:'bold 104px Arial',tc:[.0,.35,.43],b:[.98,.99,.99],a:[.0,.5,.55],t:[.0,.5,.55],e:[1,1,1]},
- {n:'SOUTHWEST',nm:'SOUTHWEST',f:'900 96px "Arial Black",Arial',tc:[.08,.18,.48],b:[.98,.99,1],a:[.9,.1,.1],t:[.08,.2,.55],e:[.98,.78,.1],band:[.98,.78,.1]},
- {n:'BRITISH AIRWAYS',nm:'BRITISH AIRWAYS',f:'italic bold 88px "Times New Roman",serif',tc:[.04,.1,.35],b:[.98,.99,1],a:[.04,.1,.35],t:[.04,.1,.35],e:[.8,.1,.15],belly:[.72,.75,.79]},
- {n:'SWISS',nm:'SWISS',f:'bold 104px Helvetica,Arial',tc:[.8,.04,.08],b:[.99,.99,.99],a:[.85,.05,.08],t:[.85,.05,.08],e:[1,1,1],rear:1}];
-LIVS.push(
- {n:'ARCTIC',nm:'ARCTIC AIR',f:'bold 96px Arial',tc:[.02,.34,.43],b:[.98,.99,1],a:[.05,.5,.58],t:[.05,.5,.58],e:[.6,.9,.95],rear:1,belly:[.84,.89,.92]},
- {n:'DESERT',nm:'DESERT AIR',f:'bold 92px Arial',tc:[.48,.2,.07],b:[.98,.95,.87],a:[.72,.32,.12],t:[.72,.32,.12],e:[.95,.78,.4],rear:1,belly:[.8,.76,.67]},
- {n:'CARBON',nm:'CARBON',f:'bold 104px Arial',tc:[.08,.72,.48],b:[.17,.18,.2],a:[.1,.9,.6],t:[.06,.07,.08],e:[.1,.9,.6],belly:[.08,.09,.1]},
- {n:'CATHAY PACIFIC',nm:'CATHAY',nm2:'PACIFIC',f:'bold 82px Arial',tc:[.02,.26,.23],tc2:[.02,.26,.23],b:[.99,.99,.97],a:[.0,.27,.22],t:[.0,.24,.2],e:[.98,.99,.97],belly:[.78,.82,.8]},
- {n:'KLM ROYAL DUTCH AIRLINES',nm:'KLM',sub:'ROYAL DUTCH AIRLINES',f:'bold 128px Arial',tc:[.0,.2,.49],b:[.99,.99,1],a:[.0,.2,.52],t:[.0,.22,.56],e:[1,1,1],belly:[.84,.9,.96]});
-
-/* ===== ADDED AIRLINES ===== */
-LIVS.push(
- {n:'AIR FRANCE',nm:'AIR FRANCE',f:'bold 96px Arial',tc:[.02,.08,.32],b:[.99,.99,.99],a:[.02,.08,.32],t:[.02,.08,.32],e:[.02,.08,.32],nac:[.02,.08,.32]},
- {n:'AMERICAN',nm:'American',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.82,.84,.86],a:[.93,.94,.95],t:[.93,.94,.95],e:[.0,.2,.5],nac:[.82,.84,.86],belly:[.72,.74,.76]},
- {n:'UNITED',nm:'United',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.9,.7,.2],nac:[.0,.2,.5]},
- {n:'SINGAPORE AIRLINES',nm:'SINGAPORE AIRLINES',f:'bold 80px Arial',tc:[.05,.12,.3],b:[.99,.99,.99],a:[.05,.12,.3],t:[.05,.12,.3],e:[.85,.7,.3],nac:[.05,.12,.3]},
- {n:'ANA',nm:'ANA',f:'bold 128px Arial',tc:[.0,.25,.55],b:[.99,.99,.99],a:[.0,.25,.55],t:[.0,.25,.55],e:[.0,.25,.55],nac:[.0,.25,.55]},
- {n:'JAPAN AIRLINES',nm:'JAL',f:'bold 128px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.99,.99,.99],e:[.8,.05,.1],nac:[.99,.99,.99]},
- {n:'KOREAN AIR',nm:'KOREAN AIR',f:'bold 96px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.4,.65,.85],e:[.0,.2,.5],nac:[.4,.65,.85]},
- {n:'ETIHAD',nm:'ETIHAD',f:'bold 104px Arial',tc:[.55,.4,.15],b:[.98,.97,.94],a:[.75,.6,.3],t:[.75,.6,.3],e:[.75,.6,.3],nac:[.75,.6,.3]},
- {n:'QATAR AIRWAYS',nm:'Qatar',f:'bold 112px Georgia,serif',tc:[.45,.05,.15],b:[.86,.87,.88],a:[.45,.05,.15],t:[.45,.05,.15],e:[.45,.05,.15],nac:[.45,.05,.15],belly:[.78,.79,.8]},
- {n:'TURKISH AIRLINES',nm:'TURKISH',f:'bold 104px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.8,.05,.1],nac:[.8,.05,.1]},
- {n:'IBERIA',nm:'IBERIA',f:'bold 104px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.95,.7,.1],nac:[.8,.05,.1]},
- {n:'SAS',nm:'SAS',f:'bold 128px Arial',tc:[.0,.15,.45],b:[.99,.99,.99],a:[.0,.15,.45],t:[.0,.15,.45],e:[.0,.15,.45],nac:[.0,.15,.45]},
- {n:'FINNAIR',nm:'FINNAIR',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.0,.2,.5],nac:[.0,.2,.5]},
- {n:'NORWEGIAN',nm:'Norwegian',f:'bold 100px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.8,.05,.1],nac:[.8,.05,.1]},
- {n:'EASYJET',nm:'easyJet',f:'bold 100px Arial',tc:[1,1,1],b:[.95,.5,.1],a:[.95,.5,.1],t:[.95,.5,.1],e:[.95,.5,.1],nac:[.95,.5,.1]},
- {n:'AIR NEW ZEALAND',nm:'Air New Zealand',f:'bold 84px Arial',tc:[.05,.05,.05],b:[.99,.99,.99],a:[.05,.05,.05],t:[.05,.05,.05],e:[.05,.05,.05],nac:[.05,.05,.05]},
- {n:'LATAM',nm:'LATAM',f:'bold 120px Arial',tc:[.15,.1,.4],b:[.99,.99,.99],a:[.15,.1,.4],t:[.15,.1,.4],e:[.15,.1,.4],nac:[.15,.1,.4]},
- {n:'ALASKA',nm:'Alaska',f:'bold 104px Arial',tc:[.0,.25,.55],b:[.99,.99,.99],a:[.0,.25,.55],t:[.0,.25,.55],e:[.0,.25,.55],nac:[.0,.25,.55]},
- {n:'JETBLUE',nm:'jetBlue',f:'bold 104px Arial',tc:[.0,.2,.55],b:[.99,.99,.99],a:[.0,.2,.55],t:[.0,.2,.55],e:[.0,.2,.55],nac:[.0,.2,.55]},
- {n:'THAI',nm:'THAI',f:'bold 128px Arial',tc:[.4,.1,.4],b:[.99,.99,.99],a:[.4,.1,.4],t:[.4,.1,.4],e:[.9,.6,.2],nac:[.4,.1,.4]},
- {n:'MALAYSIA',nm:'MALAYSIA',f:'bold 96px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.8,.05,.1],t:[.99,.99,.99],e:[.0,.2,.5],nac:[.0,.2,.5]},
- {n:'CHINA EASTERN',nm:'CHINA EASTERN',f:'bold 84px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.8,.05,.1],nac:[.0,.2,.5]},
- {n:'AIR CHINA',nm:'AIR CHINA',f:'bold 96px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.9,.7,.2],nac:[.8,.05,.1]},
- {n:'AEROFLOT',nm:'AEROFLOT',f:'bold 96px Arial',tc:[.0,.2,.55],b:[.9,.91,.92],a:[.0,.2,.55],t:[.0,.2,.55],e:[.9,.7,.2],nac:[.0,.2,.55],belly:[.78,.8,.82]},
- {n:'LOT',nm:'LOT',f:'bold 128px Arial',tc:[.0,.2,.55],b:[.99,.99,.99],a:[.0,.2,.55],t:[.0,.2,.55],e:[.0,.2,.55],nac:[.0,.2,.55]},
- {n:'AER LINGUS',nm:'Aer Lingus',f:'bold 96px Arial',tc:[.0,.45,.25],b:[.99,.99,.99],a:[.0,.45,.25],t:[.0,.45,.25],e:[.0,.45,.25],nac:[.0,.45,.25]},
- {n:'HAWAIIAN',nm:'HAWAIIAN',f:'bold 96px Arial',tc:[.4,.1,.35],b:[.99,.99,.99],a:[.4,.1,.35],t:[.4,.1,.35],e:[.9,.4,.6],nac:[.4,.1,.35]},
- {n:'TUI',nm:'TUI',f:'bold 128px Arial',tc:[.0,.35,.65],b:[.99,.99,.99],a:[.0,.35,.65],t:[.0,.35,.65],e:[.9,.1,.15],nac:[.0,.35,.65]},
- {n:'SPIRIT',nm:'spirit',f:'bold 112px Arial',tc:[.1,.1,.1],b:[.98,.85,.1],a:[.1,.1,.1],t:[.1,.1,.1],e:[.1,.1,.1],nac:[.1,.1,.1]},
- {n:'VIETNAM AIRLINES',nm:'VIETNAM AIRLINES',f:'bold 80px Arial',tc:[.0,.25,.5],b:[.99,.99,.99],a:[.0,.25,.5],t:[.0,.25,.5],e:[.9,.7,.2],nac:[.0,.25,.5]}
-);
-
-const EXTRA={
- 'CLASSIC BLUE':{cheat:[.04,.14,.4],pin:[.5,.65,.95],finst:'chev',nac:[.04,.14,.4]},
- 'CRIMSON':{cheat:[.75,.05,.1],pin:[.5,.5,.52],finst:'tip',nac:[.75,.05,.1]},
- 'SUNSET':{cheat:[.95,.45,.05],pin:[.35,.1,.5],finst:'chev',nac:[.95,.45,.05]},
- 'EMERALD':{cheat:[.02,.45,.25],pin:[.95,.85,.25],finst:'tip',nac:[.02,.45,.25]},
- 'MIDNIGHT':{cheat:[.85,.68,.2],pin:[.85,.68,.2],finst:'tip',nac:[.04,.04,.05]},
- 'MAPLE':{cheat:[.8,.05,.1],pin:[.55,.55,.55],finst:'chev',nac:[.8,.05,.1]},
- 'RETRO 70s':{cheat:[.85,.45,.1],pin:[.55,.3,.1],finst:'chev',nac:[.93,.9,.8]},
- 'LUFTHANSA':{cheat:[.04,.07,.3],pin:[.98,.8,.1],finst:'tip',nac:[.97,.97,.98]},
- 'EMIRATES':{cheat:[.78,.05,.08],pin:[.85,.7,.3],finst:'tip',nac:[.85,.7,.3]},
- 'QANTAS':{cheat:[.85,.05,.1],pin:[.7,.7,.72],finst:'chev',nac:[.85,.05,.1]},
- 'AIR CANADA':{cheat:[.8,.05,.1],pin:[.55,.55,.57],finst:'tip',nac:[.8,.05,.1]},
- 'DELTA':{cheat:[.0,.1,.35],pin:[.8,.1,.15],finst:'chev',nac:[.0,.1,.35]},
- 'RYANAIR':{cheat:[1,.85,.1],pin:[1,1,1],finst:'tip',nac:[.05,.2,.55]},
- 'WESTJET':{cheat:[.0,.5,.55],pin:[.6,.85,.88],finst:'chev',nac:[.0,.5,.55]},
- 'SOUTHWEST':{cheat:[.9,.1,.1],pin:[.98,.78,.1],finst:'chev',nac:[.1,.2,.6]},
- 'BRITISH AIRWAYS':{cheat:[.04,.1,.35],pin:[.8,.1,.15],finst:'chev',nac:[.04,.1,.35]},
- 'SWISS':{cheat:[.85,.05,.08],pin:[.7,.7,.7],finst:'tip',nac:[.85,.05,.08]},
- 'ARCTIC':{cheat:[.05,.5,.58],pin:[.6,.9,.95],finst:'chev',nac:[.05,.5,.58]},
- 'DESERT':{cheat:[.72,.32,.12],pin:[.95,.78,.4],finst:'chev',nac:[.72,.32,.12]},
- 'CARBON':{cheat:[.1,.9,.6],pin:[.1,.9,.6],finst:'tip',nac:[.06,.07,.08]},
- 'CATHAY PACIFIC':{cheat:[.0,.27,.22],pin:[.12,.62,.56],finst:'tip',nac:[.0,.27,.22],
-   finfn:(f,S)=>{f.save();f.fillStyle='#f8fbf8';for(let i=0;i<4;i++){const y=.34+i*.075;f.beginPath();f.moveTo(S*.3,S*(y+.28));f.quadraticCurveTo(S*.46,S*(y+.12),S*.7,S*(y-.12));f.quadraticCurveTo(S*.51,S*(y+.16),S*.3,S*(y+.28));f.closePath();f.fill();}f.restore();}},
- 'KLM ROYAL DUTCH AIRLINES':{top:[.0,.2,.52],cheat:[.0,.12,.38],nac:[.0,.2,.52],
-   finfn:(f,S)=>{f.save();f.fillStyle='#fff';f.beginPath();f.moveTo(S*.25,S*.35);f.lineTo(S*.34,S*.35);f.lineTo(S*.37,S*.23);f.lineTo(S*.43,S*.32);f.lineTo(S*.5,S*.19);f.lineTo(S*.57,S*.32);f.lineTo(S*.63,S*.23);f.lineTo(S*.66,S*.35);f.lineTo(S*.75,S*.35);f.lineTo(S*.75,S*.39);f.lineTo(S*.25,S*.39);f.closePath();f.fill();f.font='bold 76px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('KLM',S*.5,S*.62);f.restore();}},
-
- /* ---- new airlines ---- */
- 'AIR FRANCE':{nac:[.02,.08,.32],finfn:(f,S)=>{
-   f.save();
-   f.fillStyle='#fff';f.beginPath();f.moveTo(0,S*.1);f.lineTo(S,S*.44);f.lineTo(S,S*.56);f.lineTo(0,S*.22);f.closePath();f.fill();
-   f.fillStyle='#e30613';f.beginPath();f.moveTo(0,S*.24);f.lineTo(S,S*.58);f.lineTo(S,S*.66);f.lineTo(0,S*.32);f.closePath();f.fill();
-   f.restore();}},
- 'AMERICAN':{nac:[.82,.84,.86],finfn:(f,S)=>{
-   f.save();
-   f.fillStyle='#005a9e';f.beginPath();f.moveTo(S*.1,S);f.lineTo(S*.55,S);f.lineTo(S*.92,S*.12);f.lineTo(S*.5,S*.12);f.closePath();f.fill();
-   f.fillStyle='#c8102e';f.beginPath();f.moveTo(S*.58,S);f.lineTo(S*.72,S);f.lineTo(S*.96,S*.5);f.lineTo(S*.96,S*.24);f.closePath();f.fill();
-   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S);f.lineTo(S*.58,S);f.lineTo(S*.96,S*.18);f.lineTo(S*.9,S*.12);f.closePath();f.fill();
-   f.restore();}},
- 'UNITED':{nac:[.0,.2,.5],finfn:(f,S)=>{
-   f.save();f.strokeStyle='#f5c542';f.lineWidth=S*.028;
-   f.beginPath();f.arc(S*.5,S*.46,S*.26,0,Math.PI*2);f.stroke();
-   f.beginPath();f.ellipse(S*.5,S*.46,S*.1,S*.26,0,0,Math.PI*2);f.stroke();
-   f.beginPath();f.moveTo(S*.24,S*.46);f.lineTo(S*.76,S*.46);f.stroke();
-   f.beginPath();f.ellipse(S*.5,S*.46,S*.26,S*.09,0,0,Math.PI*2);f.stroke();
-   f.restore();}},
- 'SINGAPORE AIRLINES':{nac:[.05,.12,.3],finfn:(f,S)=>{
-   f.save();f.fillStyle='#d4a94a';
-   f.beginPath();f.moveTo(S*.28,S*.66);f.quadraticCurveTo(S*.42,S*.34,S*.76,S*.28);
-   f.quadraticCurveTo(S*.56,S*.44,S*.56,S*.6);f.quadraticCurveTo(S*.44,S*.72,S*.28,S*.66);f.fill();
-   f.beginPath();f.moveTo(S*.46,S*.58);f.quadraticCurveTo(S*.58,S*.4,S*.78,S*.36);
-   f.quadraticCurveTo(S*.64,S*.5,S*.62,S*.64);f.quadraticCurveTo(S*.54,S*.64,S*.46,S*.58);f.fill();
-   f.restore();}},
- 'ANA':{nac:[.0,.25,.55],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.36)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('ANA',S*.5,S*.55);f.restore();}},
- 'JAPAN AIRLINES':{nac:[.99,.99,.99],finfn:(f,S)=>{
-   f.save();f.strokeStyle='#b01e2f';f.lineWidth=S*.12;f.lineCap='round';
-   f.beginPath();f.arc(S*.5,S*.78,S*.42,Math.PI*1.22,Math.PI*1.78);f.stroke();f.restore();}},
- 'KOREAN AIR':{nac:[.4,.65,.85],finfn:(f,S)=>{
-   f.save();const cx=S*.5,cy=S*.5,r=S*.24;
-   f.fillStyle='#c8102e';f.beginPath();f.arc(cx,cy,r,Math.PI,0);f.fill();
-   f.fillStyle='#003478';f.beginPath();f.arc(cx,cy,r,0,Math.PI);f.fill();
-   f.fillStyle='#c8102e';f.beginPath();f.arc(cx-r/2,cy,r/2,0,Math.PI*2);f.fill();
-   f.fillStyle='#003478';f.beginPath();f.arc(cx+r/2,cy,r/2,0,Math.PI*2);f.fill();
-   f.restore();}},
- 'ETIHAD':{nac:[.75,.6,.3],finfn:(f,S)=>{
-   f.save();f.strokeStyle='rgba(255,255,255,.5)';f.lineWidth=S*.01;
-   for(let i=0;i<7;i++){f.beginPath();f.moveTo(0,S*(.1+i*.12));f.lineTo(S,S*(.02+i*.12));f.stroke();}
-   f.restore();}},
- 'QATAR AIRWAYS':{nac:[.45,.05,.15],finfn:(f,S)=>{
-   f.save();f.strokeStyle='#fff';f.lineWidth=S*.032;f.lineCap='round';
-   f.beginPath();f.moveTo(S*.28,S*.62);f.lineTo(S*.58,S*.58);f.stroke();
-   f.beginPath();f.moveTo(S*.34,S*.62);f.lineTo(S*.32,S*.76);f.stroke();
-   f.beginPath();f.moveTo(S*.48,S*.6);f.lineTo(S*.48,S*.74);f.stroke();
-   f.beginPath();f.moveTo(S*.58,S*.58);f.lineTo(S*.64,S*.44);f.stroke();
-   f.beginPath();f.moveTo(S*.62,S*.46);f.lineTo(S*.56,S*.26);f.stroke();
-   f.beginPath();f.moveTo(S*.64,S*.45);f.lineTo(S*.72,S*.28);f.stroke();
-   f.restore();}},
- 'TURKISH AIRLINES':{nac:[.8,.05,.1],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';
-   f.beginPath();f.moveTo(S*.24,S*.62);f.quadraticCurveTo(S*.5,S*.28,S*.78,S*.54);
-   f.quadraticCurveTo(S*.56,S*.52,S*.5,S*.7);f.quadraticCurveTo(S*.38,S*.64,S*.24,S*.62);f.fill();
-   f.restore();}},
- 'IBERIA':{nac:[.8,.05,.1],finfn:(f,S)=>{
-   f.save();f.fillStyle='#f7c948';f.font='bold '+Math.round(S*.2)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('IBERIA',S*.5,S*.55);
-   f.strokeStyle='#f7c948';f.lineWidth=S*.02;f.beginPath();f.moveTo(S*.3,S*.38);f.lineTo(S*.7,S*.38);f.stroke();f.restore();}},
- 'SAS':{nac:[.0,.15,.45],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';f.font='bold italic '+Math.round(S*.3)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('SAS',S*.5,S*.55);f.restore();}},
- 'FINNAIR':{nac:[.0,.2,.5],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.18)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('FINNAIR',S*.5,S*.55);f.restore();}},
- 'NORWEGIAN':{nac:[.8,.05,.1],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.42)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('n',S*.5,S*.42);
-   f.font='bold '+Math.round(S*.1)+'px Arial';f.fillText('NORWEGIAN',S*.5,S*.68);f.restore();}},
- 'EASYJET':{nac:[.95,.5,.1],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.18)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('easyJet',S*.5,S*.55);f.restore();}},
- 'AIR NEW ZEALAND':{nac:[.05,.05,.05],finfn:(f,S)=>{
-   f.save();f.strokeStyle='#fff';f.lineCap='round';
-   f.lineWidth=S*.045;f.beginPath();f.moveTo(S*.28,S*.82);f.quadraticCurveTo(S*.42,S*.55,S*.72,S*.18);f.stroke();
-   for(let i=0;i<7;i++){const t=i/6;const x=S*(.3+.4*t),y=S*(.8-.6*t);f.lineWidth=S*.016;
-     f.beginPath();f.moveTo(x,y);f.lineTo(x-S*.1,y-S*.08);f.stroke();
-     f.beginPath();f.moveTo(x,y);f.lineTo(x+S*.1,y-S*.1);f.stroke();}
-   f.restore();}},
- 'LATAM':{nac:[.15,.1,.4],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';f.beginPath();
-   for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5;const r=i%2?S*.1:S*.24;const x=S*.5+Math.cos(a)*r,y=S*.5+Math.sin(a)*r;i?f.lineTo(x,y):f.moveTo(x,y);}
-   f.closePath();f.fill();f.restore();}},
- 'ALASKA':{nac:[.0,.25,.55],finfn:(f,S)=>{
-   f.save();
-   f.fillStyle='#fff';f.beginPath();f.arc(S*.5,S*.5,S*.2,0,Math.PI*2);f.fill();
-   f.fillStyle='#003f87';f.beginPath();f.arc(S*.5,S*.42,S*.2,Math.PI*1.05,Math.PI*1.95);f.fill();
-   f.beginPath();f.arc(S*.44,S*.52,S*.025,0,Math.PI*2);f.fill();
-   f.beginPath();f.arc(S*.56,S*.52,S*.025,0,Math.PI*2);f.fill();
-   f.restore();}},
- 'JETBLUE':{nac:[.0,.2,.55],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';f.font='bold italic '+Math.round(S*.19)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('jetBlue',S*.5,S*.55);f.restore();}},
- 'THAI':{nac:[.4,.1,.4],finfn:(f,S)=>{
-   f.save();
-   for(let i=0;i<6;i++){const a=i*Math.PI/3;const x=S*.5+Math.cos(a)*S*.15,y=S*.5+Math.sin(a)*S*.15;
-     f.fillStyle='#f4b6c2';f.beginPath();f.ellipse(x,y,S*.11,S*.055,a,0,Math.PI*2);f.fill();}
-   f.fillStyle='#f7c948';f.beginPath();f.arc(S*.5,S*.5,S*.08,0,Math.PI*2);f.fill();f.restore();}},
- 'MALAYSIA':{nac:[.0,.2,.5],finfn:(f,S)=>{
-   f.save();
-   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.72,S*.5);f.lineTo(S*.5,S*.86);f.lineTo(S*.28,S*.5);f.closePath();f.fill();
-   f.fillStyle='#cc0001';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.62,S*.5);f.lineTo(S*.5,S*.5);f.closePath();f.fill();
-   f.fillStyle='#003b7a';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.38,S*.5);f.lineTo(S*.5,S*.5);f.closePath();f.fill();
-   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S*.5);f.lineTo(S*.62,S*.5);f.lineTo(S*.5,S*.86);f.closePath();f.fill();
-   f.fillStyle='#003b7a';f.beginPath();f.moveTo(S*.5,S*.5);f.lineTo(S*.38,S*.5);f.lineTo(S*.5,S*.86);f.closePath();f.fill();
-   f.restore();}},
- 'CHINA EASTERN':{nac:[.0,.2,.5],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';
-   f.beginPath();f.moveTo(S*.28,S*.62);f.quadraticCurveTo(S*.5,S*.32,S*.74,S*.5);
-   f.quadraticCurveTo(S*.56,S*.56,S*.5,S*.72);f.quadraticCurveTo(S*.38,S*.66,S*.28,S*.62);f.fill();
-   f.fillStyle='#d71920';f.beginPath();f.moveTo(S*.46,S*.56);f.lineTo(S*.58,S*.5);f.lineTo(S*.53,S*.62);f.closePath();f.fill();
-   f.restore();}},
- 'AIR CHINA':{nac:[.8,.05,.1],finfn:(f,S)=>{
-   f.save();f.strokeStyle='#f7c948';f.lineWidth=S*.045;f.lineCap='round';
-   f.beginPath();f.moveTo(S*.26,S*.74);f.quadraticCurveTo(S*.5,S*.3,S*.76,S*.28);f.stroke();
-   f.beginPath();f.moveTo(S*.44,S*.56);f.quadraticCurveTo(S*.6,S*.42,S*.76,S*.46);f.stroke();
-   f.restore();}},
- 'AEROFLOT':{nac:[.0,.2,.55],finfn:(f,S)=>{
-   f.save();f.fillStyle='#f7c948';
-   f.beginPath();f.moveTo(S*.3,S*.72);f.quadraticCurveTo(S*.55,S*.34,S*.76,S*.26);
-   f.quadraticCurveTo(S*.56,S*.5,S*.5,S*.72);f.closePath();f.fill();f.restore();}},
- 'LOT':{nac:[.0,.2,.55],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';
-   f.beginPath();f.moveTo(S*.34,S*.72);f.quadraticCurveTo(S*.44,S*.4,S*.72,S*.3);
-   f.quadraticCurveTo(S*.56,S*.5,S*.6,S*.66);f.quadraticCurveTo(S*.48,S*.7,S*.34,S*.72);f.fill();f.restore();}},
- 'AER LINGUS':{nac:[.0,.45,.25],finfn:(f,S)=>{
-   f.save();f.fillStyle='#fff';
-   for(const [dx,dy] of [[0,-.13],[-.14,.06],[.14,.06]]){f.beginPath();f.arc(S*(.5+dx),S*(.42+dy),S*.1,0,Math.PI*2);f.fill();}
-   f.fillRect(S*.48,S*.46,S*.04,S*.26);
-   f.restore();}},
- 'HAWAIIAN':{nac:[.4,.1,.35],finfn:(f,S)=>{
-   f.save();
-   for(let i=0;i<6;i++){const a=i*Math.PI/3;const x=S*.5+Math.cos(a)*S*.14,y=S*.5+Math.sin(a)*S*.14;
-     f.fillStyle='#f19cbb';f.beginPath();f.ellipse(x,y,S*.12,S*.05,a,0,Math.PI*2);f.fill();}
-   f.fillStyle='#fff';f.beginPath();f.arc(S*.5,S*.5,S*.07,0,Math.PI*2);f.fill();f.restore();}},
- 'TUI':{nac:[.0,.35,.65],finfn:(f,S)=>{
-   f.save();f.strokeStyle='#e30613';f.lineWidth=S*.08;f.lineCap='round';
-   f.beginPath();f.arc(S*.5,S*.5,S*.22,Math.PI*.15,Math.PI*.85);f.stroke();f.restore();}},
- 'SPIRIT':{nac:[.1,.1,.1],finfn:(f,S)=>{
-   f.save();f.fillStyle='#f5d90a';f.beginPath();f.arc(S*.5,S*.5,S*.2,0,Math.PI*2);f.fill();
-   f.fillStyle='#111';f.font='bold '+Math.round(S*.12)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('spirit',S*.5,S*.5);f.restore();}},
- 'VIETNAM AIRLINES':{nac:[.0,.25,.5],finfn:(f,S)=>{
-   f.save();f.fillStyle='#f7c948';
-   f.beginPath();f.moveTo(S*.5,S*.24);f.quadraticCurveTo(S*.62,S*.4,S*.5,S*.56);
-   f.quadraticCurveTo(S*.38,S*.4,S*.5,S*.24);f.fill();
-   f.beginPath();f.moveTo(S*.5,S*.5);f.quadraticCurveTo(S*.7,S*.56,S*.66,S*.76);
-   f.quadraticCurveTo(S*.5,S*.7,S*.5,S*.5);f.fill();
-   f.beginPath();f.moveTo(S*.5,S*.5);f.quadraticCurveTo(S*.3,S*.56,S*.34,S*.76);
-   f.quadraticCurveTo(S*.5,S*.7,S*.5,S*.5);f.fill();f.restore();}}
-};
-LIVS.forEach(L=>Object.assign(L,EXTRA[L.n]||{}));
-const c3=a=>new BABYLON.Color3(a[0],a[1],a[2]),css=a=>'rgb('+a.map(v=>Math.round(v*255)).join(',')+')';
-M.fus=M.body.clone('fusM');M.tail=M.accent.clone('tailM');
-fuselage.material=M.fus;fin.material=M.tail;
-const fusTex=new BABYLON.DynamicTexture('fusTex',{width:512,height:2048},scene,true);
-const embs=[1,-1].map(sg=>{const d=BABYLON.MeshBuilder.CreateDisc('emb'+sg,{radius:.95,tessellation:32,sideOrientation:BABYLON.Mesh.DOUBLESIDE},scene);
-  d.rotation.y=Math.PI/2;d.position.set(sg*.2,4.4,-16.4);d.parent=exteriorRoot;
-  const m=new BABYLON.StandardMaterial('embM'+sg,scene);m.disableLighting=true;d.material=m;return m;});
-const nameTex=new BABYLON.DynamicTexture('nameTex',{width:1536,height:192},scene,true);nameTex.hasAlpha=true;
-const nameMat=new BABYLON.StandardMaterial('nameM',scene);nameMat.diffuseTexture=nameTex;nameMat.useAlphaFromDiffuseTexture=true;
-nameMat.emissiveTexture=nameTex;nameMat.disableLighting=true;nameMat.specularColor=BABYLON.Color3.Black();nameMat.backFaceCulling=false;nameMat.zOffset=-4;
-const namePlanes=[1,-1].map(sg=>{const q=BABYLON.MeshBuilder.CreatePlane('name'+sg,{width:9.6,height:.95},scene);
-  q.rotation.x=.43;q.rotation.y=sg>0?-Math.PI/2:Math.PI/2;q.position.set(sg*1.803,.913,3);q.parent=exteriorRoot;q.material=nameMat;q.isPickable=false;return q;});
-
-const FUS_P=[[18,.15,.02],[17,.75,-.02],[16,1.15,-.05],[14.5,1.6,-.1],[12,1.85,-.1],[9,1.95,-.05],[5,1.98,0],[0,1.98,0],[-5,1.95,0],[-10,1.8,.05],[-13,1.45,.1],[-15,1.05,.2],[-16.5,.65,.35],[-17.5,.3,.45],[-18.2,.08,.5]];
-const FUS_V=(()=>{const v=[0];for(let i=1;i<FUS_P.length;i++){const a=FUS_P[i-1],b=FUS_P[i];v.push(v[i-1]+Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]));}const T=v[v.length-1];return v.map(x=>x/T);})();
-function fusV(z){for(let i=0;i<FUS_P.length-1;i++){const a=FUS_P[i][0],b=FUS_P[i+1][0];if(z<=a&&z>=b){const t=(a-z)/(a-b);return FUS_V[i]+t*(FUS_V[i+1]-FUS_V[i]);}}return z>18?0:1;}
-function paintWindows(g,W,H){
-  const rr=(x,y,w,h,rad)=>{w=Math.abs(w);h=Math.abs(h);const r=Math.max(0,Math.min(rad,w/2,h/2));g.beginPath();g.moveTo(x+r,y);g.lineTo(x+w-r,y);g.arcTo(x+w,y,x+w,y+r,r);g.lineTo(x+w,y+h-r);g.arcTo(x+w,y+h,x+w-r,y+h,r);g.lineTo(x+r,y+h);g.arcTo(x,y+h,x,y+h-r,r);g.lineTo(x,y+r);g.arcTo(x,y,x+r,y,r);g.closePath();};
-  const win=(z,xc,wpx,hz)=>{const y1=H*(1-fusV(z+hz)),y2=H*(1-fusV(z-hz)),yb=Math.min(y1,y2),ya=Math.max(y1,y2),h=ya-yb,x=xc-wpx/2,rad=Math.max(0,Math.min(4,wpx*.3,h*.3));
-    g.fillStyle='rgba(30,34,40,.6)';rr(x-2.5,yb-2.5,wpx+5,h+5,rad+2);g.fill();
-    g.fillStyle='#0a131d';rr(x,yb,wpx,h,rad);g.fill();
-    const grd=g.createLinearGradient(0,yb,0,ya);
-    grd.addColorStop(0,'rgba(150,190,225,.55)');grd.addColorStop(.35,'rgba(90,120,150,.22)');grd.addColorStop(1,'rgba(10,14,20,.05)');
-    g.fillStyle=grd;rr(x,yb,wpx,h,rad);g.fill();
-    g.fillStyle='rgba(255,255,255,.16)';rr(x+1,yb+1,wpx*.3,h-2,rad*.6);g.fill();
-    g.strokeStyle='rgba(15,17,20,.5)';g.lineWidth=1;rr(x,yb,wpx,h,rad);g.stroke();};
-  for(let z=12.6;z>-10.4;z-=.53){for(const xc of [W*.032,W*.468])win(z,xc,15,.125);}
-  for(const xc of [W*.05,W*.45]){win(15.55,xc,17,.42);win(14.75,xc,15,.3);}
-}
-let curLiv=0;
-const rgba=(a,al)=>'rgba('+a.map(v=>Math.round(v*255)).join(',')+','+al+')';
-const finTex=new BABYLON.DynamicTexture('finTex',{width:512,height:512},scene,true);
-function paintStripe(g,xc,w,H,col){
-  g.fillStyle=col;g.beginPath();
-  g.moveTo(xc,H*.03);
-  g.lineTo(xc+w/2,H*.07);
-  g.lineTo(xc+w/2,H*.93);
-  g.lineTo(xc,H*.97);
-  g.lineTo(xc-w/2,H*.93);
-  g.lineTo(xc-w/2,H*.07);
-  g.closePath();g.fill();
-}
-function applyLivery(i){
-  curLiv=((i%LIVS.length)+LIVS.length)%LIVS.length;const L=LIVS[curLiv];
-  M.body.albedoColor=c3(L.b);M.accent.albedoColor=c3(L.a);
-  if(!M.nac){M.nac=M.body.clone('nacM');['nac1','nac-1'].forEach(n=>{const m=scene.getMeshByName(n);if(m)m.material=M.nac;});}
-  M.nac.albedoColor=c3(L.nac||L.b);
-  const g=fusTex.getContext(),W=512,H=2048;
-  g.clearRect(0,0,W,H);
-  g.fillStyle=css(L.b);g.fillRect(0,0,W,H);
-  let gr=g.createLinearGradient(W*.5,0,W,0);
-  gr.addColorStop(0,'rgba(70,80,95,0)');gr.addColorStop(.5,'rgba(70,80,95,.30)');gr.addColorStop(1,'rgba(70,80,95,0)');
-  g.fillStyle=gr;g.fillRect(W*.5,0,W*.5,H);
-  if(L.belly){
-    gr=g.createLinearGradient(W*.5,0,W,0);
-    gr.addColorStop(0,rgba(L.belly,0));gr.addColorStop(.16,rgba(L.belly,1));gr.addColorStop(.84,rgba(L.belly,1));gr.addColorStop(1,rgba(L.belly,0));
-    g.fillStyle=gr;g.fillRect(W*.5,H*.07,W*.5,H*.88);
-  }
-  if(L.top){g.fillStyle=css(L.top);g.fillRect(0,0,W*.5,H);}
-  if(L.rear){
-    const edge=u=>H*(.2+.1*(1+Math.cos(4*Math.PI*u))/2);
-    g.fillStyle=css(L.t);g.beginPath();g.moveTo(0,0);
-    for(let k=0;k<=96;k++){const u=k/96;g.lineTo(u*W,edge(u));}
-    g.lineTo(W,0);g.closePath();g.fill();
-    g.strokeStyle=css(L.e);g.lineWidth=5;g.beginPath();
-    for(let k=0;k<=96;k++){const u=k/96;if(k===0)g.moveTo(0,edge(0)+12);else g.lineTo(u*W,edge(u)+12);}
-    g.stroke();
-  }
-  if(L.cheat){
-    for(const xc of [0,W*.5,W])paintStripe(g,xc,W*.016,H,css(L.cheat));
-    if(L.pin){
-      for(const xc of [0,W*.5,W]){const off=(xc===W*.5?1:-1)*W*.042;paintStripe(g,xc+off,W*.004,H,css(L.pin));}
-    }
-  }
-  if(L.band){g.fillStyle=css(L.band);for(const u of [0,.5,1])g.fillRect((u-.012)*W,0,W*.024,H);}
-  if(L.fusfn){try{L.fusfn(g,W,H);}catch(e){console.error('fusfn',e);}}
-  g.strokeStyle='rgba(0,0,0,.075)';g.lineWidth=1.3;
-  for(let k=1;k<46;k++){const y=H*k/46;g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
-  g.strokeStyle='rgba(0,0,0,.045)';
-  for(const x of [.1,.18,.32,.4,.6,.68,.82,.9]){g.beginPath();g.moveTo(W*x,0);g.lineTo(W*x,H);g.stroke();}
-  g.strokeStyle='rgba(0,0,0,.28)';g.lineWidth=2;
-  for(const xc of [W*.025,W*.475]){for(const yy of [H*.83,H*.2]){g.strokeRect(xc-W*.012,yy,W*.024,H*.032);}}
-  try{paintWindows(g,W,H);}catch(e){console.error('windows',e);}
-  fusTex.update();M.fus.albedoTexture=fusTex;M.fus.albedoColor=BABYLON.Color3.White();
-  M.fus.environmentIntensity=M.body.environmentIntensity;
-
-  const f=finTex.getContext(),FS=512;
-  f.fillStyle=css(L.t);f.fillRect(0,0,FS,FS);
-  const fg=f.createLinearGradient(0,FS,0,0);fg.addColorStop(0,'rgba(0,0,0,.16)');fg.addColorStop(1,'rgba(255,255,255,.10)');
-  f.fillStyle=fg;f.fillRect(0,0,FS,FS);
-  const motif=(mx)=>{
-    f.save();if(mx){f.translate(FS,0);f.scale(-1,1);}
-    f.fillStyle=css(L.e);
-    if(L.finst==='tip'){f.beginPath();f.moveTo(0,0);f.lineTo(FS*.5,0);f.lineTo(FS*.5,FS*.1);f.lineTo(0,FS*.26);f.closePath();f.fill();}
-    else if(L.finst==='chev'){f.beginPath();f.moveTo(FS*.02,FS*.9);f.lineTo(FS*.14,FS*.9);f.lineTo(FS*.5,FS*.08);f.lineTo(FS*.5,FS*.0);f.lineTo(FS*.36,FS*.0);f.closePath();f.fill();}
-    if(L.finfn)L.finfn(f,FS);
-    f.restore();
-  };
-  motif(false);motif(true);
-  finTex.update();M.tail.albedoTexture=finTex;M.tail.albedoColor=BABYLON.Color3.White();
-
-  embs.forEach(m=>m.emissiveColor=c3(L.e));
-  const g2=nameTex.getContext();g2.clearRect(0,0,1536,192);
-  if(L.nm){g2.save();g2.font=L.f||'bold 104px Arial';const w=g2.measureText(L.nm+(L.nm2||'')).width,k=Math.min(1.4,1450/w);
-    g2.translate(768,61);g2.scale(k,1);g2.textAlign='center';g2.textBaseline='middle';
-    g2.shadowColor='rgba(0,0,0,.25)';g2.shadowBlur=6;g2.shadowOffsetY=2;
-    if(L.nm2){g2.textAlign='left';const w1=g2.measureText(L.nm).width,w2=g2.measureText(L.nm2).width;let x0=-(w1+w2)/2;
-      g2.fillStyle=css(L.tc||L.a);g2.fillText(L.nm,x0,0);g2.fillStyle=css(L.tc2||L.tc||L.a);g2.fillText(L.nm2,x0+w1,0);}
-    else{g2.fillStyle=css(L.tc||L.a);g2.fillText(L.nm,0,0);}g2.restore();
-    if(L.sub){g2.save();g2.font='bold 22px Arial';const sw=g2.measureText(L.sub).width,sk=Math.min(1,1400/sw);
-      g2.translate(768,151);g2.scale(sk,1);g2.textAlign='center';g2.textBaseline='middle';g2.fillStyle=css(L.tc||L.a);g2.fillText(L.sub,0,0);g2.restore();}}
-  nameTex.update();namePlanes.forEach(q=>q.setEnabled(!!L.nm));
-  try{if(window.liveryOthers)window.liveryOthers();}catch(e){console.error('liveryOthers',e);}
-}
-const liverySel=document.getElementById('liverySel');
-LIVS.forEach((L,i)=>{const o=document.createElement('option');o.value=i;o.textContent=L.n;liverySel.appendChild(o);});
-liverySel.addEventListener('change',()=>applyLivery(+liverySel.value));
-window.addEventListener('keydown',e=>{if(e.code==='KeyL'&&e.shiftKey&&overlay.classList.contains('hidden')){applyLivery(curLiv+1);liverySel.value=curLiv;showMsg('LIVERY · '+LIVS[curLiv].n,2000);}});
-applyLivery(0);
