@@ -23,6 +23,41 @@ LIVS.push(
  {n:'CARBON',nm:'CARBON',f:'bold 104px Arial',tc:[.08,.72,.48],b:[.17,.18,.2],a:[.1,.9,.6],t:[.06,.07,.08],e:[.1,.9,.6],belly:[.08,.09,.1]},
  {n:'CATHAY PACIFIC',nm:'CATHAY',nm2:'PACIFIC',f:'bold 82px Arial',tc:[.02,.26,.23],tc2:[.02,.26,.23],b:[.99,.99,.97],a:[.0,.27,.22],t:[.0,.24,.2],e:[.98,.99,.97],belly:[.78,.82,.8]},
  {n:'KLM ROYAL DUTCH AIRLINES',nm:'KLM',sub:'ROYAL DUTCH AIRLINES',f:'bold 128px Arial',tc:[.0,.2,.49],b:[.99,.99,1],a:[.0,.2,.52],t:[.0,.22,.56],e:[1,1,1],belly:[.84,.9,.96]});
+
+/* ===== ADDED AIRLINES ===== */
+LIVS.push(
+ {n:'AIR FRANCE',nm:'AIR FRANCE',f:'bold 96px Arial',tc:[.02,.08,.32],b:[.99,.99,.99],a:[.02,.08,.32],t:[.02,.08,.32],e:[.02,.08,.32],nac:[.02,.08,.32]},
+ {n:'AMERICAN',nm:'American',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.82,.84,.86],a:[.93,.94,.95],t:[.93,.94,.95],e:[.0,.2,.5],nac:[.82,.84,.86],belly:[.72,.74,.76]},
+ {n:'UNITED',nm:'United',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.9,.7,.2],nac:[.0,.2,.5]},
+ {n:'SINGAPORE AIRLINES',nm:'SINGAPORE AIRLINES',f:'bold 80px Arial',tc:[.05,.12,.3],b:[.99,.99,.99],a:[.05,.12,.3],t:[.05,.12,.3],e:[.85,.7,.3],nac:[.05,.12,.3]},
+ {n:'ANA',nm:'ANA',f:'bold 128px Arial',tc:[.0,.25,.55],b:[.99,.99,.99],a:[.0,.25,.55],t:[.0,.25,.55],e:[.0,.25,.55],nac:[.0,.25,.55]},
+ {n:'JAPAN AIRLINES',nm:'JAL',f:'bold 128px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.99,.99,.99],e:[.8,.05,.1],nac:[.99,.99,.99]},
+ {n:'KOREAN AIR',nm:'KOREAN AIR',f:'bold 96px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.4,.65,.85],e:[.0,.2,.5],nac:[.4,.65,.85]},
+ {n:'ETIHAD',nm:'ETIHAD',f:'bold 104px Arial',tc:[.55,.4,.15],b:[.98,.97,.94],a:[.75,.6,.3],t:[.75,.6,.3],e:[.75,.6,.3],nac:[.75,.6,.3]},
+ {n:'QATAR AIRWAYS',nm:'Qatar',f:'bold 112px Georgia,serif',tc:[.45,.05,.15],b:[.86,.87,.88],a:[.45,.05,.15],t:[.45,.05,.15],e:[.45,.05,.15],nac:[.45,.05,.15],belly:[.78,.79,.8]},
+ {n:'TURKISH AIRLINES',nm:'TURKISH',f:'bold 104px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.8,.05,.1],nac:[.8,.05,.1]},
+ {n:'IBERIA',nm:'IBERIA',f:'bold 104px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.95,.7,.1],nac:[.8,.05,.1]},
+ {n:'SAS',nm:'SAS',f:'bold 128px Arial',tc:[.0,.15,.45],b:[.99,.99,.99],a:[.0,.15,.45],t:[.0,.15,.45],e:[.0,.15,.45],nac:[.0,.15,.45]},
+ {n:'FINNAIR',nm:'FINNAIR',f:'bold 104px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.0,.2,.5],nac:[.0,.2,.5]},
+ {n:'NORWEGIAN',nm:'Norwegian',f:'bold 100px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.8,.05,.1],nac:[.8,.05,.1]},
+ {n:'EASYJET',nm:'easyJet',f:'bold 100px Arial',tc:[1,1,1],b:[.95,.5,.1],a:[.95,.5,.1],t:[.95,.5,.1],e:[.95,.5,.1],nac:[.95,.5,.1]},
+ {n:'AIR NEW ZEALAND',nm:'Air New Zealand',f:'bold 84px Arial',tc:[.05,.05,.05],b:[.99,.99,.99],a:[.05,.05,.05],t:[.05,.05,.05],e:[.05,.05,.05],nac:[.05,.05,.05]},
+ {n:'LATAM',nm:'LATAM',f:'bold 120px Arial',tc:[.15,.1,.4],b:[.99,.99,.99],a:[.15,.1,.4],t:[.15,.1,.4],e:[.15,.1,.4],nac:[.15,.1,.4]},
+ {n:'ALASKA',nm:'Alaska',f:'bold 104px Arial',tc:[.0,.25,.55],b:[.99,.99,.99],a:[.0,.25,.55],t:[.0,.25,.55],e:[.0,.25,.55],nac:[.0,.25,.55]},
+ {n:'JETBLUE',nm:'jetBlue',f:'bold 104px Arial',tc:[.0,.2,.55],b:[.99,.99,.99],a:[.0,.2,.55],t:[.0,.2,.55],e:[.0,.2,.55],nac:[.0,.2,.55]},
+ {n:'THAI',nm:'THAI',f:'bold 128px Arial',tc:[.4,.1,.4],b:[.99,.99,.99],a:[.4,.1,.4],t:[.4,.1,.4],e:[.9,.6,.2],nac:[.4,.1,.4]},
+ {n:'MALAYSIA',nm:'MALAYSIA',f:'bold 96px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.8,.05,.1],t:[.99,.99,.99],e:[.0,.2,.5],nac:[.0,.2,.5]},
+ {n:'CHINA EASTERN',nm:'CHINA EASTERN',f:'bold 84px Arial',tc:[.0,.2,.5],b:[.99,.99,.99],a:[.0,.2,.5],t:[.0,.2,.5],e:[.8,.05,.1],nac:[.0,.2,.5]},
+ {n:'AIR CHINA',nm:'AIR CHINA',f:'bold 96px Arial',tc:[.8,.05,.1],b:[.99,.99,.99],a:[.8,.05,.1],t:[.8,.05,.1],e:[.9,.7,.2],nac:[.8,.05,.1]},
+ {n:'AEROFLOT',nm:'AEROFLOT',f:'bold 96px Arial',tc:[.0,.2,.55],b:[.9,.91,.92],a:[.0,.2,.55],t:[.0,.2,.55],e:[.9,.7,.2],nac:[.0,.2,.55],belly:[.78,.8,.82]},
+ {n:'LOT',nm:'LOT',f:'bold 128px Arial',tc:[.0,.2,.55],b:[.99,.99,.99],a:[.0,.2,.55],t:[.0,.2,.55],e:[.0,.2,.55],nac:[.0,.2,.55]},
+ {n:'AER LINGUS',nm:'Aer Lingus',f:'bold 96px Arial',tc:[.0,.45,.25],b:[.99,.99,.99],a:[.0,.45,.25],t:[.0,.45,.25],e:[.0,.45,.25],nac:[.0,.45,.25]},
+ {n:'HAWAIIAN',nm:'HAWAIIAN',f:'bold 96px Arial',tc:[.4,.1,.35],b:[.99,.99,.99],a:[.4,.1,.35],t:[.4,.1,.35],e:[.9,.4,.6],nac:[.4,.1,.35]},
+ {n:'TUI',nm:'TUI',f:'bold 128px Arial',tc:[.0,.35,.65],b:[.99,.99,.99],a:[.0,.35,.65],t:[.0,.35,.65],e:[.9,.1,.15],nac:[.0,.35,.65]},
+ {n:'SPIRIT',nm:'spirit',f:'bold 112px Arial',tc:[.1,.1,.1],b:[.98,.85,.1],a:[.1,.1,.1],t:[.1,.1,.1],e:[.1,.1,.1],nac:[.1,.1,.1]},
+ {n:'VIETNAM AIRLINES',nm:'VIETNAM AIRLINES',f:'bold 80px Arial',tc:[.0,.25,.5],b:[.99,.99,.99],a:[.0,.25,.5],t:[.0,.25,.5],e:[.9,.7,.2],nac:[.0,.25,.5]}
+);
+
 const EXTRA={
  'CLASSIC BLUE':{cheat:[.04,.14,.4],pin:[.5,.65,.95],finst:'chev',nac:[.04,.14,.4]},
  'CRIMSON':{cheat:[.75,.05,.1],pin:[.5,.5,.52],finst:'tip',nac:[.75,.05,.1]},
@@ -46,8 +81,153 @@ const EXTRA={
  'CARBON':{cheat:[.1,.9,.6],pin:[.1,.9,.6],finst:'tip',nac:[.06,.07,.08]},
  'CATHAY PACIFIC':{cheat:[.0,.27,.22],pin:[.12,.62,.56],finst:'tip',nac:[.0,.27,.22],
    finfn:(f,S)=>{f.save();f.fillStyle='#f8fbf8';for(let i=0;i<4;i++){const y=.34+i*.075;f.beginPath();f.moveTo(S*.3,S*(y+.28));f.quadraticCurveTo(S*.46,S*(y+.12),S*.7,S*(y-.12));f.quadraticCurveTo(S*.51,S*(y+.16),S*.3,S*(y+.28));f.closePath();f.fill();}f.restore();}},
- 'KLM ROYAL DUTCH AIRLINES':{cheat:[.0,.2,.52],pin:[.0,.62,.86],finst:'tip',nac:[.0,.2,.52],
-   finfn:(f,S)=>{f.save();f.fillStyle='#fff';f.beginPath();f.moveTo(S*.25,S*.35);f.lineTo(S*.34,S*.35);f.lineTo(S*.37,S*.23);f.lineTo(S*.43,S*.32);f.lineTo(S*.5,S*.19);f.lineTo(S*.57,S*.32);f.lineTo(S*.63,S*.23);f.lineTo(S*.66,S*.35);f.lineTo(S*.75,S*.35);f.lineTo(S*.75,S*.39);f.lineTo(S*.25,S*.39);f.closePath();f.fill();f.font='bold 76px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('KLM',S*.5,S*.62);f.restore();}}
+ 'KLM ROYAL DUTCH AIRLINES':{top:[.0,.2,.52],cheat:[.0,.12,.38],nac:[.0,.2,.52],
+   finfn:(f,S)=>{f.save();f.fillStyle='#fff';f.beginPath();f.moveTo(S*.25,S*.35);f.lineTo(S*.34,S*.35);f.lineTo(S*.37,S*.23);f.lineTo(S*.43,S*.32);f.lineTo(S*.5,S*.19);f.lineTo(S*.57,S*.32);f.lineTo(S*.63,S*.23);f.lineTo(S*.66,S*.35);f.lineTo(S*.75,S*.35);f.lineTo(S*.75,S*.39);f.lineTo(S*.25,S*.39);f.closePath();f.fill();f.font='bold 76px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('KLM',S*.5,S*.62);f.restore();}},
+
+ /* ---- new airlines ---- */
+ 'AIR FRANCE':{nac:[.02,.08,.32],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(0,S*.1);f.lineTo(S,S*.44);f.lineTo(S,S*.56);f.lineTo(0,S*.22);f.closePath();f.fill();
+   f.fillStyle='#e30613';f.beginPath();f.moveTo(0,S*.24);f.lineTo(S,S*.58);f.lineTo(S,S*.66);f.lineTo(0,S*.32);f.closePath();f.fill();
+   f.restore();}},
+ 'AMERICAN':{nac:[.82,.84,.86],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#005a9e';f.beginPath();f.moveTo(S*.1,S);f.lineTo(S*.55,S);f.lineTo(S*.92,S*.12);f.lineTo(S*.5,S*.12);f.closePath();f.fill();
+   f.fillStyle='#c8102e';f.beginPath();f.moveTo(S*.58,S);f.lineTo(S*.72,S);f.lineTo(S*.96,S*.5);f.lineTo(S*.96,S*.24);f.closePath();f.fill();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S);f.lineTo(S*.58,S);f.lineTo(S*.96,S*.18);f.lineTo(S*.9,S*.12);f.closePath();f.fill();
+   f.restore();}},
+ 'UNITED':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#f5c542';f.lineWidth=S*.028;
+   f.beginPath();f.arc(S*.5,S*.46,S*.26,0,Math.PI*2);f.stroke();
+   f.beginPath();f.ellipse(S*.5,S*.46,S*.1,S*.26,0,0,Math.PI*2);f.stroke();
+   f.beginPath();f.moveTo(S*.24,S*.46);f.lineTo(S*.76,S*.46);f.stroke();
+   f.beginPath();f.ellipse(S*.5,S*.46,S*.26,S*.09,0,0,Math.PI*2);f.stroke();
+   f.restore();}},
+ 'SINGAPORE AIRLINES':{nac:[.05,.12,.3],finfn:(f,S)=>{
+   f.save();f.fillStyle='#d4a94a';
+   f.beginPath();f.moveTo(S*.28,S*.66);f.quadraticCurveTo(S*.42,S*.34,S*.76,S*.28);
+   f.quadraticCurveTo(S*.56,S*.44,S*.56,S*.6);f.quadraticCurveTo(S*.44,S*.72,S*.28,S*.66);f.fill();
+   f.beginPath();f.moveTo(S*.46,S*.58);f.quadraticCurveTo(S*.58,S*.4,S*.78,S*.36);
+   f.quadraticCurveTo(S*.64,S*.5,S*.62,S*.64);f.quadraticCurveTo(S*.54,S*.64,S*.46,S*.58);f.fill();
+   f.restore();}},
+ 'ANA':{nac:[.0,.25,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.36)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('ANA',S*.5,S*.55);f.restore();}},
+ 'JAPAN AIRLINES':{nac:[.99,.99,.99],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#b01e2f';f.lineWidth=S*.12;f.lineCap='round';
+   f.beginPath();f.arc(S*.5,S*.78,S*.42,Math.PI*1.22,Math.PI*1.78);f.stroke();f.restore();}},
+ 'KOREAN AIR':{nac:[.4,.65,.85],finfn:(f,S)=>{
+   f.save();const cx=S*.5,cy=S*.5,r=S*.24;
+   f.fillStyle='#c8102e';f.beginPath();f.arc(cx,cy,r,Math.PI,0);f.fill();
+   f.fillStyle='#003478';f.beginPath();f.arc(cx,cy,r,0,Math.PI);f.fill();
+   f.fillStyle='#c8102e';f.beginPath();f.arc(cx-r/2,cy,r/2,0,Math.PI*2);f.fill();
+   f.fillStyle='#003478';f.beginPath();f.arc(cx+r/2,cy,r/2,0,Math.PI*2);f.fill();
+   f.restore();}},
+ 'ETIHAD':{nac:[.75,.6,.3],finfn:(f,S)=>{
+   f.save();f.strokeStyle='rgba(255,255,255,.5)';f.lineWidth=S*.01;
+   for(let i=0;i<7;i++){f.beginPath();f.moveTo(0,S*(.1+i*.12));f.lineTo(S,S*(.02+i*.12));f.stroke();}
+   f.restore();}},
+ 'QATAR AIRWAYS':{nac:[.45,.05,.15],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#fff';f.lineWidth=S*.032;f.lineCap='round';
+   f.beginPath();f.moveTo(S*.28,S*.62);f.lineTo(S*.58,S*.58);f.stroke();
+   f.beginPath();f.moveTo(S*.34,S*.62);f.lineTo(S*.32,S*.76);f.stroke();
+   f.beginPath();f.moveTo(S*.48,S*.6);f.lineTo(S*.48,S*.74);f.stroke();
+   f.beginPath();f.moveTo(S*.58,S*.58);f.lineTo(S*.64,S*.44);f.stroke();
+   f.beginPath();f.moveTo(S*.62,S*.46);f.lineTo(S*.56,S*.26);f.stroke();
+   f.beginPath();f.moveTo(S*.64,S*.45);f.lineTo(S*.72,S*.28);f.stroke();
+   f.restore();}},
+ 'TURKISH AIRLINES':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   f.beginPath();f.moveTo(S*.24,S*.62);f.quadraticCurveTo(S*.5,S*.28,S*.78,S*.54);
+   f.quadraticCurveTo(S*.56,S*.52,S*.5,S*.7);f.quadraticCurveTo(S*.38,S*.64,S*.24,S*.62);f.fill();
+   f.restore();}},
+ 'IBERIA':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f7c948';f.font='bold '+Math.round(S*.2)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('IBERIA',S*.5,S*.55);
+   f.strokeStyle='#f7c948';f.lineWidth=S*.02;f.beginPath();f.moveTo(S*.3,S*.38);f.lineTo(S*.7,S*.38);f.stroke();f.restore();}},
+ 'SAS':{nac:[.0,.15,.45],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold italic '+Math.round(S*.3)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('SAS',S*.5,S*.55);f.restore();}},
+ 'FINNAIR':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.18)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('FINNAIR',S*.5,S*.55);f.restore();}},
+ 'NORWEGIAN':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.42)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('n',S*.5,S*.42);
+   f.font='bold '+Math.round(S*.1)+'px Arial';f.fillText('NORWEGIAN',S*.5,S*.68);f.restore();}},
+ 'EASYJET':{nac:[.95,.5,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold '+Math.round(S*.18)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('easyJet',S*.5,S*.55);f.restore();}},
+ 'AIR NEW ZEALAND':{nac:[.05,.05,.05],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#fff';f.lineCap='round';
+   f.lineWidth=S*.045;f.beginPath();f.moveTo(S*.28,S*.82);f.quadraticCurveTo(S*.42,S*.55,S*.72,S*.18);f.stroke();
+   for(let i=0;i<7;i++){const t=i/6;const x=S*(.3+.4*t),y=S*(.8-.6*t);f.lineWidth=S*.016;
+     f.beginPath();f.moveTo(x,y);f.lineTo(x-S*.1,y-S*.08);f.stroke();
+     f.beginPath();f.moveTo(x,y);f.lineTo(x+S*.1,y-S*.1);f.stroke();}
+   f.restore();}},
+ 'LATAM':{nac:[.15,.1,.4],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.beginPath();
+   for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5;const r=i%2?S*.1:S*.24;const x=S*.5+Math.cos(a)*r,y=S*.5+Math.sin(a)*r;i?f.lineTo(x,y):f.moveTo(x,y);}
+   f.closePath();f.fill();f.restore();}},
+ 'ALASKA':{nac:[.0,.25,.55],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#fff';f.beginPath();f.arc(S*.5,S*.5,S*.2,0,Math.PI*2);f.fill();
+   f.fillStyle='#003f87';f.beginPath();f.arc(S*.5,S*.42,S*.2,Math.PI*1.05,Math.PI*1.95);f.fill();
+   f.beginPath();f.arc(S*.44,S*.52,S*.025,0,Math.PI*2);f.fill();
+   f.beginPath();f.arc(S*.56,S*.52,S*.025,0,Math.PI*2);f.fill();
+   f.restore();}},
+ 'JETBLUE':{nac:[.0,.2,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';f.font='bold italic '+Math.round(S*.19)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('jetBlue',S*.5,S*.55);f.restore();}},
+ 'THAI':{nac:[.4,.1,.4],finfn:(f,S)=>{
+   f.save();
+   for(let i=0;i<6;i++){const a=i*Math.PI/3;const x=S*.5+Math.cos(a)*S*.15,y=S*.5+Math.sin(a)*S*.15;
+     f.fillStyle='#f4b6c2';f.beginPath();f.ellipse(x,y,S*.11,S*.055,a,0,Math.PI*2);f.fill();}
+   f.fillStyle='#f7c948';f.beginPath();f.arc(S*.5,S*.5,S*.08,0,Math.PI*2);f.fill();f.restore();}},
+ 'MALAYSIA':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.72,S*.5);f.lineTo(S*.5,S*.86);f.lineTo(S*.28,S*.5);f.closePath();f.fill();
+   f.fillStyle='#cc0001';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.62,S*.5);f.lineTo(S*.5,S*.5);f.closePath();f.fill();
+   f.fillStyle='#003b7a';f.beginPath();f.moveTo(S*.5,S*.14);f.lineTo(S*.38,S*.5);f.lineTo(S*.5,S*.5);f.closePath();f.fill();
+   f.fillStyle='#fff';f.beginPath();f.moveTo(S*.5,S*.5);f.lineTo(S*.62,S*.5);f.lineTo(S*.5,S*.86);f.closePath();f.fill();
+   f.fillStyle='#003b7a';f.beginPath();f.moveTo(S*.5,S*.5);f.lineTo(S*.38,S*.5);f.lineTo(S*.5,S*.86);f.closePath();f.fill();
+   f.restore();}},
+ 'CHINA EASTERN':{nac:[.0,.2,.5],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   f.beginPath();f.moveTo(S*.28,S*.62);f.quadraticCurveTo(S*.5,S*.32,S*.74,S*.5);
+   f.quadraticCurveTo(S*.56,S*.56,S*.5,S*.72);f.quadraticCurveTo(S*.38,S*.66,S*.28,S*.62);f.fill();
+   f.fillStyle='#d71920';f.beginPath();f.moveTo(S*.46,S*.56);f.lineTo(S*.58,S*.5);f.lineTo(S*.53,S*.62);f.closePath();f.fill();
+   f.restore();}},
+ 'AIR CHINA':{nac:[.8,.05,.1],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#f7c948';f.lineWidth=S*.045;f.lineCap='round';
+   f.beginPath();f.moveTo(S*.26,S*.74);f.quadraticCurveTo(S*.5,S*.3,S*.76,S*.28);f.stroke();
+   f.beginPath();f.moveTo(S*.44,S*.56);f.quadraticCurveTo(S*.6,S*.42,S*.76,S*.46);f.stroke();
+   f.restore();}},
+ 'AEROFLOT':{nac:[.0,.2,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f7c948';
+   f.beginPath();f.moveTo(S*.3,S*.72);f.quadraticCurveTo(S*.55,S*.34,S*.76,S*.26);
+   f.quadraticCurveTo(S*.56,S*.5,S*.5,S*.72);f.closePath();f.fill();f.restore();}},
+ 'LOT':{nac:[.0,.2,.55],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   f.beginPath();f.moveTo(S*.34,S*.72);f.quadraticCurveTo(S*.44,S*.4,S*.72,S*.3);
+   f.quadraticCurveTo(S*.56,S*.5,S*.6,S*.66);f.quadraticCurveTo(S*.48,S*.7,S*.34,S*.72);f.fill();f.restore();}},
+ 'AER LINGUS':{nac:[.0,.45,.25],finfn:(f,S)=>{
+   f.save();f.fillStyle='#fff';
+   for(const [dx,dy] of [[0,-.13],[-.14,.06],[.14,.06]]){f.beginPath();f.arc(S*(.5+dx),S*(.42+dy),S*.1,0,Math.PI*2);f.fill();}
+   f.fillRect(S*.48,S*.46,S*.04,S*.26);
+   f.restore();}},
+ 'HAWAIIAN':{nac:[.4,.1,.35],finfn:(f,S)=>{
+   f.save();
+   for(let i=0;i<6;i++){const a=i*Math.PI/3;const x=S*.5+Math.cos(a)*S*.14,y=S*.5+Math.sin(a)*S*.14;
+     f.fillStyle='#f19cbb';f.beginPath();f.ellipse(x,y,S*.12,S*.05,a,0,Math.PI*2);f.fill();}
+   f.fillStyle='#fff';f.beginPath();f.arc(S*.5,S*.5,S*.07,0,Math.PI*2);f.fill();f.restore();}},
+ 'TUI':{nac:[.0,.35,.65],finfn:(f,S)=>{
+   f.save();f.strokeStyle='#e30613';f.lineWidth=S*.08;f.lineCap='round';
+   f.beginPath();f.arc(S*.5,S*.5,S*.22,Math.PI*.15,Math.PI*.85);f.stroke();f.restore();}},
+ 'SPIRIT':{nac:[.1,.1,.1],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f5d90a';f.beginPath();f.arc(S*.5,S*.5,S*.2,0,Math.PI*2);f.fill();
+   f.fillStyle='#111';f.font='bold '+Math.round(S*.12)+'px Arial';f.textAlign='center';f.textBaseline='middle';f.fillText('spirit',S*.5,S*.5);f.restore();}},
+ 'VIETNAM AIRLINES':{nac:[.0,.25,.5],finfn:(f,S)=>{
+   f.save();f.fillStyle='#f7c948';
+   f.beginPath();f.moveTo(S*.5,S*.24);f.quadraticCurveTo(S*.62,S*.4,S*.5,S*.56);
+   f.quadraticCurveTo(S*.38,S*.4,S*.5,S*.24);f.fill();
+   f.beginPath();f.moveTo(S*.5,S*.5);f.quadraticCurveTo(S*.7,S*.56,S*.66,S*.76);
+   f.quadraticCurveTo(S*.5,S*.7,S*.5,S*.5);f.fill();
+   f.beginPath();f.moveTo(S*.5,S*.5);f.quadraticCurveTo(S*.3,S*.56,S*.34,S*.76);
+   f.quadraticCurveTo(S*.5,S*.7,S*.5,S*.5);f.fill();f.restore();}}
 };
 LIVS.forEach(L=>Object.assign(L,EXTRA[L.n]||{}));
 const c3=a=>new BABYLON.Color3(a[0],a[1],a[2]),css=a=>'rgb('+a.map(v=>Math.round(v*255)).join(',')+')';
@@ -84,10 +264,12 @@ const rgba=(a,al)=>'rgba('+a.map(v=>Math.round(v*255)).join(',')+','+al+')';
 const finTex=new BABYLON.DynamicTexture('finTex',{width:512,height:512},scene,true);
 function paintStripe(g,xc,w,H,col){
   g.fillStyle=col;g.beginPath();
-  g.moveTo(xc-w*.12,H*.04);g.quadraticCurveTo(xc-w*.55,H*.4,xc-w*.8,H*.9);
-  g.quadraticCurveTo(xc-w*.42,H*.96,xc-w*.1,H*.94);
-  g.quadraticCurveTo(xc+w*.55,H*.4,xc+w*.8,H*.1);
-  g.quadraticCurveTo(xc+w*.42,H*.04,xc+w*.12,H*.04);
+  g.moveTo(xc,H*.03);
+  g.lineTo(xc+w/2,H*.07);
+  g.lineTo(xc+w/2,H*.93);
+  g.lineTo(xc,H*.97);
+  g.lineTo(xc-w/2,H*.93);
+  g.lineTo(xc-w/2,H*.07);
   g.closePath();g.fill();
 }
 function applyLivery(i){
@@ -106,6 +288,7 @@ function applyLivery(i){
     gr.addColorStop(0,rgba(L.belly,0));gr.addColorStop(.16,rgba(L.belly,1));gr.addColorStop(.84,rgba(L.belly,1));gr.addColorStop(1,rgba(L.belly,0));
     g.fillStyle=gr;g.fillRect(W*.5,H*.07,W*.5,H*.88);
   }
+  if(L.top){g.fillStyle=css(L.top);g.fillRect(0,0,W*.5,H);}
   if(L.rear){
     const edge=u=>H*(.2+.1*(1+Math.cos(4*Math.PI*u))/2);
     g.fillStyle=css(L.t);g.beginPath();g.moveTo(0,0);
@@ -122,6 +305,7 @@ function applyLivery(i){
     }
   }
   if(L.band){g.fillStyle=css(L.band);for(const u of [0,.5,1])g.fillRect((u-.012)*W,0,W*.024,H);}
+  if(L.fusfn){try{L.fusfn(g,W,H);}catch(e){console.error('fusfn',e);}}
   g.strokeStyle='rgba(0,0,0,.075)';g.lineWidth=1.3;
   for(let k=1;k<46;k++){const y=H*k/46;g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
   g.strokeStyle='rgba(0,0,0,.045)';
@@ -165,4 +349,3 @@ LIVS.forEach((L,i)=>{const o=document.createElement('option');o.value=i;o.textCo
 liverySel.addEventListener('change',()=>applyLivery(+liverySel.value));
 window.addEventListener('keydown',e=>{if(e.code==='KeyL'&&e.shiftKey&&overlay.classList.contains('hidden')){applyLivery(curLiv+1);liverySel.value=curLiv;showMsg('LIVERY · '+LIVS[curLiv].n,2000);}});
 applyLivery(0);
-  
