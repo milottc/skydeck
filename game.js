@@ -11811,3 +11811,10 @@ void main(){
     console.log('[HD PACK 1] sharp near-field satellite ground online');
   }
 })();
+window.M = M;
+window.scene = scene;
+window.fuselage = fuselage;
+window.fin = fin;
+window.exteriorRoot = exteriorRoot;
+window.overlay = overlay;
+window.showMsg = showMsg;
